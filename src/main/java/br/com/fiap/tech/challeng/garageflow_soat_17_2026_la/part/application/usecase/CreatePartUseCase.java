@@ -1,0 +1,28 @@
+package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.application.usecase;
+
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.exception.DuplicatePartException;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.model.Part;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.repository.PartRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+@Service
+@Slf4j
+public class CreatePartUseCase {
+
+    private final PartRepository partRepository;
+
+    public CreatePartUseCase(PartRepository partRepository) {
+        this.partRepository = partRepository;
+    }
+
+    public Part createPart(Part part){
+        boolean isPresent = partRepository.existsByCode(part.getCode());
+        if(isPresent){
+            throw new DuplicatePartException(part.getCode());
+        }
+
+        log.debug("[DEBUG] - POST created: {}", part);
+        return partRepository.save(part);
+    }
+}

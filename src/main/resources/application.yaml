@@ -1,3 +1,10 @@
 spring:
   application:
     name: garageflow-soat-17-2026-la
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/garage_flow
+
+logging:
+  level:
+    br.com.fiap.tech.challeng.garageflow_soat_17_2026_la: DEBUG
