@@ -21,14 +21,14 @@ public class GetPartUseCase {
     public Optional<Part> getPartbyCode(String code) {
         Optional<Part> byCode = partRepository.findByCode(code);
         if(byCode.isPresent()){
-            log.debug("[DEBUG] - GET part: {}", byCode);
+            log.debug("[DEBUG] - GET PART: {}", byCode);
             return byCode;
         }
-        throw new PartNotFoundException("There is no part with code " + code);
+        throw new PartNotFoundException(code);
     }
 
     public Optional<Part> getPartbyId(String id) {
-        Optional<Part> byId = partRepository.findByCode(id);
+        Optional<Part> byId = partRepository.findById(id);
         if(byId.isPresent()){
             return byId;
         }

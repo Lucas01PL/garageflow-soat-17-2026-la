@@ -43,6 +43,7 @@ public class PartRepositoryImpl implements PartRepository {
 
     private Part toPartDomain(PartDocument partDocument){
         return new Part(
+                partDocument.getId(),
                 partDocument.getCode(),
                 partDocument.getName(),
                 partDocument.getQuantity(),
@@ -51,12 +52,14 @@ public class PartRepositoryImpl implements PartRepository {
     }
 
     private PartDocument toEntity (Part part){
-        return new PartDocument(
+        PartDocument document = new PartDocument(
                 part.getCode(),
                 part.getName(),
                 part.getQuantity(),
                 part.getPrice()
         );
+        document.setId(part.getId());
+        return document;
     }
 
 }

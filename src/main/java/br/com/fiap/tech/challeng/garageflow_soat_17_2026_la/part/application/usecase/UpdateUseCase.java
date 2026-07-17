@@ -25,7 +25,7 @@ public class UpdateUseCase {
                 updatedPart.getPrice()
         );
 
-        log.debug("[DEBUG] - UPDATE part: {}", existingPart);
+        log.debug("[DEBUG] - UPDATED PART: {}", existingPart);
         return partRepository.save(existingPart);
     }
 }

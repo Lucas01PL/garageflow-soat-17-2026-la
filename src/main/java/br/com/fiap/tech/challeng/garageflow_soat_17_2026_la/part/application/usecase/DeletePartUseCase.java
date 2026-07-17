@@ -19,11 +19,13 @@ public class DeletePartUseCase {
     }
 
     public void deletePart(String id){
-        Optional<Part> byId = partRepository.findByCode(id);
+        Optional<Part> byId = partRepository.findById(id);
         if(byId.isPresent()){
-            log.debug("[DEBUG] - DELETE part: {}", byId.get());
+            log.debug("[DEBUG] - DELETED PART: {}", byId.get());
             partRepository.delete(id);
+            return;
         }
+        log.debug("[DEBUG] - Trying to delete non-existant part with id: {}", id);
         throw new PartNotFoundException(id);
     }
 }

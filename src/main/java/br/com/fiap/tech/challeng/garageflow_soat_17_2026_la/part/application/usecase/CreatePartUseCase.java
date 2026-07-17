@@ -19,10 +19,11 @@ public class CreatePartUseCase {
     public Part createPart(Part part){
         boolean isPresent = partRepository.existsByCode(part.getCode());
         if(isPresent){
+            log.debug("[DEBUG] - Trying to register duplicated part with code: {}", part.getCode());
             throw new DuplicatePartException(part.getCode());
         }
 
-        log.debug("[DEBUG] - POST created: {}", part);
+        log.debug("[DEBUG] - POST PART: {}", part);
         return partRepository.save(part);
     }
 }

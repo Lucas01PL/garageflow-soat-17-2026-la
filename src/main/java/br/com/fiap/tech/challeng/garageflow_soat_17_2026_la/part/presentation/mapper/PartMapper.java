@@ -19,6 +19,7 @@ public class PartMapper {
 
     public PartResponse partToResponse(Part part) {
         return new PartResponse(
+                part.getId(),
                 part.getCode(),
                 part.getName(),
                 part.getQuantity(),
