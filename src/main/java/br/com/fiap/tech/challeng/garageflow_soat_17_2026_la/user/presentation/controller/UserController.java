@@ -5,7 +5,7 @@ import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.model.Us
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.presentation.dto.response.CreateUserRequestDTO;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.presentation.dto.request.UserResponseDTO;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.presentation.mapper.UserMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,29 +15,23 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@AllArgsConstructor
 @RestController
 @RequestMapping("/user")
 public class UserController {
 
-    @Autowired
     private CreateUserUseCase createUseCase;
 
-    @Autowired
     private GetUserByIdUseCase getByIdUseCase;
 
-    @Autowired
     private UpdateUserUseCase updateUseCase;
 
-    @Autowired
     private DeleteUserUseCase deleteUseCase;
 
-    @Autowired
     private ListAllUsersUseCase listAllUseCase;
 
-    @Autowired
     private SearchUserByFullNameUseCase searchUseCase;
 
-    @Autowired
     private UserMapper mapper;
 
     @PostMapping

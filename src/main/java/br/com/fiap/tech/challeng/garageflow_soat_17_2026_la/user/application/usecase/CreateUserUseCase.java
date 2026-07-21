@@ -2,13 +2,13 @@ package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.application.us
 
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.model.User;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+@AllArgsConstructor
 @Service
 public class CreateUserUseCase {
 
-    @Autowired
     private UserRepository repository;
 
     public User execute(User user) {
