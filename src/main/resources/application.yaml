@@ -4,3 +4,7 @@ spring:
 
   mongodb:
     uri: mongodb://admin:admin123@localhost:27017/garageflow-soat-17-2026-db?authSource=admin
+
+logging:
+  level:
+    br.com.fiap.tech.challeng.garageflow_soat_17_2026_la: DEBUG
