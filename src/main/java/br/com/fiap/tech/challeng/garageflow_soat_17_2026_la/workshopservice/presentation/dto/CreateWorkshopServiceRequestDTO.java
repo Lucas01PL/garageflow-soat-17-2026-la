@@ -3,9 +3,15 @@ package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.pre
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
 public class CreateWorkshopServiceRequestDTO {
 
     @NotBlank(message = "Description cannot be blank")
@@ -15,28 +21,5 @@ public class CreateWorkshopServiceRequestDTO {
     @Positive(message = "Value must be greater than zero")
     private BigDecimal value;
 
-    public CreateWorkshopServiceRequestDTO() {
-    }
-
-    public CreateWorkshopServiceRequestDTO(String description, BigDecimal value) {
-        this.description = description;
-        this.value = value;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public BigDecimal getValue() {
-        return value;
-    }
-
-    public void setValue(BigDecimal value) {
-        this.value = value;
-    }
 }
 
