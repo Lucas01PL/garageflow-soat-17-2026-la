@@ -5,7 +5,7 @@ import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.doma
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.presentation.dto.CreateWorkshopServiceRequestDTO;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.presentation.dto.WorkshopServiceResponseDTO;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.presentation.mapper.WorkshopServiceMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,29 +15,23 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@AllArgsConstructor
 @RestController
 @RequestMapping("/workshopservice")
 public class WorkshopServiceController {
 
-    @Autowired
     private CreateWorkshopServiceUseCase createUseCase;
 
-    @Autowired
     private GetWorkshopServiceByIdUseCase getByIdUseCase;
 
-    @Autowired
     private UpdateWorkshopServiceUseCase updateUseCase;
 
-    @Autowired
     private DeleteWorkshopServiceUseCase deleteUseCase;
 
-    @Autowired
     private ListAllWorkshopServicesUseCase listAllUseCase;
 
-    @Autowired
     private SearchWorkshopServiceByDescriptionUseCase searchUseCase;
 
-    @Autowired
     private WorkshopServiceMapper mapper;
 
     @PostMapping

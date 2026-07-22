@@ -1,13 +1,13 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.application.usecase;
 
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.domain.repository.WorkshopServiceRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+@AllArgsConstructor
 @Service
 public class DeleteWorkshopServiceUseCase {
 
-    @Autowired
     private WorkshopServiceRepository repository;
 
     public boolean execute(String id) {
