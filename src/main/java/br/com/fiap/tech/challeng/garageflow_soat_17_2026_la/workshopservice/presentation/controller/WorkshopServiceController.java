@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/api/workshopservice")
+@RequestMapping("/workshopservice")
 public class WorkshopServiceController {
 
     private CreateWorkshopServiceUseCase createUseCase;

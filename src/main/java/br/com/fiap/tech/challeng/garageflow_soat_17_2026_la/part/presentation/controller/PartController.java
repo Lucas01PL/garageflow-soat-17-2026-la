@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/part")
+@RequestMapping("/part")
 public class PartController {
 
     private final CreatePartUseCase createPartUseCase;
