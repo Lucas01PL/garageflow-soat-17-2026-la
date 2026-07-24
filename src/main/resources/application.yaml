@@ -1,9 +1,9 @@
 spring:
   application:
     name: garageflow-soat-17-2026-la
-  data:
-    mongodb:
-      uri: mongodb://localhost:27017/garage_flow
+
+  mongodb:
+    uri: mongodb://admin:admin123@localhost:27017/garageflow-soat-17-2026-db?authSource=admin
 
 logging:
   level:
