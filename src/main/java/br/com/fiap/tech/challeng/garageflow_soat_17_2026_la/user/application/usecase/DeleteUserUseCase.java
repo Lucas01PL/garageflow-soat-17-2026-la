@@ -1,5 +1,6 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.application.usecase;
 
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.ResourceNotFoundException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -10,15 +11,14 @@ public class DeleteUserUseCase {
 
     private UserRepository repository;
 
-    public boolean execute(String id) {
+    public void execute(String id) {
         if (id == null || id.isBlank()) {
             throw new IllegalArgumentException("User ID cannot be empty");
         }
         if (!repository.existsById(id)) {
-            return false;
+            throw new ResourceNotFoundException("User", "id", id);
         }
         repository.deleteById(id);
-        return true;
     }
 }
 
