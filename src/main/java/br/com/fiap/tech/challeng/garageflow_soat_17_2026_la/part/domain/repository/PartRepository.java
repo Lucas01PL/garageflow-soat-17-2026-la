@@ -2,6 +2,7 @@ package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.reposit
 
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.model.Part;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface PartRepository {
@@ -11,6 +12,8 @@ public interface PartRepository {
     Optional<Part> findById(String id);
 
     Optional<Part> findByCode(String codigo);
+
+    List<Part> findAll();
 
     void delete(String id);
 
