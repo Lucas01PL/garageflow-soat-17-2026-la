@@ -4,6 +4,7 @@ import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.model.Pa
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.repository.PartRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -29,6 +30,14 @@ public class PartRepositoryImpl implements PartRepository {
     @Override
     public Optional<Part> findByCode(String code) {
         return partMongoRepository.findByCode(code).map(this::toPartDomain);
+    }
+
+    @Override
+    public List<Part> findAll() {
+        return partMongoRepository.findAll().
+                stream()
+                .map(this::toPartDomain)
+                .toList();
     }
 
     @Override
