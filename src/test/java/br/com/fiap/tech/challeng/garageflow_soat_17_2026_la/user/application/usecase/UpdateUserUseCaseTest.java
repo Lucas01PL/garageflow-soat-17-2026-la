@@ -1,5 +1,6 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.application.usecase;
 
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.ResourceNotFoundException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.model.User;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -41,21 +42,19 @@ class UpdateUserUseCaseTest {
         when(repository.findById("1")).thenReturn(Optional.of(existing));
         when(repository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        Optional<User> result = useCase.execute("1", update);
+        User result = useCase.execute("1", update);
 
-        assertTrue(result.isPresent());
-        User u = result.get();
-        assertEquals("New Name", u.getFullName());
-        assertEquals("new@example.com", u.getEmail());
-        assertEquals("newpassword", u.getPassword());
-        assertEquals("INACTIVE", u.getStatus());
+        assertNotNull(result);
+        assertEquals("New Name", result.getFullName());
+        assertEquals("new@example.com", result.getEmail());
+        assertEquals("newpassword", result.getPassword());
+        assertEquals("INACTIVE", result.getStatus());
     }
 
     @Test
-    void shouldReturnEmptyWhenNotFound() {
+    void shouldThrowResourceNotFoundWhenNotFound() {
         when(repository.findById("not-exist")).thenReturn(Optional.empty());
-        Optional<User> result = useCase.execute("not-exist", new User());
-        assertTrue(result.isEmpty());
+        assertThrows(ResourceNotFoundException.class, () -> useCase.execute("not-exist", new User()));
     }
 
     @Test

@@ -1,5 +1,6 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.application.usecase;
 
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.ResourceNotFoundException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,17 +24,15 @@ class DeleteUserUseCaseTest {
     void shouldDeleteWhenExists() {
         when(repository.existsById("1")).thenReturn(true);
 
-        boolean result = useCase.execute("1");
+        assertDoesNotThrow(() -> useCase.execute("1"));
 
-        assertTrue(result);
         verify(repository).deleteById("1");
     }
 
     @Test
-    void shouldReturnFalseWhenNotFound() {
+    void shouldThrowResourceNotFoundWhenMissing() {
         when(repository.existsById("2")).thenReturn(false);
-        boolean result = useCase.execute("2");
-        assertFalse(result);
+        assertThrows(ResourceNotFoundException.class, () -> useCase.execute("2"));
         verify(repository, never()).deleteById(anyString());
     }
 

@@ -28,10 +28,10 @@ class GetUserByIdUseCaseTest {
         u.setId("1");
         when(repository.findById("1")).thenReturn(Optional.of(u));
 
-        Optional<User> result = useCase.execute("1");
+        User result = useCase.execute("1");
 
-        assertTrue(result.isPresent());
-        assertEquals("1", result.get().getId());
+        assertNotNull(result);
+        assertEquals("1", result.getId());
     }
 
     @Test
