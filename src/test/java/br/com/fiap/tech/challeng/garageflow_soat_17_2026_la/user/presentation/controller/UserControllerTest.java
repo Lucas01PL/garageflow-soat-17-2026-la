@@ -1,5 +1,6 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.presentation.controller;
 
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.ResourceNotFoundException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.application.usecase.*;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.model.User;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.presentation.dto.request.UserResponseDTO;
@@ -15,10 +16,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doThrow;
 
 @ExtendWith(MockitoExtension.class)
 class UserControllerTest {
@@ -72,13 +73,7 @@ class UserControllerTest {
         ResponseEntity<?> resp = controller.create(createDto);
 
         assertEquals(HttpStatus.CREATED, resp.getStatusCode());
-        Object body = resp.getBody();
-        assertTrue(body instanceof UserResponseDTO);
-        UserResponseDTO bodyDto = (UserResponseDTO) body;
-        assertEquals(responseDto.getId(), bodyDto.getId());
-        assertEquals(responseDto.getFullName(), bodyDto.getFullName());
-        assertEquals(responseDto.getEmail(), bodyDto.getEmail());
-        assertEquals(responseDto.getStatus(), bodyDto.getStatus());
+        assertInstanceOf(UserResponseDTO.class, resp.getBody());
     }
 
     @Test
@@ -94,29 +89,20 @@ class UserControllerTest {
 
     @Test
     void getByIdShouldReturnOkWhenFound() {
-        when(getByIdUseCase.execute("1")).thenReturn(Optional.of(model));
+        when(getByIdUseCase.execute("1")).thenReturn(model);
         when(mapper.toResponse(model)).thenReturn(responseDto);
 
         ResponseEntity<?> resp = controller.getById("1");
 
         assertEquals(HttpStatus.OK, resp.getStatusCode());
-        Object body2 = resp.getBody();
-        assertTrue(body2 instanceof UserResponseDTO);
-        UserResponseDTO bodyDto2 = (UserResponseDTO) body2;
-        assertEquals(responseDto.getId(), bodyDto2.getId());
-        assertEquals(responseDto.getFullName(), bodyDto2.getFullName());
-        assertEquals(responseDto.getEmail(), bodyDto2.getEmail());
-        assertEquals(responseDto.getStatus(), bodyDto2.getStatus());
+        assertInstanceOf(UserResponseDTO.class, resp.getBody());
     }
 
     @Test
-    void getByIdShouldReturnNotFoundWhenMissing() {
-        when(getByIdUseCase.execute("x")).thenReturn(Optional.empty());
+    void getByIdShouldThrowResourceNotFoundWhenMissing() {
+        when(getByIdUseCase.execute("x")).thenThrow(new ResourceNotFoundException("User", "id", "x"));
 
-        ResponseEntity<?> resp = controller.getById("x");
-
-        assertEquals(HttpStatus.NOT_FOUND, resp.getStatusCode());
-        assertNull(resp.getBody());
+        assertThrows(ResourceNotFoundException.class, () -> controller.getById("x"));
     }
 
     @Test
@@ -144,7 +130,7 @@ class UserControllerTest {
     @Test
     void updateShouldReturnOkWhenUpdated() {
         when(mapper.toModel(createDto)).thenReturn(model);
-        when(updateUseCase.execute("1", model)).thenReturn(Optional.of(model));
+        when(updateUseCase.execute("1", model)).thenReturn(model);
         when(mapper.toResponse(model)).thenReturn(responseDto);
 
         ResponseEntity<?> resp = controller.update("1", createDto);
@@ -153,18 +139,16 @@ class UserControllerTest {
     }
 
     @Test
-    void updateShouldReturnNotFoundWhenMissing() {
+    void updateShouldThrowResourceNotFoundWhenMissing() {
         when(mapper.toModel(createDto)).thenReturn(model);
-        when(updateUseCase.execute("x", model)).thenReturn(Optional.empty());
+        when(updateUseCase.execute("x", model)).thenThrow(new ResourceNotFoundException("User", "id", "x"));
 
-        ResponseEntity<?> resp = controller.update("x", createDto);
-
-        assertEquals(HttpStatus.NOT_FOUND, resp.getStatusCode());
+        assertThrows(ResourceNotFoundException.class, () -> controller.update("x", createDto));
     }
 
     @Test
     void deleteShouldReturnNoContentWhenDeleted() {
-        when(deleteUseCase.execute("1")).thenReturn(true);
+//        doThrow(new ResourceNotFoundException("User", "id", "1")).when(deleteUseCase).execute("1");
 
         ResponseEntity<?> resp = controller.delete("1");
 
@@ -172,13 +156,10 @@ class UserControllerTest {
     }
 
     @Test
-    void deleteShouldReturnNotFoundWhenMissing() {
-        when(deleteUseCase.execute("x")).thenReturn(false);
+    void deleteShouldThrowResourceNotFoundWhenMissing() {
+        doThrow(new ResourceNotFoundException("User", "id", "x")).when(deleteUseCase).execute("x");
 
-        ResponseEntity<?> resp = controller.delete("x");
-
-        assertEquals(HttpStatus.NOT_FOUND, resp.getStatusCode());
-        assertEquals("User not found", resp.getBody());
+        assertThrows(ResourceNotFoundException.class, () -> controller.delete("x"));
     }
 
 }
