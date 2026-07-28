@@ -3,7 +3,13 @@ package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.presentation.d
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
 public class CreateUserRequestDTO {
 
     @NotBlank(message = "Full name cannot be blank")
@@ -22,46 +28,5 @@ public class CreateUserRequestDTO {
     @Size(min = 1, max = 50, message = "Status must be between 1 and 50 characters")
     private String status;
 
-    public CreateUserRequestDTO() {
-    }
-
-    public CreateUserRequestDTO(String fullName, String email, String password, String status) {
-        this.fullName = fullName;
-        this.email = email;
-        this.password = password;
-        this.status = status;
-    }
-
-    public String getFullName() {
-        return fullName;
-    }
-
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
 }
 
