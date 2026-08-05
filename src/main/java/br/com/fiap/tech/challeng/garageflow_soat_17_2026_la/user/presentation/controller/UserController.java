@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor
@@ -66,13 +65,8 @@ public class UserController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable String id) {
-        try {
-            Optional<User> user = getByIdUseCase.execute(id);
-            return user.map(u -> ResponseEntity.ok(mapper.toResponse(u)))
-                    .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        User user = getByIdUseCase.execute(id);
+        return ResponseEntity.ok(mapper.toResponse(user));
     }
 
     @Operation(
@@ -120,9 +114,8 @@ public class UserController {
     public ResponseEntity<?> update(@PathVariable String id, @Valid @RequestBody CreateUserRequestDTO dto) {
         try {
             User update = mapper.toModel(dto);
-            Optional<User> updated = updateUseCase.execute(id, update);
-            return updated.map(u -> ResponseEntity.ok(mapper.toResponse(u)))
-                    .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+            User updated = updateUseCase.execute(id, update);
+            return ResponseEntity.ok(mapper.toResponse(updated));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -138,13 +131,8 @@ public class UserController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable String id) {
-        try {
-            boolean deleted = deleteUseCase.execute(id);
-            if (deleted) return ResponseEntity.noContent().build();
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        deleteUseCase.execute(id);
+        return ResponseEntity.noContent().build();
     }
 }
 
