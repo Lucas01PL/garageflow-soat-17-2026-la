@@ -5,6 +5,9 @@ import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.presentation.ma
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.model.Part;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.presentation.dto.PartRequest;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.presentation.dto.PartResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/part")
+@RequestMapping("/part")
 public class PartController {
 
     private final CreatePartUseCase createPartUseCase;
@@ -33,12 +36,28 @@ public class PartController {
         this.listAllPartsUseCase = listAllPartsUseCase;
     }
 
+    @Operation(
+            summary = "Create Auto Parts or Maintenance Supplies.",
+            description = "Creates a new auto parts or maintenance supplies."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Service created"),
+            @ApiResponse(responseCode = "400", description = "Invalid request")
+    })
     @PostMapping
     public ResponseEntity<PartResponse> createNewPart(@Valid @RequestBody PartRequest request) {
         Part response = createPartUseCase.createPart(partMapper.requestToPart(request));
         return ResponseEntity.status(HttpStatus.CREATED).body(partMapper.partToResponse(response));
     }
 
+    @Operation(
+            summary = "Get Auto Parts or Maintenance Supplies.",
+            description = "Retrieves an auto part or maintenance supply by its code."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Auto Part/Maintenance Supplies found"),
+            @ApiResponse(responseCode = "404", description = "Auto Part/Maintenance Supplies not found")
+    })
     @GetMapping("/{id}")
     public ResponseEntity<PartResponse> getPartByCode(@Valid @PathVariable String code){
         Optional<Part> partbyCode = getPartUseCase.getPartbyCode(code);
@@ -46,6 +65,14 @@ public class PartController {
         return ResponseEntity.status(HttpStatus.OK).body(partResponse);
     }
 
+    @Operation(
+            summary = "Update Auto Parts or Maintenance Supplies.",
+            description = "Updates an auto part or maintenance supply by its code."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Auto Part/Maintenance Supplies updated"),
+            @ApiResponse(responseCode = "404", description = "Auto Part/Maintenance Supplies not found")
+    })
     @GetMapping
     public ResponseEntity<List<PartResponse>> getAllParts(){
         List<Part> allParts = listAllPartsUseCase.findAll();
@@ -59,6 +86,14 @@ public class PartController {
         return ResponseEntity.status(HttpStatus.OK).body(partMapper.partToResponse(updatePartWithId));
     }
 
+    @Operation(
+            summary = "Delete Auto Parts or Maintenance Supplies.",
+            description = "Deletes an auto part or maintenance supply by its code."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Auto Part/Maintenance Supplies deleted"),
+            @ApiResponse(responseCode = "404", description = "Auto Part/Maintenance Supplies not found")
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<PartResponse> deletePart(@PathVariable String id) {
         deletePartUseCase.deletePart(id);

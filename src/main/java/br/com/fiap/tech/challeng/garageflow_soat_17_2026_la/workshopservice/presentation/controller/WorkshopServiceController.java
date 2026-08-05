@@ -5,7 +5,10 @@ import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.doma
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.presentation.dto.CreateWorkshopServiceRequestDTO;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.presentation.dto.WorkshopServiceResponseDTO;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.presentation.mapper.WorkshopServiceMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,31 +18,33 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@AllArgsConstructor
 @RestController
 @RequestMapping("/workshopservice")
 public class WorkshopServiceController {
 
-    @Autowired
     private CreateWorkshopServiceUseCase createUseCase;
 
-    @Autowired
     private GetWorkshopServiceByIdUseCase getByIdUseCase;
 
-    @Autowired
     private UpdateWorkshopServiceUseCase updateUseCase;
 
-    @Autowired
     private DeleteWorkshopServiceUseCase deleteUseCase;
 
-    @Autowired
     private ListAllWorkshopServicesUseCase listAllUseCase;
 
-    @Autowired
     private SearchWorkshopServiceByDescriptionUseCase searchUseCase;
 
-    @Autowired
     private WorkshopServiceMapper mapper;
 
+    @Operation(
+            summary = "Create Workshop Service",
+            description = "Creates a new workshop service."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Service created"),
+            @ApiResponse(responseCode = "400", description = "Invalid request")
+    })
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody CreateWorkshopServiceRequestDTO dto) {
         try {
@@ -51,6 +56,14 @@ public class WorkshopServiceController {
         }
     }
 
+    @Operation(
+            summary = "Get Workshop Service by ID",
+            description = "Retrieves a workshop service by its ID."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Service found"),
+            @ApiResponse(responseCode = "404", description = "Service not found")
+    })
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable String id) {
         try {
@@ -62,6 +75,13 @@ public class WorkshopServiceController {
         }
     }
 
+    @Operation(
+            summary = "List All Workshop Services",
+            description = "Retrieves a list of all workshop services."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Services found")
+    })
     @GetMapping
     public ResponseEntity<List<WorkshopServiceResponseDTO>> listAll() {
         List<WorkshopService> list = listAllUseCase.execute();
@@ -69,6 +89,14 @@ public class WorkshopServiceController {
         return ResponseEntity.ok(dtos);
     }
 
+    @Operation(
+            summary = "Search Workshop Services",
+            description = "Searches for workshop services by description."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Services found"),
+            @ApiResponse(responseCode = "400", description = "Invalid request")
+    })
     @GetMapping("/search")
     public ResponseEntity<?> search(@RequestParam String description) {
         try {
@@ -80,6 +108,14 @@ public class WorkshopServiceController {
         }
     }
 
+    @Operation(
+            summary = "Update Workshop Service",
+            description = "Updates an existing workshop service."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Service updated"),
+            @ApiResponse(responseCode = "404", description = "Service not found")
+    })
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable String id, @Valid @RequestBody CreateWorkshopServiceRequestDTO dto) {
         try {
@@ -92,6 +128,14 @@ public class WorkshopServiceController {
         }
     }
 
+    @Operation(
+            summary = "Delete Workshop Service",
+            description = "Deletes an existing workshop service."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Service deleted"),
+            @ApiResponse(responseCode = "404", description = "Service not found")
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable String id) {
         try {
