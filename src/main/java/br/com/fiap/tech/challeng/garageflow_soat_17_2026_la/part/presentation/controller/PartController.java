@@ -1,11 +1,8 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.presentation.controller;
 
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.application.usecase.DeletePartUseCase;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.application.usecase.GetPartUseCase;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.application.usecase.UpdateUseCase;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.application.usecase.*;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.presentation.mapper.PartMapper;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.model.Part;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.application.usecase.CreatePartUseCase;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.presentation.dto.PartRequest;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.presentation.dto.PartResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -27,13 +25,15 @@ public class PartController {
     private final UpdateUseCase updateUseCase;
     private final DeletePartUseCase deletePartUseCase;
     private final PartMapper partMapper;
+    private final ListAllPartsUseCase listAllPartsUseCase;
 
-    public PartController(CreatePartUseCase createPartUseCase, GetPartUseCase getPartUseCase, UpdateUseCase updateUseCase, DeletePartUseCase deletePartUseCase, PartMapper partMapper) {
+    public PartController(CreatePartUseCase createPartUseCase, GetPartUseCase getPartUseCase, UpdateUseCase updateUseCase, DeletePartUseCase deletePartUseCase, PartMapper partMapper, ListAllPartsUseCase listAllPartsUseCase) {
         this.createPartUseCase = createPartUseCase;
         this.getPartUseCase = getPartUseCase;
         this.updateUseCase = updateUseCase;
         this.deletePartUseCase = deletePartUseCase;
         this.partMapper = partMapper;
+        this.listAllPartsUseCase = listAllPartsUseCase;
     }
 
     @Operation(
@@ -58,8 +58,8 @@ public class PartController {
             @ApiResponse(responseCode = "200", description = "Auto Part/Maintenance Supplies found"),
             @ApiResponse(responseCode = "404", description = "Auto Part/Maintenance Supplies not found")
     })
-    @GetMapping
-    public ResponseEntity<PartResponse> getPartByCode(@Valid @RequestParam String code){
+    @GetMapping("/{id}")
+    public ResponseEntity<PartResponse> getPartByCode(@Valid @PathVariable String code){
         Optional<Part> partbyCode = getPartUseCase.getPartbyCode(code);
         PartResponse partResponse = partMapper.partToResponse(partbyCode.get());
         return ResponseEntity.status(HttpStatus.OK).body(partResponse);
@@ -73,6 +73,13 @@ public class PartController {
             @ApiResponse(responseCode = "200", description = "Auto Part/Maintenance Supplies updated"),
             @ApiResponse(responseCode = "404", description = "Auto Part/Maintenance Supplies not found")
     })
+    @GetMapping
+    public ResponseEntity<List<PartResponse>> getAllParts(){
+        List<Part> allParts = listAllPartsUseCase.findAll();
+        List<PartResponse> partResponseList = allParts.stream().map(partMapper::partToResponse).toList();
+        return ResponseEntity.status(HttpStatus.OK).body(partResponseList);
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<PartResponse> updatePart(@Valid @RequestBody PartRequest request, @PathVariable String id) {
         Part updatePartWithId = updateUseCase.updatePartWithId(id, partMapper.requestToPart(request));
