@@ -1,8 +1,8 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.application.usecase;
 
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.exception.PartNotFoundException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.model.Part;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.repository.PartRepository;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -38,10 +38,10 @@ class DeletePartUseCaseTest {
     }
 
     @Test
-    void shouldThrowPartNotFoundExceptionWhenPartDoesNotExist() {
+    void shouldThrowResourceNotFoundExceptionWhenPartDoesNotExist() {
         when(partRepository.findById("missing")).thenReturn(Optional.empty());
 
-        assertThrows(PartNotFoundException.class, () -> deletePartUseCase.deletePart("missing"));
+        assertThrows(ResourceNotFoundException.class, () -> deletePartUseCase.deletePart("missing"));
         verify(partRepository, never()).delete(anyString());
     }
 }

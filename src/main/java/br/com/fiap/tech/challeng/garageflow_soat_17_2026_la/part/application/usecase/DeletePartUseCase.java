@@ -3,6 +3,7 @@ package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.application.us
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.exception.PartNotFoundException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.model.Part;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.repository.PartRepository;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.ResourceNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +27,6 @@ public class DeletePartUseCase {
             return;
         }
         log.debug("[DEBUG] - Trying to delete non-existant part with id: {}", id);
-        throw new PartNotFoundException(id);
+        throw new ResourceNotFoundException("Part", "id", id);
     }
 }

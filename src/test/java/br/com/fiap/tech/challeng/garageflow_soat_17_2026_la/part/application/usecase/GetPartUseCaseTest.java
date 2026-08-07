@@ -1,8 +1,8 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.application.usecase;
 
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.exception.PartNotFoundException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.model.Part;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.repository.PartRepository;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -38,10 +38,10 @@ class GetPartUseCaseTest {
     }
 
     @Test
-    void shouldThrowPartNotFoundExceptionWhenCodeDoesNotExist() {
+    void shouldThrowResourceNotFoundExceptionWhenCodeDoesNotExist() {
         when(partRepository.findByCode("missing")).thenReturn(Optional.empty());
 
-        assertThrows(PartNotFoundException.class, () -> getPartUseCase.getPartbyCode("missing"));
+        assertThrows(ResourceNotFoundException.class, () -> getPartUseCase.getPartbyCode("missing"));
     }
 
     @Test
@@ -56,9 +56,9 @@ class GetPartUseCaseTest {
     }
 
     @Test
-    void shouldThrowPartNotFoundExceptionWhenIdDoesNotExist() {
+    void shouldThrowResourceNotFoundExceptionWhenIdDoesNotExist() {
         when(partRepository.findById("missing")).thenReturn(Optional.empty());
 
-        assertThrows(PartNotFoundException.class, () -> getPartUseCase.getPartbyId("missing"));
+        assertThrows(ResourceNotFoundException.class, () -> getPartUseCase.getPartbyId("missing"));
     }
 }

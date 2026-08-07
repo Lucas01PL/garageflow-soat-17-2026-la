@@ -1,8 +1,8 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.application.usecase;
 
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.exception.DuplicatePartException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.model.Part;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.repository.PartRepository;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.DuplicateResourceException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -45,12 +45,12 @@ class CreatePartUseCaseTest {
     }
 
     @Test
-    void shouldThrowDuplicatePartExceptionWhenCodeAlreadyExists() {
+    void shouldThrowDuplicateResourceExceptionWhenCodeAlreadyExists() {
         Part part = new Part("P001", "Filtro de oleo", 10, new BigDecimal("29.90"));
 
         when(partRepository.existsByCode("P001")).thenReturn(true);
 
-        assertThrows(DuplicatePartException.class, () -> createPartUseCase.createPart(part));
+        assertThrows(DuplicateResourceException.class, () -> createPartUseCase.createPart(part));
         verify(partRepository, never()).save(any());
     }
 }
