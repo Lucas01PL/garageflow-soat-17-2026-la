@@ -22,18 +22,20 @@ public class PartController {
 
     private final CreatePartUseCase createPartUseCase;
     private final GetPartUseCase getPartUseCase;
-    private final UpdateUseCase updateUseCase;
+    private final UpdatePartUseCase updatePartUseCase;
     private final DeletePartUseCase deletePartUseCase;
     private final PartMapper partMapper;
     private final ListAllPartsUseCase listAllPartsUseCase;
+    private final PartStockControlUseCase partStockControlUseCase;
 
-    public PartController(CreatePartUseCase createPartUseCase, GetPartUseCase getPartUseCase, UpdateUseCase updateUseCase, DeletePartUseCase deletePartUseCase, PartMapper partMapper, ListAllPartsUseCase listAllPartsUseCase) {
+    public PartController(CreatePartUseCase createPartUseCase, GetPartUseCase getPartUseCase, UpdatePartUseCase updatePartUseCase, DeletePartUseCase deletePartUseCase, PartMapper partMapper, ListAllPartsUseCase listAllPartsUseCase, PartStockControlUseCase partStockControlUseCase) {
         this.createPartUseCase = createPartUseCase;
         this.getPartUseCase = getPartUseCase;
-        this.updateUseCase = updateUseCase;
+        this.updatePartUseCase = updatePartUseCase;
         this.deletePartUseCase = deletePartUseCase;
         this.partMapper = partMapper;
         this.listAllPartsUseCase = listAllPartsUseCase;
+        this.partStockControlUseCase = partStockControlUseCase;
     }
 
     @Operation(
@@ -50,6 +52,18 @@ public class PartController {
         return ResponseEntity.status(HttpStatus.CREATED).body(partMapper.partToResponse(response));
     }
 
+    @PostMapping("/debit/{id}")
+    public ResponseEntity<String> debitPartStock(@PathVariable String id, @RequestParam Integer quantityToDebit) {
+        String result = partStockControlUseCase.debitPartStock(id, quantityToDebit);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @PostMapping("/add/{id}")
+    public ResponseEntity<String> addPartStock(@PathVariable String id, @RequestParam Integer quantityToAdd) {
+        String result = partStockControlUseCase.addPartStock(id, quantityToAdd);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
     @Operation(
             summary = "Get Auto Parts or Maintenance Supplies.",
             description = "Retrieves an auto part or maintenance supply by its code."
@@ -59,8 +73,8 @@ public class PartController {
             @ApiResponse(responseCode = "404", description = "Auto Part/Maintenance Supplies not found")
     })
     @GetMapping("/{id}")
-    public ResponseEntity<PartResponse> getPartByCode(@Valid @PathVariable String code){
-        Optional<Part> partbyCode = getPartUseCase.getPartbyCode(code);
+    public ResponseEntity<PartResponse> getPartById(@PathVariable String id){
+        Optional<Part> partbyCode = getPartUseCase.getPartbyId(id);
         PartResponse partResponse = partMapper.partToResponse(partbyCode.get());
         return ResponseEntity.status(HttpStatus.OK).body(partResponse);
     }
@@ -82,7 +96,7 @@ public class PartController {
 
     @PutMapping("/{id}")
     public ResponseEntity<PartResponse> updatePart(@Valid @RequestBody PartRequest request, @PathVariable String id) {
-        Part updatePartWithId = updateUseCase.updatePartWithId(id, partMapper.requestToPart(request));
+        Part updatePartWithId = updatePartUseCase.updatePartWithId(id, partMapper.requestToPart(request));
         return ResponseEntity.status(HttpStatus.OK).body(partMapper.partToResponse(updatePartWithId));
     }
 

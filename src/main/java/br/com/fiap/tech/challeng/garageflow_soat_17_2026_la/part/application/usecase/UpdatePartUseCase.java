@@ -7,11 +7,11 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-public class UpdateUseCase {
+public class UpdatePartUseCase {
 
     private final PartRepository partRepository;
 
-    public UpdateUseCase(PartRepository partRepository) {
+    public UpdatePartUseCase(PartRepository partRepository) {
         this.partRepository = partRepository;
     }
 

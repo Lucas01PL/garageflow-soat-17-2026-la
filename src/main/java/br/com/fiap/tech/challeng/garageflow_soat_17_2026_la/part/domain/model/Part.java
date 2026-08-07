@@ -36,4 +36,8 @@ public class Part {
         this.quantity = quantity;
         this.price = price;
     }
+
+    public void updateQuantity(Integer quantity) {
+        this.quantity = quantity;
+    }
 }
