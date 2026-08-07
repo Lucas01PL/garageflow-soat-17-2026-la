@@ -52,12 +52,30 @@ public class PartController {
         return ResponseEntity.status(HttpStatus.CREATED).body(partMapper.partToResponse(response));
     }
 
+    @Operation(
+            summary = "Debit Auto Parts or Maintenance Supplies stock.",
+            description = "Debits a quantity from the stock of an auto part or maintenance supply."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Stock debited"),
+            @ApiResponse(responseCode = "404", description = "Auto Part/Maintenance Supplies not found"),
+            @ApiResponse(responseCode = "416", description = "Not enough stock to debit")
+    })
     @PostMapping("/debit/{id}")
     public ResponseEntity<String> debitPartStock(@PathVariable String id, @RequestParam Integer quantityToDebit) {
         String result = partStockControlUseCase.debitPartStock(id, quantityToDebit);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    @Operation(
+            summary = "Add Auto Parts or Maintenance Supplies stock.",
+            description = "Adds a quantity to the stock of an auto part or maintenance supply."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Stock added"),
+            @ApiResponse(responseCode = "404", description = "Auto Part/Maintenance Supplies not found"),
+            @ApiResponse(responseCode = "416", description = "Quantity to add must be greater than zero")
+    })
     @PostMapping("/add/{id}")
     public ResponseEntity<String> addPartStock(@PathVariable String id, @RequestParam Integer quantityToAdd) {
         String result = partStockControlUseCase.addPartStock(id, quantityToAdd);
@@ -80,12 +98,11 @@ public class PartController {
     }
 
     @Operation(
-            summary = "Update Auto Parts or Maintenance Supplies.",
-            description = "Updates an auto part or maintenance supply by its code."
+            summary = "List Auto Parts or Maintenance Supplies.",
+            description = "Retrieves all auto parts and maintenance supplies."
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Auto Part/Maintenance Supplies updated"),
-            @ApiResponse(responseCode = "404", description = "Auto Part/Maintenance Supplies not found")
+            @ApiResponse(responseCode = "200", description = "Auto Parts/Maintenance Supplies listed")
     })
     @GetMapping
     public ResponseEntity<List<PartResponse>> getAllParts(){
@@ -94,6 +111,15 @@ public class PartController {
         return ResponseEntity.status(HttpStatus.OK).body(partResponseList);
     }
 
+    @Operation(
+            summary = "Update Auto Parts or Maintenance Supplies.",
+            description = "Updates an auto part or maintenance supply by its id."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Auto Part/Maintenance Supplies updated"),
+            @ApiResponse(responseCode = "400", description = "Invalid request"),
+            @ApiResponse(responseCode = "404", description = "Auto Part/Maintenance Supplies not found")
+    })
     @PutMapping("/{id}")
     public ResponseEntity<PartResponse> updatePart(@Valid @RequestBody PartRequest request, @PathVariable String id) {
         Part updatePartWithId = updatePartUseCase.updatePartWithId(id, partMapper.requestToPart(request));
