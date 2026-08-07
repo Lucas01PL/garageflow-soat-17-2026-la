@@ -104,6 +104,20 @@ class PartControllerTest {
     }
 
     @Test
+    void shouldGetPartByCode() {
+        Part part = new Part("id-1", "P001", "Filtro de oleo", 10, new BigDecimal("29.90"));
+        PartResponse response = new PartResponse("id-1", "P001", "Filtro de oleo", 10, new BigDecimal("29.90"));
+
+        when(getPartUseCase.getPartbyCode("P001")).thenReturn(Optional.of(part));
+        when(partMapper.partToResponse(part)).thenReturn(response);
+
+        ResponseEntity<PartResponse> result = partController.getPartByCode("P001");
+
+        assertEquals(200, result.getStatusCode().value());
+        assertEquals(response, result.getBody());
+    }
+
+    @Test
     void shouldGetAllParts() {
         Part part1 = new Part("id-1", "P001", "Filtro de oleo", 10, new BigDecimal("29.90"));
         Part part2 = new Part("id-2", "P002", "Pastilha de freio", 5, new BigDecimal("89.90"));

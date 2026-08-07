@@ -98,6 +98,21 @@ public class PartController {
     }
 
     @Operation(
+            summary = "Get Auto Parts or Maintenance Supplies by code.",
+            description = "Retrieves an auto part or maintenance supply by its code."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Auto Part/Maintenance Supplies found"),
+            @ApiResponse(responseCode = "404", description = "Auto Part/Maintenance Supplies not found")
+    })
+    @GetMapping("/code/{code}")
+    public ResponseEntity<PartResponse> getPartByCode(@PathVariable String code){
+        Optional<Part> partByCode = getPartUseCase.getPartbyCode(code);
+        PartResponse partResponse = partMapper.partToResponse(partByCode.get());
+        return ResponseEntity.status(HttpStatus.OK).body(partResponse);
+    }
+
+    @Operation(
             summary = "List Auto Parts or Maintenance Supplies.",
             description = "Retrieves all auto parts and maintenance supplies."
     )
