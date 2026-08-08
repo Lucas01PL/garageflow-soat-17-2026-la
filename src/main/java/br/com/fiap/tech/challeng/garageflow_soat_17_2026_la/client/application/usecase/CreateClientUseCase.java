@@ -2,6 +2,7 @@ package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.client.application.
 
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.client.domain.model.Client;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.client.domain.repository.ClientRepository;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.client.domain.validation.CpfCnpjValidator;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.DuplicateResourceException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,13 +18,23 @@ public class CreateClientUseCase {
     }
 
     public Client createClient(Client client) {
-        boolean isPresent = clientRepository.existsByDocument(client.getDocument());
+        String normalizedDocument = CpfCnpjValidator.validateAndNormalize(client.getDocument());
+
+        boolean isPresent = clientRepository.existsByDocument(normalizedDocument);
         if (isPresent) {
-            log.debug("[DEBUG] - Trying to register duplicated client with document: {}", client.getDocument());
-            throw new DuplicateResourceException("Client", "document", client.getDocument());
+            log.debug("[DEBUG] - Trying to register duplicated client with document: {}", normalizedDocument);
+            throw new DuplicateResourceException("Client", "document", normalizedDocument);
         }
 
-        log.debug("[DEBUG] - POST CLIENT: {}", client);
-        return clientRepository.save(client);
+        Client normalizedClient = new Client(
+                client.getName(),
+                normalizedDocument,
+                client.getPhone(),
+                client.getEmail(),
+                client.getAddress()
+        );
+
+        log.debug("[DEBUG] - POST CLIENT: {}", normalizedClient);
+        return clientRepository.save(normalizedClient);
     }
 }

@@ -2,6 +2,7 @@ package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.client.application.
 
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.client.domain.model.Client;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.client.domain.repository.ClientRepository;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.client.domain.validation.CpfCnpjValidator;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.ResourceNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,12 +20,14 @@ public class GetClientUseCase {
     }
 
     public Optional<Client> getClientByDocument(String document) {
-        Optional<Client> byDocument = clientRepository.findByDocument(document);
+        String normalizedDocument = CpfCnpjValidator.validateAndNormalize(document);
+
+        Optional<Client> byDocument = clientRepository.findByDocument(normalizedDocument);
         if (byDocument.isPresent()) {
             log.debug("[DEBUG] - GET CLIENT: {}", byDocument);
             return byDocument;
         }
-        throw new ResourceNotFoundException("Client", "document", document);
+        throw new ResourceNotFoundException("Client", "document", normalizedDocument);
     }
 
     public Optional<Client> getClientById(String id) {
