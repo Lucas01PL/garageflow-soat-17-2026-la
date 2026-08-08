@@ -121,7 +121,7 @@ class RepairOrderRepositoryImplTest {
 
         assertNotNull(all);
         assertEquals(2, all.size());
-        assertEquals("ro1", all.get(0).getId());
+        assertEquals("ro1", all.getFirst().getId());
     }
 
     @Test
@@ -139,7 +139,7 @@ class RepairOrderRepositoryImplTest {
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals("ro1", result.getFirst().getId());
-        assertEquals("PENDING", result.getFirst().getStatus().name());
+        assertEquals("RECEIVED", result.getFirst().getStatus().name());
     }
 }
 

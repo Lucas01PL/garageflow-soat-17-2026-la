@@ -1,6 +1,8 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase;
 
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.CustomerSnapshot;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.RepairOrder;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.VehicleSnapshot;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.repository.RepairOrderRepository;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.type.RepairOrderStatus;
 import org.junit.jupiter.api.Test;
@@ -31,11 +33,15 @@ class CreateRepairOrderUseCaseTest {
         RepairOrder input = RepairOrder.builder()
                 .status(RepairOrderStatus.RECEIVED)
                 .userId("user1")
+                .customer(new CustomerSnapshot("cust1"))
+                .vehicle(new VehicleSnapshot("vehicle1"))
                 .build();
 
         RepairOrder saved = RepairOrder.builder()
                 .status(RepairOrderStatus.FINISHED)
                 .userId("user1")
+                .customer(new CustomerSnapshot("cust1"))
+                .vehicle(new VehicleSnapshot("vehicle1"))
                 .id("ro1")
                 .build();
 
@@ -55,27 +61,32 @@ class CreateRepairOrderUseCaseTest {
     }
 
     @Test
-    void shouldThrowWhenWorkshopServiceIdIsEmpty() {
-        RepairOrder ro = RepairOrder.builder()
-                .status(RepairOrderStatus.RECEIVED)
-                .build();
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> useCase.execute(ro));
-        assertEquals("Workshop Service ID cannot be empty", ex.getMessage());
-    }
-
-    @Test
     void shouldThrowWhenCustomerIdIsEmpty() {
         RepairOrder ro = RepairOrder.builder()
                 .status(RepairOrderStatus.RECEIVED)
+                .vehicle(new VehicleSnapshot("vehicle1"))
                 .build();
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> useCase.execute(ro));
         assertEquals("Customer ID cannot be empty", ex.getMessage());
     }
 
     @Test
+    void shouldThrowWhenVehicleIdIsEmpty() {
+        RepairOrder ro = RepairOrder.builder()
+                .status(RepairOrderStatus.RECEIVED)
+                .customer(new CustomerSnapshot("cust1"))
+                .build();
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> useCase.execute(ro));
+        assertEquals("Vehicle ID cannot be empty", ex.getMessage());
+    }
+
+    @Test
     void shouldThrowWhenUserIdIsEmpty() {
         RepairOrder ro = RepairOrder.builder()
                 .status(RepairOrderStatus.RECEIVED)
+                .customer(new CustomerSnapshot("cust1"))
+                .vehicle(new VehicleSnapshot("vehicle1"))
                 .build();
 
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> useCase.execute(ro));
