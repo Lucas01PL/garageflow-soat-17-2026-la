@@ -56,7 +56,8 @@ public class ClientRepositoryImpl implements ClientRepository {
                 clientDocument.getName(),
                 clientDocument.getDocument(),
                 clientDocument.getPhone(),
-                clientDocument.getEmail()
+                clientDocument.getEmail(),
+                clientDocument.getAddress()
         );
     }
 
@@ -65,7 +66,8 @@ public class ClientRepositoryImpl implements ClientRepository {
                 client.getName(),
                 client.getDocument(),
                 client.getPhone(),
-                client.getEmail()
+                client.getEmail(),
+                client.getAddress()
         );
         document.setId(client.getId());
         return document;

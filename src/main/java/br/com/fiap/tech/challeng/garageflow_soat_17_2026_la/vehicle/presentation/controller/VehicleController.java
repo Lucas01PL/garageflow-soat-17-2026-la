@@ -5,6 +5,9 @@ import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.vehicle.presentation
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.vehicle.domain.model.Vehicle;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.vehicle.presentation.dto.VehicleRequest;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.vehicle.presentation.dto.VehicleResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,12 +36,29 @@ public class VehicleController {
         this.listAllVehiclesUseCase = listAllVehiclesUseCase;
     }
 
+    @Operation(
+            summary = "Create Vehicle.",
+            description = "Creates a new vehicle."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Vehicle created"),
+            @ApiResponse(responseCode = "400", description = "Invalid request"),
+            @ApiResponse(responseCode = "409", description = "Vehicle with the given plate already exists")
+    })
     @PostMapping
     public ResponseEntity<VehicleResponse> createNewVehicle(@Valid @RequestBody VehicleRequest request) {
         Vehicle response = createVehicleUseCase.createVehicle(vehicleMapper.requestToVehicle(request));
         return ResponseEntity.status(HttpStatus.CREATED).body(vehicleMapper.vehicleToResponse(response));
     }
 
+    @Operation(
+            summary = "Get Vehicle by id.",
+            description = "Retrieves a vehicle by its id."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Vehicle found"),
+            @ApiResponse(responseCode = "404", description = "Vehicle not found")
+    })
     @GetMapping("/{id}")
     public ResponseEntity<VehicleResponse> getVehicleById(@Valid @PathVariable String id){
         Optional<Vehicle> vehicleByPlate = getVehicleUseCase.getVehicleById(id);
@@ -46,6 +66,14 @@ public class VehicleController {
         return ResponseEntity.status(HttpStatus.OK).body(vehicleResponse);
     }
 
+    @Operation(
+            summary = "Get Vehicle by plate.",
+            description = "Retrieves a vehicle by its plate."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Vehicle found"),
+            @ApiResponse(responseCode = "404", description = "Vehicle not found")
+    })
     @GetMapping("/plate/{plate}")
     public ResponseEntity<VehicleResponse> getVehicleByPlate(@PathVariable String plate){
         Optional<Vehicle> vehicleByPlate = getVehicleUseCase.getVehicleByPlate(plate);
@@ -53,6 +81,13 @@ public class VehicleController {
         return ResponseEntity.status(HttpStatus.OK).body(vehicleResponse);
     }
 
+    @Operation(
+            summary = "List Vehicles.",
+            description = "Retrieves all vehicles."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Vehicles listed")
+    })
     @GetMapping
     public ResponseEntity<List<VehicleResponse>> getAllVehicles(){
         List<Vehicle> allVehicles = listAllVehiclesUseCase.findAll();
@@ -60,12 +95,29 @@ public class VehicleController {
         return ResponseEntity.status(HttpStatus.OK).body(vehicleResponseList);
     }
 
+    @Operation(
+            summary = "Update Vehicle.",
+            description = "Updates a vehicle by its id."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Vehicle updated"),
+            @ApiResponse(responseCode = "400", description = "Invalid request"),
+            @ApiResponse(responseCode = "404", description = "Vehicle not found")
+    })
     @PutMapping("/{id}")
     public ResponseEntity<VehicleResponse> updateVehicle(@Valid @RequestBody VehicleRequest request, @PathVariable String id) {
         Vehicle updateVehicleWithId = updateUseCase.updateVehicleWithId(id, vehicleMapper.requestToVehicle(request));
         return ResponseEntity.status(HttpStatus.OK).body(vehicleMapper.vehicleToResponse(updateVehicleWithId));
     }
 
+    @Operation(
+            summary = "Delete Vehicle.",
+            description = "Deletes a vehicle by its id."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Vehicle deleted"),
+            @ApiResponse(responseCode = "404", description = "Vehicle not found")
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<VehicleResponse> deleteVehicle(@PathVariable String id) {
         deleteVehicleUseCase.deleteVehicle(id);

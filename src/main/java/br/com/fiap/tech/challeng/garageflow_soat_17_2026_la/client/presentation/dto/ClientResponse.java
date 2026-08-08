@@ -5,6 +5,7 @@ public record ClientResponse(
         String name,
         String document,
         String phone,
-        String email
+        String email,
+        String address
 ) {
 }

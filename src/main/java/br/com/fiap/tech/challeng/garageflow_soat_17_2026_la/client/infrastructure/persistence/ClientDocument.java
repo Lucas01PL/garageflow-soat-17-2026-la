@@ -22,11 +22,13 @@ public class ClientDocument {
     private String name;
     private String phone;
     private String email;
+    private String address;
 
-    public ClientDocument(String name, String document, String phone, String email) {
+    public ClientDocument(String name, String document, String phone, String email, String address) {
         this.name = name;
         this.document = document;
         this.phone = phone;
         this.email = email;
+        this.address = address;
     }
 }

@@ -23,7 +23,8 @@ public class UpdateClientUseCase {
         existingClient.update(
                 updatedClient.getName(),
                 updatedClient.getPhone(),
-                updatedClient.getEmail()
+                updatedClient.getEmail(),
+                updatedClient.getAddress()
         );
 
         log.debug("[DEBUG] - UPDATED CLIENT: {}", existingClient);

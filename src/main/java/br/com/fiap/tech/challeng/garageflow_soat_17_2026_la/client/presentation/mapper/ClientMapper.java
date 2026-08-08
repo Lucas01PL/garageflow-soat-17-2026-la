@@ -13,7 +13,8 @@ public class ClientMapper {
                 clientRequest.name(),
                 clientRequest.document(),
                 clientRequest.phone(),
-                clientRequest.email()
+                clientRequest.email(),
+                clientRequest.address()
         );
     }
 
@@ -23,7 +24,8 @@ public class ClientMapper {
                 client.getName(),
                 client.getDocument(),
                 client.getPhone(),
-                client.getEmail()
+                client.getEmail(),
+                client.getAddress()
         );
     }
 }
