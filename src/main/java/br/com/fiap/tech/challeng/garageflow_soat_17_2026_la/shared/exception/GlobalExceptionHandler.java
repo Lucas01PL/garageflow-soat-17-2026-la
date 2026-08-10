@@ -40,4 +40,19 @@ public class GlobalExceptionHandler {
                         request.getRequestURI()
                 ));
     }
+
+    @ExceptionHandler(InvalidDocumentException.class)
+    public ResponseEntity<ApiErrorResponse> handleInvalidDocument(
+            InvalidDocumentException ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ApiErrorResponse(
+                        HttpStatus.BAD_REQUEST.value(),
+                        HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                        ex.getMessage(),
+                        Instant.now(),
+                        request.getRequestURI()
+                ));
+    }
 }

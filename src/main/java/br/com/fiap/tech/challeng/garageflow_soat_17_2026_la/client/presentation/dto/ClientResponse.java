@@ -1,0 +1,11 @@
+package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.client.presentation.dto;
+
+public record ClientResponse(
+        String id,
+        String name,
+        String document,
+        String phone,
+        String email,
+        String address
+) {
+}
