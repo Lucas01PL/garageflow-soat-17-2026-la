@@ -41,6 +41,21 @@ public class GlobalExceptionHandler {
                 ));
     }
 
+    @ExceptionHandler(NotEnoughResourceException.class)
+    public ResponseEntity<ApiErrorResponse> handleNotEnoughResource(
+            NotEnoughResourceException ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity.status(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE)
+                .body(new ApiErrorResponse(
+                        HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE.value(),
+                        HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE.getReasonPhrase(),
+                        ex.getMessage(),
+                        Instant.now(),
+                        request.getRequestURI()
+                ));
+    }
+  
     @ExceptionHandler(InvalidDocumentException.class)
     public ResponseEntity<ApiErrorResponse> handleInvalidDocument(
             InvalidDocumentException ex,
