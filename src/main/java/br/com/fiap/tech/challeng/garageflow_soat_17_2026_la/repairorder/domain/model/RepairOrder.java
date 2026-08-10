@@ -43,7 +43,20 @@ public class RepairOrder {
 
         validateCanModifyItems();
 
-        this.workshopServices.add(workshopService);
+        this.workshopServices.stream().findFirst().ifPresentOrElse(
+                existingService -> {
+                    if (existingService.getId().equals(workshopService.getId())) {
+                        existingService.setQuantity(
+                                existingService.getQuantity()
+                                        + workshopService.getQuantity());
+                    } else {
+                        this.workshopServices.add(workshopService);
+                    }
+                },
+                () -> {
+                    this.workshopServices.add(workshopService);
+                }
+        );
         repairOrderInDiagnosis();
         recalculateTotals();
     }
@@ -54,7 +67,21 @@ public class RepairOrder {
 
         validateCanModifyItems();
 
-        this.parts.add(partSnapshot);
+        this.parts.stream().findFirst().ifPresentOrElse(
+                existingPart -> {
+                    if (existingPart.getId().equals(partSnapshot.getId())) {
+                        existingPart.setQuantity(
+                                existingPart.getQuantity()
+                                        + partSnapshot.getQuantity());
+                    } else {
+                        this.parts.add(partSnapshot);
+                    }
+                },
+                () -> {
+                    this.parts.add(partSnapshot);
+                }
+        );
+
         repairOrderInDiagnosis();
         recalculateTotals();
     }
