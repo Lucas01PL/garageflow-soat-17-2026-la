@@ -155,7 +155,7 @@ public class RepairOrderRepositoryImpl implements RepairOrderRepository {
     private static @NonNull List<RepairOrderWorkshopServiceDocument> getWorkshopServiceDocuments(RepairOrder domain) {
         return domain.getWorkshopServices().stream().map(ws -> {
             var wsEntity = new RepairOrderWorkshopServiceDocument();
-            wsEntity.setId(ws.getId());
+            wsEntity.setWorkshopServiceId(ws.getWorkshopServiceId());
             wsEntity.setDescription(ws.getDescription());
             wsEntity.setQuantity(ws.getQuantity());
             wsEntity.setUnitPrice(ws.getUnitPrice());
@@ -181,7 +181,7 @@ public class RepairOrderRepositoryImpl implements RepairOrderRepository {
         if (domain == null) return List.of();
         return domain.stream().map(ws -> {
             var wsEntity = new WorkshopServiceSnapshot();
-            wsEntity.setId(ws.getId());
+            wsEntity.setWorkshopServiceId(ws.getWorkshopServiceId());
             wsEntity.setDescription(ws.getDescription());
             wsEntity.setUnitPrice(ws.getUnitPrice());
             wsEntity.setQuantity(ws.getQuantity());

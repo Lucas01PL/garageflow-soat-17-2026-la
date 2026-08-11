@@ -10,14 +10,14 @@ import java.util.Objects;
 @NoArgsConstructor
 @Data
 public class WorkshopServiceSnapshot {
-    private String id;
+    private String workshopServiceId;
     private String description;
     private Integer quantity;
     private BigDecimal unitPrice;
     private Integer durationInMinutes;
 
-    public WorkshopServiceSnapshot(String id, Integer quantity, Integer durationInMinutes) {
-        this.id = id;
+    public WorkshopServiceSnapshot(String workshopServiceId, Integer quantity, Integer durationInMinutes) {
+        this.workshopServiceId = workshopServiceId;
         this.quantity = quantity;
         this.durationInMinutes = durationInMinutes;
     }
@@ -31,7 +31,7 @@ public class WorkshopServiceSnapshot {
                     "Workshop service quantity must be greater than zero.");
 
         WorkshopServiceSnapshot snapshot = new WorkshopServiceSnapshot();
-        snapshot.setId(workshopService.getId());
+        snapshot.setWorkshopServiceId(workshopService.getId());
         snapshot.setDescription(workshopService.getDescription());
         snapshot.setQuantity(quantity);
         snapshot.setUnitPrice(workshopService.getValue());

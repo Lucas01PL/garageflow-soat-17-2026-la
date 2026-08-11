@@ -45,11 +45,11 @@ public class RepairOrder {
         validateCanModifyItems();
 
         this.workshopServices.stream()
-                .filter(existingWorkshopService -> existingWorkshopService.getId().equals(workshopService.getId()))
+                .filter(existingWorkshopService -> existingWorkshopService.getWorkshopServiceId().equals(workshopService.getWorkshopServiceId()))
                 .findFirst()
                 .ifPresentOrElse(
                 existingService -> {
-                    if (existingService.getId().equals(workshopService.getId())) {
+                    if (existingService.getWorkshopServiceId().equals(workshopService.getWorkshopServiceId())) {
                         existingService.setQuantity(
                                 existingService.getQuantity()
                                         + workshopService.getQuantity());
@@ -191,7 +191,7 @@ public class RepairOrder {
         validateCanModifyItems();
 
         workshopServices.stream()
-                .filter(existingService -> existingService.getId().equals(workshopServiceSnapshot.getId()))
+                .filter(existingService -> existingService.getWorkshopServiceId().equals(workshopServiceSnapshot.getWorkshopServiceId()))
                 .findFirst()
                 .ifPresentOrElse((existingService) -> {
                     if (existingService.getQuantity() > workshopServiceSnapshot.getQuantity()) {

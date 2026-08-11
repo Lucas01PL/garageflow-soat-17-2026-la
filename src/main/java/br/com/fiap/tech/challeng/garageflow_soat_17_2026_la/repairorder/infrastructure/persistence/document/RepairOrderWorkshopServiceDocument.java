@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 
 @Data
 public class RepairOrderWorkshopServiceDocument {
-    private String id;
+    private String workshopServiceId;
     private String description;
     private Integer quantity;
     private BigDecimal unitPrice;
