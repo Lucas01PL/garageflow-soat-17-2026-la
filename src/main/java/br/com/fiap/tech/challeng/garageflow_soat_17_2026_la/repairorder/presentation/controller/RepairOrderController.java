@@ -2,8 +2,8 @@ package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.present
 
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase.*;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.RepairOrder;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.AddPartRequest;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.AddWorkshopServiceRequest;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.AddRemovePartRequest;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.AddRemoveWorkshopServiceRequest;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.CreateRepairOrderRequest;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.response.RepairOrderResponseDTO;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.mapper.RepairOrderMapper;
@@ -34,6 +34,12 @@ public class RepairOrderController {
     private AddWorkshopServiceUseCase addWorkshopServiceUseCase;
 
     private AddPartUseCase addPartUseCase;
+
+    private RemovePartUseCase removePartUseCase;
+
+    private RemoveWorkshopServiceUseCase removeWorkshopServiceUseCase;
+
+    private StartRepairOrderDiagnosisUseCase startRepairOrderDiagnosisUseCase;
 
     private RepairOrderMapper mapper;
 
@@ -99,7 +105,7 @@ public class RepairOrderController {
     @PostMapping("/{repairOrderId}/services")
     public ResponseEntity<?> addWorkshopService(
             @PathVariable String repairOrderId,
-            @Valid @RequestBody AddWorkshopServiceRequest request) {
+            @Valid @RequestBody AddRemoveWorkshopServiceRequest request) {
 
         RepairOrder repairOrder =
                 addWorkshopServiceUseCase.execute(repairOrderId, request);
@@ -118,10 +124,66 @@ public class RepairOrderController {
     @PostMapping("/{repairOrderId}/parts")
     public ResponseEntity<?> addPart(
             @PathVariable String repairOrderId,
-            @Valid @RequestBody AddPartRequest request) {
+            @Valid @RequestBody AddRemovePartRequest request) {
 
         RepairOrder repairOrder =
                 addPartUseCase.execute(repairOrderId, request);
+
+        return ResponseEntity.ok(
+                mapper.toResponse(repairOrder));
+    }
+
+    @Operation(
+            summary = "Remove Workshop Service from Repair Order",
+            description = "Removes a workshop service from an existing repair order."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Workshop service removed")
+    })
+    @DeleteMapping("/{repairOrderId}/services")
+    public ResponseEntity<?> removeWorkshopService(
+            @PathVariable String repairOrderId,
+            @Valid @RequestBody AddRemoveWorkshopServiceRequest request) {
+
+        RepairOrder repairOrder =
+                removeWorkshopServiceUseCase.execute(repairOrderId, request);
+
+        return ResponseEntity.ok(
+                mapper.toResponse(repairOrder));
+    }
+
+    @Operation(
+            summary = "Remove Part from Repair Order",
+            description = "Removes a part from an existing repair order."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Part removed")
+    })
+    @DeleteMapping("/{repairOrderId}/parts")
+    public ResponseEntity<?> removePart(
+            @PathVariable String repairOrderId,
+            @Valid @RequestBody AddRemovePartRequest request) {
+
+        RepairOrder repairOrder =
+                removePartUseCase.execute(repairOrderId, request);
+
+        return ResponseEntity.ok(
+                mapper.toResponse(repairOrder));
+    }
+
+    @Operation(
+            summary = "Set Repair Order to In Diagnosis",
+            description = "Sets the status of an existing repair order to In Diagnosis."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Repair order updated")
+    })
+    @PatchMapping("/{repairOrderId}/status/in-diagnosis")
+    public ResponseEntity<?> inDiagnosis(
+            @PathVariable String repairOrderId) {
+
+        RepairOrder repairOrder =
+                startRepairOrderDiagnosisUseCase.execute(repairOrderId);
 
         return ResponseEntity.ok(
                 mapper.toResponse(repairOrder));
