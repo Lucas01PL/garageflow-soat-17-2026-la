@@ -25,7 +25,7 @@ class RepairOrderMapperTest {
 
         assertNotNull(model);
         assertEquals("vehicle1", model.getVehicle().getVehicleId());
-        assertEquals("cust1", model.getCustomer().getId());
+        assertEquals("cust1", model.getCustomer().getCustomerId());
     }
 
     @Test
