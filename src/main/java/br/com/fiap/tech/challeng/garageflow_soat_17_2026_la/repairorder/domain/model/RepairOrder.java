@@ -8,6 +8,7 @@ import org.jspecify.annotations.NonNull;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -95,10 +96,10 @@ public class RepairOrder {
         initDate = LocalDateTime.now();
     }
 
-    public void inDiagnosis() {
-        if (status != RepairOrderStatus.RECEIVED && status != RepairOrderStatus.WAITING_APPROVING) {
+    public void startInDiagnosis() {
+        if (status != RepairOrderStatus.RECEIVED) {
             throw new IllegalArgumentException(
-                    "Repair Order must be RECEIVED or WAITING_APPROVING to start diagnosis.");
+                    "Repair Order must be RECEIVED to start diagnosis.");
         }
 
         status = RepairOrderStatus.IN_DIAGNOSIS;
@@ -205,6 +206,14 @@ public class RepairOrder {
                     throw new IllegalArgumentException("Workshop Service not found in repair order");
                 });
         recalculateTotals();
+    }
+
+    public List<PartSnapshot> getParts() {
+        return Collections.unmodifiableList(parts);
+    }
+
+    public List<WorkshopServiceSnapshot> getWorkshopServices() {
+        return Collections.unmodifiableList(workshopServices);
     }
 }
 
