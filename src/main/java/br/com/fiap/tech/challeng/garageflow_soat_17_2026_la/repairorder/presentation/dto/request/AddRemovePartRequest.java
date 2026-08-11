@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class AddPartRequest {
+public class AddRemovePartRequest {
 
     @NotBlank(message = "Workshop Service ID cannot be blank")
     private String partId;

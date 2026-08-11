@@ -6,14 +6,10 @@ import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.applicat
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.PartSnapshot;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.RepairOrder;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.repository.RepairOrderRepository;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.type.RepairOrderStatus;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.AddPartRequest;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.AddRemovePartRequest;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.ResourceNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @AllArgsConstructor
 @Service
@@ -23,7 +19,7 @@ public class AddPartUseCase {
     private final PartRepository partRepository;
     private final RepairOrderFinder repairOrderFinder;
 
-    public RepairOrder execute(String repairOrderId, AddPartRequest request) {
+    public RepairOrder execute(String repairOrderId, AddRemovePartRequest request) {
 
         RepairOrder repairOrder = repairOrderFinder.findById(repairOrderId);
 
