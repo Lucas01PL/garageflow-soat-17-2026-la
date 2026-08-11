@@ -1,12 +1,11 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model;
 
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.model.Part;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.infrastructure.persistence.PartDocument;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.infrastructure.persistence.document.RepairOrderPartDocument;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 @NoArgsConstructor
 @Data
@@ -24,7 +23,10 @@ public class PartSnapshot {
 
     public static PartSnapshot from(Part part, Integer quantity) {
 
-        if (part.getQuantity() <= 0) {
+        Objects.requireNonNull(part);
+        Objects.requireNonNull(quantity);
+
+        if (part.getQuantity() < 0) {
             throw new IllegalArgumentException("Part quantity must be greater than zero");
         }
 
