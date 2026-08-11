@@ -5,6 +5,7 @@ import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.m
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.AddRemovePartRequest;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.AddRemoveWorkshopServiceRequest;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.CreateRepairOrderRequest;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.FinishWorkshopServiceRequest;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.response.RepairOrderResponseDTO;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.mapper.RepairOrderMapper;
 import io.swagger.v3.oas.annotations.Operation;
@@ -187,6 +188,38 @@ public class RepairOrderController {
 
         return ResponseEntity.ok(
                 mapper.toResponse(repairOrder));
+    }
+
+    @Operation(
+            summary = "Start Workshop Service in Repair Order",
+            description = "Starts a workshop service in an existing repair order."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Workshop service started")
+    })
+    @PatchMapping("/{repairOrderId}/services/{workshopServiceId}/status/start")
+    public ResponseEntity<?> startWorkshopService(
+            @PathVariable String repairOrderId,
+            @PathVariable String workshopServiceId) {
+
+
+        return ResponseEntity.ok("Start Service not implemented yet");
+    }
+
+    @Operation(
+            summary = "Finish Workshop Service in Repair Order",
+            description = "Finishes a workshop service in an existing repair order."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Workshop service finished")
+    })
+    @PatchMapping("/{repairOrderId}/services/{workshopServiceId}/status/finished")
+    public ResponseEntity<?> finishWorkshopService(
+            @PathVariable String repairOrderId,
+            @PathVariable String workshopServiceId,
+            @Valid @RequestBody FinishWorkshopServiceRequest request) {
+
+        return ResponseEntity.ok("Finish Service not implemented yet");
     }
 }
 
