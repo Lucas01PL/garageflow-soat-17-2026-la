@@ -1,18 +1,9 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase;
 
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.model.Part;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.repository.PartRepository;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.*;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.repository.RepairOrderRepository;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.type.RepairOrderStatus;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.domain.model.WorkshopService;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.domain.repository.WorkshopServiceRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
 
 @AllArgsConstructor
 @Service
@@ -40,7 +31,7 @@ public class CreateRepairOrderUseCase {
         validateVehicle(repairOrder.getVehicle());
 
         repairOrder.number();
-        repairOrder.repairOrderReceived();
+        repairOrder.received();
 
         return repository.save(repairOrder);
     }

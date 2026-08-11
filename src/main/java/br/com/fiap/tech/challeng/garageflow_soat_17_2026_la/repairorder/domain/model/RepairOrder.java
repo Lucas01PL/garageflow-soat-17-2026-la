@@ -57,7 +57,6 @@ public class RepairOrder {
                     this.workshopServices.add(workshopService);
                 }
         );
-        repairOrderInDiagnosis();
         recalculateTotals();
     }
 
@@ -81,21 +80,23 @@ public class RepairOrder {
                     this.parts.add(partSnapshot);
                 }
         );
-
-        repairOrderInDiagnosis();
         recalculateTotals();
     }
 
-    public void repairOrderReceived() {
+    public void received() {
         status = RepairOrderStatus.RECEIVED;
         createdDate = LocalDateTime.now();
         initDate = LocalDateTime.now();
     }
 
-    public void repairOrderInDiagnosis() {
-        if (status != RepairOrderStatus.IN_DIAGNOSIS) {
-            status = RepairOrderStatus.IN_DIAGNOSIS;
+    public void inDiagnosis() {
+        if (status != RepairOrderStatus.RECEIVED && status != RepairOrderStatus.WAITING_APPROVING) {
+            throw new IllegalArgumentException(
+                    "Repair Order must be RECEIVED or WAITING_APPROVING to start diagnosis.");
         }
+
+        status = RepairOrderStatus.IN_DIAGNOSIS;
+        updatedDate = LocalDateTime.now();
     }
 
     public void number() {
@@ -152,5 +153,52 @@ public class RepairOrder {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
+    public void removePart(PartSnapshot partSnapshot) {
+
+        Objects.requireNonNull(partSnapshot);
+
+        validateCanModifyItems();
+
+        parts.stream()
+                .filter(existingPart -> existingPart.getId().equals(partSnapshot.getId()))
+                .findFirst()
+                .ifPresentOrElse((existingPart) -> {
+                    if (existingPart.getQuantity() > partSnapshot.getQuantity()) {
+                        existingPart.setQuantity(
+                                existingPart.getQuantity() - partSnapshot.getQuantity());
+                    } else if (existingPart.getQuantity().equals(partSnapshot.getQuantity())) {
+                        parts.remove(existingPart);
+                    } else {
+                        throw new IllegalArgumentException("Quantity of Part is insufficient to remove the requested amount.");
+                    }
+                }, () -> {
+                    throw new IllegalArgumentException("Part not found in repair order");
+                });
+        recalculateTotals();
+    }
+
+    public void removeWorkshopService(WorkshopServiceSnapshot workshopServiceSnapshot) {
+
+        Objects.requireNonNull(workshopServiceSnapshot);
+
+        validateCanModifyItems();
+
+        workshopServices.stream()
+                .filter(existingService -> existingService.getId().equals(workshopServiceSnapshot.getId()))
+                .findFirst()
+                .ifPresentOrElse((existingService) -> {
+                    if (existingService.getQuantity() > workshopServiceSnapshot.getQuantity()) {
+                        existingService.setQuantity(
+                                existingService.getQuantity() - workshopServiceSnapshot.getQuantity());
+                    } else if (existingService.getQuantity().equals(workshopServiceSnapshot.getQuantity())) {
+                        workshopServices.remove(existingService);
+                    } else {
+                        throw new IllegalArgumentException("Quantity of Workshop Service is insufficient to remove the requested amount.");
+                    }
+                }, () -> {
+                    throw new IllegalArgumentException("Workshop Service not found in repair order");
+                });
+        recalculateTotals();
+    }
 }
 
