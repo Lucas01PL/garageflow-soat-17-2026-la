@@ -25,7 +25,7 @@ public class AddPartUseCase {
 
         Part part = getPart(request.getPartId());
 
-        PartSnapshot partSnapshot = PartSnapshot.from(part, part.getQuantity());
+        PartSnapshot partSnapshot = PartSnapshot.from(part, request.getQuantity());
 
         repairOrder.addPart(partSnapshot);
 
