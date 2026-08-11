@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
+// TODO: utilizar record ao inves de classe
 @NoArgsConstructor
 @Data
 public class WorkshopService {
