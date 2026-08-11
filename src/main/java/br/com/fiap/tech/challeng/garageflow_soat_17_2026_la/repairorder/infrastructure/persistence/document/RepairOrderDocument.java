@@ -47,6 +47,9 @@ public class RepairOrderDocument {
     @NotBlank(message = "Customer cannot be blank")
     private RepairOrderCustomerDocument customer;
 
+    @NotBlank(message = "Customer cannot be blank")
+    private RepairOrderVehicleDocument vehicle;
+
     @NotBlank(message = "User ID cannot be blank")
     private String userId;
 

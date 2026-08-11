@@ -1,12 +1,8 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.infrastructure.persistence.repository;
 
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.PartSnapshot;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.RepairOrder;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.WorkshopServiceSnapshot;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.*;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.repository.RepairOrderRepository;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.infrastructure.persistence.document.RepairOrderDocument;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.infrastructure.persistence.document.RepairOrderPartDocument;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.infrastructure.persistence.document.RepairOrderWorkshopServiceDocument;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.infrastructure.persistence.document.*;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.infrastructure.persistence.mongo.RepairOrderMongoRepository;
 import jakarta.validation.constraints.NotBlank;
 import org.jspecify.annotations.NonNull;
@@ -74,13 +70,33 @@ public class RepairOrderRepositoryImpl implements RepairOrderRepository {
                                 .totalServices(entity.getTotalServices())
                                 .totalParts(entity.getTotalParts())
                                 .total(entity.getTotal())
-        //        domain.setCustomer(domain.getCustomer());
-        //        domain.setVehicle(domain.getVehicle());
+                                .customer(getCustomerDomain(entity.getCustomer()))
+                                .vehicle(getVehicleDomain(entity.getVehicle()))
                                 .workshopServices(getWorkshopServiceDomain(entity.getWorkshopServices()))
                                 .parts(getPartDomain(entity.getParts()))
                                 .userId(entity.getUserId())
                                 .updatedDate(entity.getUpdatedDate())
                                 .build();
+    }
+
+    private VehicleSnapshot getVehicleDomain(@NotBlank(message = "Customer cannot be blank") RepairOrderVehicleDocument vehicle) {
+        if (vehicle == null) return null;
+        VehicleSnapshot vehicleSnapshot = new VehicleSnapshot(vehicle.getVehicleId());
+        vehicleSnapshot.setBrand(vehicle.getBrand());
+        vehicleSnapshot.setModel(vehicle.getModel());
+        vehicleSnapshot.setYear(vehicle.getYear());
+        return vehicleSnapshot;
+    }
+
+    private CustomerSnapshot getCustomerDomain(@NotBlank(message = "Customer cannot be blank") RepairOrderCustomerDocument customer) {
+        if (customer == null) return null;
+        CustomerSnapshot customerSnapshot = new CustomerSnapshot(customer.getCustomerId());
+        customerSnapshot.setName(customer.getName());
+        customerSnapshot.setDocument(customer.getDocument());
+        customerSnapshot.setPhone(customer.getPhone());
+        customerSnapshot.setEmail(customer.getEmail());
+        customerSnapshot.setAddress(customer.getAddress());
+        return customerSnapshot;
     }
 
     private RepairOrderDocument toEntity(RepairOrder domain) {
@@ -93,13 +109,35 @@ public class RepairOrderRepositoryImpl implements RepairOrderRepository {
         entity.setTotalServices(domain.getTotalServices());
         entity.setTotalParts(domain.getTotalParts());
         entity.setTotal(domain.getTotal());
-//        entity.setCustomer(domain.getCustomer());
-//        entity.setVehicle(domain.getVehicle());
+        entity.setCustomer(getCustomerDocument(domain.getCustomer()));
+        entity.setVehicle(getVehicleDocument(domain.getVehicle()));
         entity.setWorkshopServices(getWorkshopServiceDocuments(domain));
         entity.setParts(getPartDocuments(domain.getParts()));
         entity.setCreatedDate(domain.getCreatedDate());
         entity.setUpdatedDate(domain.getUpdatedDate());
         return entity;
+    }
+
+    private @NotBlank(message = "Customer cannot be blank") RepairOrderVehicleDocument getVehicleDocument(VehicleSnapshot vehicle) {
+        if (vehicle == null) return null;
+        var vehicleDocument = new RepairOrderVehicleDocument();
+        vehicleDocument.setVehicleId(vehicle.getVehicleId());
+        vehicleDocument.setBrand(vehicle.getBrand());
+        vehicleDocument.setModel(vehicle.getModel());
+        vehicleDocument.setYear(vehicle.getYear());
+        return vehicleDocument;
+    }
+
+    private @NotBlank(message = "Customer cannot be blank") RepairOrderCustomerDocument getCustomerDocument(CustomerSnapshot customer) {
+        if (customer == null) return null;
+        var customerDocument = new RepairOrderCustomerDocument();
+        customerDocument.setCustomerId(customer.getCustomerId());
+        customerDocument.setName(customer.getName());
+        customerDocument.setDocument(customer.getDocument());
+        customerDocument.setPhone(customer.getPhone());
+        customerDocument.setEmail(customer.getEmail());
+        customerDocument.setAddress(customer.getAddress());
+        return customerDocument;
     }
 
     private @NotBlank(message = "Parts cannot be blank") List<RepairOrderPartDocument> getPartDocuments(List<PartSnapshot> parts) {
