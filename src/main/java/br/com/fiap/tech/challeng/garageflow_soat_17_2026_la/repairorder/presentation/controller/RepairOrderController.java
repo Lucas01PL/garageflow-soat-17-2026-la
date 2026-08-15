@@ -42,6 +42,8 @@ public class RepairOrderController {
 
     private StartRepairOrderDiagnosisUseCase startRepairOrderDiagnosisUseCase;
 
+    private StartWorkshopServiceUseCase startWorkshopServiceUseCase;
+
     private RepairOrderMapper mapper;
 
     @Operation(
@@ -202,8 +204,10 @@ public class RepairOrderController {
             @PathVariable String repairOrderId,
             @PathVariable String workshopServiceId) {
 
+        RepairOrder repairOrder =
+                startWorkshopServiceUseCase.execute(repairOrderId, workshopServiceId);
 
-        return ResponseEntity.ok("Start Service not implemented yet");
+        return ResponseEntity.ok(mapper.toResponse(repairOrder));
     }
 
     @Operation(

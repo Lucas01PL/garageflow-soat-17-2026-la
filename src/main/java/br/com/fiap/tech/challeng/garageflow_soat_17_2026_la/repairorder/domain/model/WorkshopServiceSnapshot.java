@@ -1,10 +1,14 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model;
 
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.type.WorkshopServiceStatus;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.domain.model.WorkshopService;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.Objects;
 
 @NoArgsConstructor
@@ -15,12 +19,9 @@ public class WorkshopServiceSnapshot {
     private Integer quantity;
     private BigDecimal unitPrice;
     private Integer durationInMinutes;
-
-    public WorkshopServiceSnapshot(String workshopServiceId, Integer quantity, Integer durationInMinutes) {
-        this.workshopServiceId = workshopServiceId;
-        this.quantity = quantity;
-        this.durationInMinutes = durationInMinutes;
-    }
+    private WorkshopServiceStatus status;
+    private LocalDateTime startedAt;
+    private LocalDateTime finishedAt;
 
     public static WorkshopServiceSnapshot from(WorkshopService workshopService, Integer quantity) {
         Objects.requireNonNull(workshopService);
@@ -35,6 +36,18 @@ public class WorkshopServiceSnapshot {
         snapshot.setDescription(workshopService.getDescription());
         snapshot.setQuantity(quantity);
         snapshot.setUnitPrice(workshopService.getValue());
+        snapshot.setStatus(WorkshopServiceStatus.WAITING_ATTENDING);
         return snapshot;
     }
+
+    @JsonIgnore
+    public boolean isWaitingAttending() {
+        return WorkshopServiceStatus.WAITING_ATTENDING == this.status;
+    }
+
+    @JsonIgnore
+    public boolean isInExecution() {
+        return WorkshopServiceStatus.IN_EXECUTION == this.status;
+    }
+
 }

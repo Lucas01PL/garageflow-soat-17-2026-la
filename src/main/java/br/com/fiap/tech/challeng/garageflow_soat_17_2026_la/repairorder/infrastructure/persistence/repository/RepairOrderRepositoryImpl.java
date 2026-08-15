@@ -160,6 +160,9 @@ public class RepairOrderRepositoryImpl implements RepairOrderRepository {
             wsEntity.setQuantity(ws.getQuantity());
             wsEntity.setUnitPrice(ws.getUnitPrice());
             wsEntity.setDurationInMinutes(ws.getDurationInMinutes());
+            wsEntity.setStatus(ws.getStatus());
+            wsEntity.setStartedAt(ws.getStartedAt());
+            wsEntity.setFinishedAt(ws.getFinishedAt());
             return wsEntity;
         }).collect(Collectors.toList());
     }
@@ -186,6 +189,9 @@ public class RepairOrderRepositoryImpl implements RepairOrderRepository {
             wsEntity.setUnitPrice(ws.getUnitPrice());
             wsEntity.setQuantity(ws.getQuantity());
             wsEntity.setDurationInMinutes(ws.getDurationInMinutes());
+            wsEntity.setStatus(ws.getStatus());
+            wsEntity.setStartedAt(ws.getStartedAt());
+            wsEntity.setFinishedAt(ws.getFinishedAt());
             return wsEntity;
         }).collect(Collectors.toList());
     }
