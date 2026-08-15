@@ -27,7 +27,7 @@ public class WorkshopServiceSnapshot {
         Objects.requireNonNull(workshopService);
         Objects.requireNonNull(quantity);
 
-        if (quantity < 0)
+        if (quantity <= 0)
             throw new IllegalArgumentException(
                     "Workshop service quantity must be greater than zero.");
 
@@ -40,12 +40,10 @@ public class WorkshopServiceSnapshot {
         return snapshot;
     }
 
-    @JsonIgnore
     public boolean isWaitingAttending() {
         return WorkshopServiceStatus.WAITING_ATTENDING == this.status;
     }
 
-    @JsonIgnore
     public boolean isInExecution() {
         return WorkshopServiceStatus.IN_EXECUTION == this.status;
     }
