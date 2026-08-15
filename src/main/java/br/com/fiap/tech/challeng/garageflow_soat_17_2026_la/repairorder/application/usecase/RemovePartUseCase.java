@@ -1,5 +1,6 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase;
 
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.application.usecase.PartStockControlUseCase;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.model.Part;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.repository.PartRepository;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.service.RepairOrderFinder;
@@ -18,6 +19,7 @@ public class RemovePartUseCase {
     private final RepairOrderRepository repository;
     private final PartRepository partRepository;
     private final RepairOrderFinder repairOrderFinder;
+    private final PartStockControlUseCase partStockControlUseCase;
 
     public RepairOrder execute(String repairOrderId, AddRemovePartRequest request) {
 
@@ -28,6 +30,12 @@ public class RemovePartUseCase {
         PartSnapshot partSnapshot = PartSnapshot.from(part, request.getQuantity());
 
         repairOrder.removePart(partSnapshot);
+
+        try {
+            partStockControlUseCase.addPartStock(request.getPartId(), request.getQuantity());
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to add part stock: " + e.getMessage());
+        }
 
         return repository.save(repairOrder);
     }
