@@ -35,10 +35,8 @@ public class AddPartUseCase {
         try {
             partStockControlUseCase.debitPartStock(request.getPartId(), request.getQuantity());
         } catch (NotEnoughResourceException e) {
-            repairOrder.removePart(partSnapshot);
             throw new IllegalArgumentException("Not enough part stock available");
         } catch (Exception e) {
-            repairOrder.removePart(partSnapshot);
             throw new IllegalArgumentException("Failed to debit part stock: " + e.getMessage());
         }
 
