@@ -22,18 +22,7 @@ public class FinishWorkshopServiceUseCase {
         RepairOrder repairOrder =
                 repairOrderFinder.findById(repairOrderId);
 
-        var workshopService = repairOrder.getWorkshopServices()
-                .stream()
-                .filter(ws -> ws.getWorkshopServiceId().equals(workshopServiceId))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Workshop service not found"));
-
-        if (!workshopService.isInExecution())
-            throw new IllegalArgumentException("Workshop service not in execution");
-
-        workshopService.setDurationInMinutes(request.getDurationInMinutes());
-        workshopService.setFinishedAt(LocalDateTime.now());
-        workshopService.setStatus(WorkshopServiceStatus.FINISHED);
+       repairOrder.finishWorkshopService(workshopServiceId, request.getDurationInMinutes());
 
         return repairOrderRepository.save(repairOrder);
     }
