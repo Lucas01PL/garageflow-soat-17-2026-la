@@ -26,7 +26,7 @@ public class PartSnapshot {
         Objects.requireNonNull(part);
         Objects.requireNonNull(quantity);
 
-        if (part.getQuantity() < 0) {
+        if (quantity <= 0) {
             throw new IllegalArgumentException("Part quantity must be greater than zero");
         }
 
