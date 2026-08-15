@@ -85,6 +85,7 @@ public class RepairOrderRepositoryImpl implements RepairOrderRepository {
         vehicleSnapshot.setBrand(vehicle.getBrand());
         vehicleSnapshot.setModel(vehicle.getModel());
         vehicleSnapshot.setYear(vehicle.getYear());
+        vehicleSnapshot.setPlate(vehicle.getPlate());
         return vehicleSnapshot;
     }
 
@@ -125,6 +126,7 @@ public class RepairOrderRepositoryImpl implements RepairOrderRepository {
         vehicleDocument.setBrand(vehicle.getBrand());
         vehicleDocument.setModel(vehicle.getModel());
         vehicleDocument.setYear(vehicle.getYear());
+        vehicleDocument.setPlate(vehicle.getPlate());
         return vehicleDocument;
     }
 
