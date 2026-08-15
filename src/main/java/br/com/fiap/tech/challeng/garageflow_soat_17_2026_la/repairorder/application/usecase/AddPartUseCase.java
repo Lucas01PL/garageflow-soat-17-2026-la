@@ -1,5 +1,6 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase;
 
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.application.usecase.PartStockControlUseCase;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.model.Part;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.repository.PartRepository;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.service.RepairOrderFinder;
@@ -7,6 +8,7 @@ import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.m
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.RepairOrder;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.repository.RepairOrderRepository;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.AddRemovePartRequest;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.NotEnoughResourceException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.ResourceNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,7 @@ public class AddPartUseCase {
     private final RepairOrderRepository repository;
     private final PartRepository partRepository;
     private final RepairOrderFinder repairOrderFinder;
+    private final PartStockControlUseCase partStockControlUseCase;
 
     public RepairOrder execute(String repairOrderId, AddRemovePartRequest request) {
 
@@ -28,6 +31,16 @@ public class AddPartUseCase {
         PartSnapshot partSnapshot = PartSnapshot.from(part, request.getQuantity());
 
         repairOrder.addPart(partSnapshot);
+
+        try {
+            partStockControlUseCase.debitPartStock(request.getPartId(), request.getQuantity());
+        } catch (NotEnoughResourceException e) {
+            repairOrder.removePart(partSnapshot);
+            throw new IllegalArgumentException("Not enough part stock available");
+        } catch (Exception e) {
+            repairOrder.removePart(partSnapshot);
+            throw new IllegalArgumentException("Failed to debit part stock: " + e.getMessage());
+        }
 
         return repository.save(repairOrder);
     }
