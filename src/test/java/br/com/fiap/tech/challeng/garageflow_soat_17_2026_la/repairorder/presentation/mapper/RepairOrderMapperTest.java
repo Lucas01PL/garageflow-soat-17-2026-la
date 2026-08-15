@@ -12,7 +12,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class RepairOrderMapperTest {
 
-    private final RepairOrderMapper mapper = new RepairOrderMapper();
+    private final WorkshopServiceResponseMapper workshopServiceMapper = new WorkshopServiceResponseMapper();
+    private final RepairOrderMapper mapper = new RepairOrderMapper(workshopServiceMapper);
 
     @Test
     void toModelShouldMapDtoToModel() {
