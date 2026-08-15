@@ -48,4 +48,14 @@ public class WorkshopServiceSnapshot {
         return WorkshopServiceStatus.IN_EXECUTION == this.status;
     }
 
+    public void start() {
+        this.status = WorkshopServiceStatus.IN_EXECUTION;
+        this.startedAt = LocalDateTime.now();
+    }
+
+    public void finish(Integer durationInMinutes) {
+        this.status = WorkshopServiceStatus.FINISHED;
+        this.durationInMinutes = durationInMinutes;
+        this.finishedAt = LocalDateTime.now();
+    }
 }

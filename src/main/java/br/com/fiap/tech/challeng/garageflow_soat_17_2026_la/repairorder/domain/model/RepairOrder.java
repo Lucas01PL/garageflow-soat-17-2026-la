@@ -215,5 +215,36 @@ public class RepairOrder {
     public List<WorkshopServiceSnapshot> getWorkshopServices() {
         return Collections.unmodifiableList(workshopServices);
     }
+
+    public void startWorkshopService(String workshopServiceId) {
+
+        WorkshopServiceSnapshot workshopService = findWorkshopService(workshopServiceId);
+
+        if (!workshopService.isWaitingAttending()) {
+            throw new IllegalArgumentException("Workshop service not waiting attending");
+        }
+
+        workshopService.start();
+        updatedDate = LocalDateTime.now();
+    }
+
+    public void finishWorkshopService(
+            String workshopServiceId,
+            Integer durationInMinutes) {
+
+        WorkshopServiceSnapshot service =
+                findWorkshopService(workshopServiceId);
+
+        service.finish(durationInMinutes);
+
+        updatedDate = LocalDateTime.now();
+    }
+
+    private WorkshopServiceSnapshot findWorkshopService(String workshopServiceId) {
+        return workshopServices.stream()
+                .filter(service -> service.getWorkshopServiceId().equals(workshopServiceId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Workshop service not found"));
+    }
 }
 
