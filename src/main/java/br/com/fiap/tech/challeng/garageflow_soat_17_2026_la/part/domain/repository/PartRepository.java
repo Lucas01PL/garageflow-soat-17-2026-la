@@ -18,4 +18,6 @@ public interface PartRepository {
     void delete(String id);
 
     boolean existsByCode(String code);
+
+    List<Part> findLowStock(Integer threshold);
 }

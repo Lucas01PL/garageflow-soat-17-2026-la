@@ -27,8 +27,9 @@ public class PartController {
     private final PartMapper partMapper;
     private final ListAllPartsUseCase listAllPartsUseCase;
     private final PartStockControlUseCase partStockControlUseCase;
+    private final PartListToBuyUseCase partListToBuyUseCase;
 
-    public PartController(CreatePartUseCase createPartUseCase, GetPartUseCase getPartUseCase, UpdatePartUseCase updatePartUseCase, DeletePartUseCase deletePartUseCase, PartMapper partMapper, ListAllPartsUseCase listAllPartsUseCase, PartStockControlUseCase partStockControlUseCase) {
+    public PartController(CreatePartUseCase createPartUseCase, GetPartUseCase getPartUseCase, UpdatePartUseCase updatePartUseCase, DeletePartUseCase deletePartUseCase, PartMapper partMapper, ListAllPartsUseCase listAllPartsUseCase, PartStockControlUseCase partStockControlUseCase, PartListToBuyUseCase partListToBuyUseCase) {
         this.createPartUseCase = createPartUseCase;
         this.getPartUseCase = getPartUseCase;
         this.updatePartUseCase = updatePartUseCase;
@@ -36,6 +37,7 @@ public class PartController {
         this.partMapper = partMapper;
         this.listAllPartsUseCase = listAllPartsUseCase;
         this.partStockControlUseCase = partStockControlUseCase;
+        this.partListToBuyUseCase = partListToBuyUseCase;
     }
 
     @Operation(
@@ -123,6 +125,20 @@ public class PartController {
     public ResponseEntity<List<PartResponse>> getAllParts(){
         List<Part> allParts = listAllPartsUseCase.findAll();
         List<PartResponse> partResponseList = allParts.stream().map(partMapper::partToResponse).toList();
+        return ResponseEntity.status(HttpStatus.OK).body(partResponseList);
+    }
+
+    @Operation(
+            summary = "List Auto Parts or Maintenance Supplies with low stock.",
+            description = "Retrieves all auto parts and maintenance supplies with quantity at or below the given threshold (shopping list)."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Low stock Auto Parts/Maintenance Supplies listed")
+    })
+    @GetMapping("/low-stock")
+    public ResponseEntity<List<PartResponse>> getPartsToBuy(@RequestParam(required = false) Integer threshold) {
+        List<Part> partsToBuy = partListToBuyUseCase.findPartsToBuy(threshold);
+        List<PartResponse> partResponseList = partsToBuy.stream().map(partMapper::partToResponse).toList();
         return ResponseEntity.status(HttpStatus.OK).body(partResponseList);
     }
 
