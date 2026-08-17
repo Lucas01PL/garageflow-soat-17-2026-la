@@ -18,7 +18,7 @@ public class StartExecutionRepairOrderUseCase {
         RepairOrder repairOrder =
                 repairOrderFinder.findById(repairOrderId);
 
-        repairOrder.startInDiagnosis();
+        repairOrder.startExecution();
 
         return repairOrderRepository.save(repairOrder);
     }
