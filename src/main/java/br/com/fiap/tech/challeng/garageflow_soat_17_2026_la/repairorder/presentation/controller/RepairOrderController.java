@@ -48,6 +48,8 @@ public class RepairOrderController {
 
     private RepairOrderMapper mapper;
 
+    private ApproveRepairOrderUseCase approveRepairOrderUseCase;
+
     @Operation(
             summary = "Create Repair Order",
             description = "Creates a new repair order."
@@ -229,6 +231,24 @@ public class RepairOrderController {
                 finishWorkshopServiceUseCase.execute(repairOrderId, workshopServiceId, request);
 
         return ResponseEntity.ok(mapper.toResponse(repairOrder));
+    }
+
+    @Operation(
+            summary = "Set Repair Order to In Diagnosis",
+            description = "Sets the status of an existing repair order to In Diagnosis."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Repair order updated")
+    })
+    @PatchMapping("/{repairOrderId}/status/approved")
+    public ResponseEntity<?> approve(
+            @PathVariable String repairOrderId) {
+
+        RepairOrder repairOrder =
+                approveRepairOrderUseCase.execute(repairOrderId);
+
+        return ResponseEntity.ok(
+                mapper.toResponse(repairOrder));
     }
 }
 
