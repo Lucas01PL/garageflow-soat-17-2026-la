@@ -249,6 +249,36 @@ public class RepairOrder {
         updatedDate = LocalDateTime.now();
     }
 
+    public void approve() {
+
+        if (!isAwaitingApproving()) {
+            throw new IllegalStateException(
+                    "Repair Order must be awaiting customer approval.");
+        }
+
+        status = RepairOrderStatus.APPROVED;
+        updatedDate = LocalDateTime.now();
+    }
+
+    private boolean isAwaitingApproving() {
+        return status == RepairOrderStatus.AWAITING_APPROVING;
+    }
+
+    private boolean isApproved() {
+        return status == RepairOrderStatus.APPROVED;
+    }
+
+    public void reject() {
+
+        if (isAwaitingApproving()) {
+            throw new IllegalStateException(
+                    "Repair Order must be awaiting customer approval.");
+        }
+
+        status = RepairOrderStatus.REJECTED;
+        updatedDate = LocalDateTime.now();
+    }
+
     private WorkshopServiceSnapshot findWorkshopService(String workshopServiceId) {
         return workshopServices.stream()
                 .filter(service -> service.getWorkshopServiceId().equals(workshopServiceId))
