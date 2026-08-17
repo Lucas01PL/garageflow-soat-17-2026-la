@@ -234,8 +234,8 @@ public class RepairOrderController {
     }
 
     @Operation(
-            summary = "Set Repair Order to In Diagnosis",
-            description = "Sets the status of an existing repair order to In Diagnosis."
+            summary = "Set Repair Order to Approved",
+            description = "Sets the status of an existing repair order to Approved."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Repair order updated")
