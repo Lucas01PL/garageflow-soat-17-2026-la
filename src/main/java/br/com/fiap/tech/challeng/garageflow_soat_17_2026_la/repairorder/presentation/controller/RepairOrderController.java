@@ -52,6 +52,8 @@ public class RepairOrderController {
 
     private RejectRepairOrderUseCase rejectRepairOrderUseCase;
 
+    private DeliverRepairOrderUseCase deliverRepairOrderUseCase;
+
     @Operation(
             summary = "Create Repair Order",
             description = "Creates a new repair order."
@@ -266,6 +268,24 @@ public class RepairOrderController {
 
         RepairOrder repairOrder =
                 rejectRepairOrderUseCase.execute(repairOrderId);
+
+        return ResponseEntity.ok(
+                mapper.toResponse(repairOrder));
+    }
+
+    @Operation(
+            summary = "Set Repair Order to Delivered",
+            description = "Sets the status of an existing repair order to Delivered."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Repair order updated")
+    })
+    @PatchMapping("/{repairOrderId}/status/deliver")
+    public ResponseEntity<?> deliver(
+            @PathVariable String repairOrderId) {
+
+        RepairOrder repairOrder =
+                deliverRepairOrderUseCase.execute(repairOrderId);
 
         return ResponseEntity.ok(
                 mapper.toResponse(repairOrder));
