@@ -232,10 +232,14 @@ public class RepairOrder {
             String workshopServiceId,
             Integer durationInMinutes) {
 
-        WorkshopServiceSnapshot service =
+        WorkshopServiceSnapshot workshopService =
                 findWorkshopService(workshopServiceId);
 
-        service.finish(durationInMinutes);
+        if (!workshopService.isInExecution()) {
+            throw new IllegalArgumentException("Workshop service not in execution");
+        }
+
+        workshopService.finish(durationInMinutes);
 
         updatedDate = LocalDateTime.now();
     }
