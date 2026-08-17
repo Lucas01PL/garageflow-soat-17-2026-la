@@ -251,7 +251,7 @@ public class RepairOrder {
 
     public void approve() {
 
-        if (!isAwaitingApproving()) {
+        if (!isAwaitingApproval()) {
             throw new IllegalStateException(
                     "Repair Order must be awaiting customer approval.");
         }
@@ -260,8 +260,8 @@ public class RepairOrder {
         updatedDate = LocalDateTime.now();
     }
 
-    private boolean isAwaitingApproving() {
-        return status == RepairOrderStatus.AWAITING_APPROVING;
+    private boolean isAwaitingApproval() {
+        return status == RepairOrderStatus.AWAITING_APPROVAL;
     }
 
     private boolean isApproved() {
@@ -270,7 +270,7 @@ public class RepairOrder {
 
     public void reject() {
 
-        if (isAwaitingApproving()) {
+        if (!isAwaitingApproval()) {
             throw new IllegalStateException(
                     "Repair Order must be awaiting customer approval.");
         }

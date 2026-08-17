@@ -7,7 +7,7 @@ public enum RepairOrderStatus {
 
     RECEIVED("Recebida"),
     IN_DIAGNOSIS("Em Diagnóstico"),
-    AWAITING_APPROVING("Aguardando aprovação"),
+    AWAITING_APPROVAL("Aguardando aprovação"),
     IN_EXECUTION("Em Execução"),
     FINISHED("Finalizada"),
     DELIVERED("Entregue"),
