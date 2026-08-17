@@ -279,6 +279,18 @@ public class RepairOrder {
         updatedDate = LocalDateTime.now();
     }
 
+    public void deliver() {
+
+        if (status != RepairOrderStatus.FINISHED) {
+            throw new IllegalStateException(
+                    "Repair Order must be FINISHED to be delivered."
+            );
+        }
+
+        status = RepairOrderStatus.DELIVERED;
+        updatedDate = LocalDateTime.now();
+    }
+
     private WorkshopServiceSnapshot findWorkshopService(String workshopServiceId) {
         return workshopServices.stream()
                 .filter(service -> service.getWorkshopServiceId().equals(workshopServiceId))
