@@ -40,7 +40,7 @@ public class RepairOrderController {
 
     private RemoveWorkshopServiceUseCase removeWorkshopServiceUseCase;
 
-    private StartRepairOrderDiagnosisUseCase startRepairOrderDiagnosisUseCase;
+    private StartExecutionRepairOrderUseCase startRepairOrderDiagnosisUseCase;
 
     private StartWorkshopServiceUseCase startWorkshopServiceUseCase;
 
@@ -53,6 +53,8 @@ public class RepairOrderController {
     private RejectRepairOrderUseCase rejectRepairOrderUseCase;
 
     private DeliverRepairOrderUseCase deliverRepairOrderUseCase;
+
+    private StartExecutionRepairOrderUseCase startExecutionRepairOrderUseCase;
 
     @Operation(
             summary = "Create Repair Order",
@@ -286,6 +288,24 @@ public class RepairOrderController {
 
         RepairOrder repairOrder =
                 deliverRepairOrderUseCase.execute(repairOrderId);
+
+        return ResponseEntity.ok(
+                mapper.toResponse(repairOrder));
+    }
+
+    @Operation(
+            summary = "Set Repair Order to In Execution",
+            description = "Sets the status of an existing repair order to In Execution."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Repair order updated")
+    })
+    @PatchMapping("/{repairOrderId}/status/in-execution")
+    public ResponseEntity<?> startExecution(
+            @PathVariable String repairOrderId) {
+
+        RepairOrder repairOrder =
+                startExecutionRepairOrderUseCase.execute(repairOrderId);
 
         return ResponseEntity.ok(
                 mapper.toResponse(repairOrder));
