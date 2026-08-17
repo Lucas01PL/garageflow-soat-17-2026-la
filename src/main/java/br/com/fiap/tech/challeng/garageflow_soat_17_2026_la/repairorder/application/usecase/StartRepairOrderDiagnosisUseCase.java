@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class StartExecutionRepairOrderUseCase {
+public class StartRepairOrderDiagnosisUseCase {
 
     private final RepairOrderRepository repairOrderRepository;
     private final RepairOrderFinder repairOrderFinder;
@@ -18,7 +18,7 @@ public class StartExecutionRepairOrderUseCase {
         RepairOrder repairOrder =
                 repairOrderFinder.findById(repairOrderId);
 
-        repairOrder.startExecution();
+        repairOrder.startInDiagnosis();
 
         return repairOrderRepository.save(repairOrder);
     }

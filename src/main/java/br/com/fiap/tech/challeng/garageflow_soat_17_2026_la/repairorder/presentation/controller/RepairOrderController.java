@@ -40,7 +40,7 @@ public class RepairOrderController {
 
     private RemoveWorkshopServiceUseCase removeWorkshopServiceUseCase;
 
-    private StartExecutionRepairOrderUseCase startRepairOrderDiagnosisUseCase;
+    private StartRepairOrderDiagnosisUseCase startRepairOrderDiagnosisUseCase;
 
     private StartWorkshopServiceUseCase startWorkshopServiceUseCase;
 
@@ -54,7 +54,7 @@ public class RepairOrderController {
 
     private DeliverRepairOrderUseCase deliverRepairOrderUseCase;
 
-    private StartExecutionRepairOrderUseCase startExecutionRepairOrderUseCase;
+    private StartRepairOrderExecutionUseCase startRepairOrderExecutionUseCase;
 
     @Operation(
             summary = "Create Repair Order",
@@ -305,7 +305,7 @@ public class RepairOrderController {
             @PathVariable String repairOrderId) {
 
         RepairOrder repairOrder =
-                startExecutionRepairOrderUseCase.execute(repairOrderId);
+                startRepairOrderExecutionUseCase.execute(repairOrderId);
 
         return ResponseEntity.ok(
                 mapper.toResponse(repairOrder));
