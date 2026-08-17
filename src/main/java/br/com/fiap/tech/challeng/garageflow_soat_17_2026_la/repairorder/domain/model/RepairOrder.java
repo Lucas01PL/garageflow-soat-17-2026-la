@@ -291,6 +291,18 @@ public class RepairOrder {
         updatedDate = LocalDateTime.now();
     }
 
+    public void startExecution() {
+
+        if (!isApproved()) {
+            throw new IllegalStateException(
+                    "Repair Order must be APPROVED to start execution."
+            );
+        }
+
+        status = RepairOrderStatus.IN_EXECUTION;
+        updatedDate = LocalDateTime.now();
+    }
+
     private WorkshopServiceSnapshot findWorkshopService(String workshopServiceId) {
         return workshopServices.stream()
                 .filter(service -> service.getWorkshopServiceId().equals(workshopServiceId))
