@@ -239,6 +239,11 @@ public class RepairOrder {
             throw new IllegalArgumentException("Workshop service not in execution");
         }
 
+        if (durationInMinutes == null || durationInMinutes <= 0) {
+            throw new IllegalArgumentException(
+                    "Duration must be greater than zero.");
+        }
+
         workshopService.finish(durationInMinutes);
 
         updatedDate = LocalDateTime.now();
