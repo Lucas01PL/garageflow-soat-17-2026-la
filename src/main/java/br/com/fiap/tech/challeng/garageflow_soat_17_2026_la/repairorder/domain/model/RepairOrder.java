@@ -303,6 +303,17 @@ public class RepairOrder {
         updatedDate = LocalDateTime.now();
     }
 
+    public void requestApproval() {
+        if (status != RepairOrderStatus.IN_DIAGNOSIS) {
+            throw new IllegalStateException(
+                    "Repair Order must be in diagnosis to request approval."
+            );
+        }
+
+        status = RepairOrderStatus.AWAITING_APPROVAL;
+        updatedDate = LocalDateTime.now();
+    }
+
     private WorkshopServiceSnapshot findWorkshopService(String workshopServiceId) {
         return workshopServices.stream()
                 .filter(service -> service.getWorkshopServiceId().equals(workshopServiceId))
