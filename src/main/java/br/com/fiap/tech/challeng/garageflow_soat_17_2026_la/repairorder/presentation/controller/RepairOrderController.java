@@ -56,6 +56,8 @@ public class RepairOrderController {
 
     private StartRepairOrderExecutionUseCase startRepairOrderExecutionUseCase;
 
+    private RequestRepairOrderApprovalUseCase requestRepairOrderApprovalUseCase;
+
     @Operation(
             summary = "Create Repair Order",
             description = "Creates a new repair order."
@@ -306,6 +308,24 @@ public class RepairOrderController {
 
         RepairOrder repairOrder =
                 startRepairOrderExecutionUseCase.execute(repairOrderId);
+
+        return ResponseEntity.ok(
+                mapper.toResponse(repairOrder));
+    }
+
+    @Operation(
+            summary = "Set Repair Order to Awaiting Approval",
+            description = "Sets the status of an existing repair order to Awaiting Approval."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Repair order updated")
+    })
+    @PatchMapping("/{repairOrderId}/status/awaiting-approval")
+    public ResponseEntity<?> requestApproval(
+            @PathVariable String repairOrderId) {
+
+        RepairOrder repairOrder =
+                requestRepairOrderApprovalUseCase.execute(repairOrderId);
 
         return ResponseEntity.ok(
                 mapper.toResponse(repairOrder));

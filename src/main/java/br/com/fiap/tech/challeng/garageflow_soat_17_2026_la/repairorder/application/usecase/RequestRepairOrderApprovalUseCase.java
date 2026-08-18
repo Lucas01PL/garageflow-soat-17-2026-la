@@ -13,13 +13,13 @@ public class RequestRepairOrderApprovalUseCase {
     private final RepairOrderFinder repairOrderFinder;
     private final RepairOrderRepository repairOrderRepository;
 
-    public void execute(String repairOrderId) {
+    public RepairOrder execute(String repairOrderId) {
 
         RepairOrder repairOrder =
                 repairOrderFinder.findById(repairOrderId);
 
         repairOrder.requestApproval();
 
-        repairOrderRepository.save(repairOrder);
+        return repairOrderRepository.save(repairOrder);
     }
 }
