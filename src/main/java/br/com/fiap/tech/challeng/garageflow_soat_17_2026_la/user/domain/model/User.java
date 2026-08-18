@@ -14,12 +14,14 @@ public class User {
     private String email;
     private String password;
     private String status;
+    private UserRole role;
 
-    public User(String fullName, String email, String password, String status) {
+    public User(String fullName, String email, String password, String status, UserRole role) {
         this.fullName = fullName;
         this.email = email;
         this.password = password;
         this.status = status;
+        this.role = role;
     }
 
 }

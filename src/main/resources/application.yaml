@@ -19,3 +19,12 @@ springdoc:
 logging:
   level:
     br.com.fiap.tech.challeng.garageflow_soat_17_2026_la: DEBUG
+
+jwt:
+  secret: ${JWT_SECRET:c2VjcmV0LWtleS1mb3ItZGV2ZWxvcG1lbnQtb25seS1jaGFuZ2UtaW4tcHJvZHVjdGlvbi1lbnZzLTI1Ng==}
+  expiration-minutes: 60
+
+admin:
+  seed:
+    email: ${ADMIN_SEED_EMAIL:admin@garageflow.com}
+    password: ${ADMIN_SEED_PASSWORD:admin123}

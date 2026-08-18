@@ -1,6 +1,5 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.infrastructure.persistence.document;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -8,6 +7,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.model.UserRole;
 
 @ToString
 @NoArgsConstructor
@@ -30,6 +30,8 @@ public class UserDocument {
 
     @NotBlank(message = "Status cannot be blank")
     private String status;
+
+    private UserRole role;
 
 }
 

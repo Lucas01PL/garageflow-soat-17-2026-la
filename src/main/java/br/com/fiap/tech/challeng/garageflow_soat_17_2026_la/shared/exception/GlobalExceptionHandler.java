@@ -1,5 +1,6 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception;
 
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.purchasing.domain.exception.InvalidPurchaseListStatusException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -56,6 +57,21 @@ public class GlobalExceptionHandler {
                 ));
     }
   
+    @ExceptionHandler(InvalidPurchaseListStatusException.class)
+    public ResponseEntity<ApiErrorResponse> handleInvalidPurchaseListStatus(
+            InvalidPurchaseListStatusException ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ApiErrorResponse(
+                        HttpStatus.CONFLICT.value(),
+                        HttpStatus.CONFLICT.getReasonPhrase(),
+                        ex.getMessage(),
+                        Instant.now(),
+                        request.getRequestURI()
+                ));
+    }
+
     @ExceptionHandler(InvalidDocumentException.class)
     public ResponseEntity<ApiErrorResponse> handleInvalidDocument(
             InvalidDocumentException ex,

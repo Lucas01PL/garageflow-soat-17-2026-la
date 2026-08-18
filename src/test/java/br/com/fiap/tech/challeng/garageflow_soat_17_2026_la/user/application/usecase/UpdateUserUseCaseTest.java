@@ -8,6 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
@@ -20,6 +21,9 @@ class UpdateUserUseCaseTest {
 
     @Mock
     private UserRepository repository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private UpdateUserUseCase useCase;
@@ -40,6 +44,7 @@ class UpdateUserUseCaseTest {
         update.setStatus("INACTIVE");
 
         when(repository.findById("1")).thenReturn(Optional.of(existing));
+        when(passwordEncoder.encode("newpassword")).thenReturn("encoded-newpassword");
         when(repository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
 
         User result = useCase.execute("1", update);
@@ -47,7 +52,7 @@ class UpdateUserUseCaseTest {
         assertNotNull(result);
         assertEquals("New Name", result.getFullName());
         assertEquals("new@example.com", result.getEmail());
-        assertEquals("newpassword", result.getPassword());
+        assertEquals("encoded-newpassword", result.getPassword());
         assertEquals("INACTIVE", result.getStatus());
     }
 

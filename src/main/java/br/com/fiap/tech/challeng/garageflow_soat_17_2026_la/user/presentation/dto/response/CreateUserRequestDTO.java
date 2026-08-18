@@ -1,7 +1,9 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.presentation.dto.response;
 
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.model.UserRole;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,6 +29,9 @@ public class CreateUserRequestDTO {
     @NotBlank(message = "Status cannot be blank")
     @Size(min = 1, max = 50, message = "Status must be between 1 and 50 characters")
     private String status;
+
+    @NotNull(message = "Role cannot be null")
+    private UserRole role;
 
 }
 

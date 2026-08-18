@@ -3,6 +3,7 @@ package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.presentation.c
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.ResourceNotFoundException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.application.usecase.*;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.model.User;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.model.UserRole;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.presentation.dto.request.UserResponseDTO;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.presentation.dto.response.CreateUserRequestDTO;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.presentation.mapper.UserMapper;
@@ -54,14 +55,15 @@ class UserControllerTest {
 
     @BeforeEach
     void setup() {
-        createDto = new CreateUserRequestDTO("Name", "a@b.com", "secret", "ACTIVE");
+        createDto = new CreateUserRequestDTO("Name", "a@b.com", "secret", "ACTIVE", UserRole.CUSTOMER);
         model = new User();
         model.setId("1");
         model.setFullName("Name");
         model.setEmail("a@b.com");
         model.setStatus("ACTIVE");
+        model.setRole(UserRole.CUSTOMER);
 
-        responseDto = new UserResponseDTO("1", "Name", "a@b.com", "ACTIVE");
+        responseDto = new UserResponseDTO("1", "Name", "a@b.com", "ACTIVE", UserRole.CUSTOMER);
     }
 
     @Test

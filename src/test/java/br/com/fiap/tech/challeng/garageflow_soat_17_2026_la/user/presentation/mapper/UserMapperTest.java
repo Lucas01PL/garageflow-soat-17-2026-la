@@ -1,6 +1,7 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.presentation.mapper;
 
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.model.User;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.model.UserRole;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.presentation.dto.request.UserResponseDTO;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.presentation.dto.response.CreateUserRequestDTO;
 import org.junit.jupiter.api.Test;
@@ -13,7 +14,7 @@ class UserMapperTest {
 
     @Test
     void toModelShouldMapDtoToModel() {
-        CreateUserRequestDTO dto = new CreateUserRequestDTO("Full Name", "e@mail.com", "secret", "ACTIVE");
+        CreateUserRequestDTO dto = new CreateUserRequestDTO("Full Name", "e@mail.com", "secret", "ACTIVE", UserRole.CUSTOMER);
 
         User model = mapper.toModel(dto);
 
@@ -22,6 +23,7 @@ class UserMapperTest {
         assertEquals("e@mail.com", model.getEmail());
         assertEquals("secret", model.getPassword());
         assertEquals("ACTIVE", model.getStatus());
+        assertEquals(UserRole.CUSTOMER, model.getRole());
     }
 
     @Test
@@ -36,6 +38,7 @@ class UserMapperTest {
         model.setFullName("F");
         model.setEmail("a@b.com");
         model.setStatus("ACTIVE");
+        model.setRole(UserRole.ADMIN);
 
         UserResponseDTO dto = mapper.toResponse(model);
 
@@ -44,6 +47,7 @@ class UserMapperTest {
         assertEquals("F", dto.getFullName());
         assertEquals("a@b.com", dto.getEmail());
         assertEquals("ACTIVE", dto.getStatus());
+        assertEquals(UserRole.ADMIN, dto.getRole());
     }
 
     @Test
