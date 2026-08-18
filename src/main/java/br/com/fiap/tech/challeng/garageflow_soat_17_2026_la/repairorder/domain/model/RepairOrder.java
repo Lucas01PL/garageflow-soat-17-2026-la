@@ -1,5 +1,10 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model;
 
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.exception.InsufficientQuantityException;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.exception.InvalidRepairOrderItemException;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.exception.InvalidRepairOrderStateException;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.exception.PartNotFoundException;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.exception.WorkshopServiceNotFoundException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.type.RepairOrderStatus;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.type.WorkshopServiceStatus;
 import lombok.Builder;
@@ -99,7 +104,7 @@ public class RepairOrder {
 
     public void startInDiagnosis() {
         if (status != RepairOrderStatus.RECEIVED) {
-            throw new IllegalArgumentException(
+            throw new InvalidRepairOrderStateException(
                     "Repair Order must be RECEIVED to start diagnosis.");
         }
 
@@ -116,7 +121,7 @@ public class RepairOrder {
         if (status != RepairOrderStatus.RECEIVED &&
                 status != RepairOrderStatus.IN_DIAGNOSIS) {
 
-            throw new IllegalArgumentException(
+            throw new InvalidRepairOrderItemException(
                     "Repair Order must be RECEIVED or IN DIAGNOSIS.");
         }
     }
@@ -177,10 +182,10 @@ public class RepairOrder {
                     } else if (existingPart.getQuantity().equals(partSnapshot.getQuantity())) {
                         parts.remove(existingPart);
                     } else {
-                        throw new IllegalArgumentException("Quantity of Part is insufficient to remove the requested amount.");
+                        throw new InsufficientQuantityException("Part", partSnapshot.getId());
                     }
                 }, () -> {
-                    throw new IllegalArgumentException("Part not found in repair order");
+                    throw new PartNotFoundException(partSnapshot.getId());
                 });
         recalculateTotals();
     }
@@ -201,10 +206,10 @@ public class RepairOrder {
                     } else if (existingService.getQuantity().equals(workshopServiceSnapshot.getQuantity())) {
                         workshopServices.remove(existingService);
                     } else {
-                        throw new IllegalArgumentException("Quantity of Workshop Service is insufficient to remove the requested amount.");
+                        throw new InsufficientQuantityException("Workshop Service", workshopServiceSnapshot.getWorkshopServiceId());
                     }
                 }, () -> {
-                    throw new IllegalArgumentException("Workshop Service not found in repair order");
+                    throw new WorkshopServiceNotFoundException(workshopServiceSnapshot.getWorkshopServiceId());
                 });
         recalculateTotals();
     }
@@ -222,7 +227,7 @@ public class RepairOrder {
         WorkshopServiceSnapshot workshopService = findWorkshopService(workshopServiceId);
 
         if (!workshopService.isWaitingAttending()) {
-            throw new IllegalArgumentException("Workshop service not waiting attending");
+            throw new InvalidRepairOrderStateException("Workshop service not waiting attending");
         }
 
         workshopService.start();
@@ -237,11 +242,11 @@ public class RepairOrder {
                 findWorkshopService(workshopServiceId);
 
         if (!workshopService.isInExecution()) {
-            throw new IllegalArgumentException("Workshop service not in execution");
+            throw new InvalidRepairOrderStateException("Workshop service not in execution");
         }
 
         if (durationInMinutes == null || durationInMinutes <= 0) {
-            throw new IllegalArgumentException(
+            throw new InvalidRepairOrderItemException(
                     "Duration must be greater than zero.");
         }
 
@@ -257,7 +262,7 @@ public class RepairOrder {
     public void approve() {
 
         if (!isAwaitingApproval()) {
-            throw new IllegalStateException(
+            throw new InvalidRepairOrderStateException(
                     "Repair Order must be awaiting customer approval.");
         }
 
@@ -276,7 +281,7 @@ public class RepairOrder {
     public void reject() {
 
         if (!isAwaitingApproval()) {
-            throw new IllegalStateException(
+            throw new InvalidRepairOrderStateException(
                     "Repair Order must be awaiting customer approval.");
         }
 
@@ -287,7 +292,7 @@ public class RepairOrder {
     public void deliver() {
 
         if (status != RepairOrderStatus.FINISHED) {
-            throw new IllegalStateException(
+            throw new InvalidRepairOrderStateException(
                     "Repair Order must be FINISHED to be delivered."
             );
         }
@@ -299,7 +304,7 @@ public class RepairOrder {
     public void startExecution() {
 
         if (!isApproved()) {
-            throw new IllegalStateException(
+            throw new InvalidRepairOrderStateException(
                     "Repair Order must be APPROVED to start execution."
             );
         }
@@ -317,13 +322,13 @@ public class RepairOrder {
 
     private void validateCanRequestApproval() {
         if (status != RepairOrderStatus.IN_DIAGNOSIS) {
-            throw new IllegalStateException(
+            throw new InvalidRepairOrderStateException(
                     "Repair Order must be in diagnosis to request approval."
             );
         }
 
         if (workshopServices.isEmpty()) {
-            throw new IllegalStateException(
+            throw new InvalidRepairOrderItemException(
                     "Repair Order must have at least one workshop service to request approval."
             );
         }
@@ -331,7 +336,7 @@ public class RepairOrder {
 
     public void finish() {
         if (status != RepairOrderStatus.IN_EXECUTION) {
-            throw new IllegalStateException(
+            throw new InvalidRepairOrderStateException(
                     "Repair Order must be in execution to be finished."
             );
         }
@@ -352,7 +357,7 @@ public class RepairOrder {
         return workshopServices.stream()
                 .filter(service -> service.getWorkshopServiceId().equals(workshopServiceId))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Workshop service not found"));
+                .orElseThrow(() -> new WorkshopServiceNotFoundException(workshopServiceId));
     }
 }
 
