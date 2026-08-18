@@ -13,6 +13,7 @@ import org.jspecify.annotations.NonNull;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -63,9 +64,7 @@ public class RepairOrder {
                         this.workshopServices.add(workshopService);
                     }
                 },
-                () -> {
-                    this.workshopServices.add(workshopService);
-                }
+                () -> this.workshopServices.add(workshopService)
         );
         recalculateTotals();
     }
@@ -89,17 +88,15 @@ public class RepairOrder {
                         this.parts.add(partSnapshot);
                     }
                 },
-                () -> {
-                    this.parts.add(partSnapshot);
-                }
+                () -> this.parts.add(partSnapshot)
         );
         recalculateTotals();
     }
 
     public void received() {
         status = RepairOrderStatus.RECEIVED;
-        createdDate = LocalDateTime.now();
-        initDate = LocalDateTime.now();
+        createdDate = LocalDateTime.now(ZoneId.systemDefault());
+        initDate = LocalDateTime.now(ZoneId.systemDefault());
     }
 
     public void startInDiagnosis() {
@@ -109,11 +106,11 @@ public class RepairOrder {
         }
 
         status = RepairOrderStatus.IN_DIAGNOSIS;
-        updatedDate = LocalDateTime.now();
+        updatedDate = LocalDateTime.now(ZoneId.systemDefault());
     }
 
     public void number() {
-        number = "RO" + LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+        number = "RO" + LocalDateTime.now(ZoneId.systemDefault()).format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
     }
 
     private void validateCanModifyItems() {
@@ -139,7 +136,7 @@ public class RepairOrder {
             total = BigDecimal.ZERO;
         }
 
-        updatedDate = LocalDateTime.now();
+        updatedDate = LocalDateTime.now(ZoneId.systemDefault());
 
         // TODO: VERIFICAR A NECESSIDADE DE CRIAR O METODO.
 //        estimatedDurationInMinutes =
@@ -175,7 +172,7 @@ public class RepairOrder {
         parts.stream()
                 .filter(existingPart -> existingPart.getId().equals(partSnapshot.getId()))
                 .findFirst()
-                .ifPresentOrElse((existingPart) -> {
+                .ifPresentOrElse(existingPart -> {
                     if (existingPart.getQuantity() > partSnapshot.getQuantity()) {
                         existingPart.setQuantity(
                                 existingPart.getQuantity() - partSnapshot.getQuantity());
@@ -199,7 +196,7 @@ public class RepairOrder {
         workshopServices.stream()
                 .filter(existingService -> existingService.getWorkshopServiceId().equals(workshopServiceSnapshot.getWorkshopServiceId()))
                 .findFirst()
-                .ifPresentOrElse((existingService) -> {
+                .ifPresentOrElse(existingService -> {
                     if (existingService.getQuantity() > workshopServiceSnapshot.getQuantity()) {
                         existingService.setQuantity(
                                 existingService.getQuantity() - workshopServiceSnapshot.getQuantity());
@@ -231,7 +228,7 @@ public class RepairOrder {
         }
 
         workshopService.start();
-        updatedDate = LocalDateTime.now();
+        updatedDate = LocalDateTime.now(ZoneId.systemDefault());
     }
 
     public void finishWorkshopService(
@@ -256,7 +253,7 @@ public class RepairOrder {
             finish();
         }
 
-        updatedDate = LocalDateTime.now();
+        updatedDate = LocalDateTime.now(ZoneId.systemDefault());
     }
 
     public void approve() {
@@ -267,7 +264,7 @@ public class RepairOrder {
         }
 
         status = RepairOrderStatus.APPROVED;
-        updatedDate = LocalDateTime.now();
+        updatedDate = LocalDateTime.now(ZoneId.systemDefault());
     }
 
     private boolean isAwaitingApproval() {
@@ -286,7 +283,7 @@ public class RepairOrder {
         }
 
         status = RepairOrderStatus.REJECTED;
-        updatedDate = LocalDateTime.now();
+        updatedDate = LocalDateTime.now(ZoneId.systemDefault());
     }
 
     public void deliver() {
@@ -298,7 +295,7 @@ public class RepairOrder {
         }
 
         status = RepairOrderStatus.DELIVERED;
-        updatedDate = LocalDateTime.now();
+        updatedDate = LocalDateTime.now(ZoneId.systemDefault());
     }
 
     public void startExecution() {
@@ -310,14 +307,14 @@ public class RepairOrder {
         }
 
         status = RepairOrderStatus.IN_EXECUTION;
-        updatedDate = LocalDateTime.now();
+        updatedDate = LocalDateTime.now(ZoneId.systemDefault());
     }
 
     public void requestApproval() {
         validateCanRequestApproval();
 
         status = RepairOrderStatus.AWAITING_APPROVAL;
-        updatedDate = LocalDateTime.now();
+        updatedDate = LocalDateTime.now(ZoneId.systemDefault());
     }
 
     private void validateCanRequestApproval() {
@@ -342,8 +339,8 @@ public class RepairOrder {
         }
 
         status = RepairOrderStatus.FINISHED;
-        finishDate = LocalDateTime.now();
-        updatedDate = LocalDateTime.now();
+        finishDate = LocalDateTime.now(ZoneId.systemDefault());
+        updatedDate = LocalDateTime.now(ZoneId.systemDefault());
     }
 
     private boolean allWorkshopServicesFinished() {
