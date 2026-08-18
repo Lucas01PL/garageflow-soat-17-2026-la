@@ -5,6 +5,9 @@ import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.client.domain.reposi
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.*;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.repository.RepairOrderRepository;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.CreateRepairOrderRequest;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.InvalidFieldValueException;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.RequiredFieldException;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.RequiredObjectException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.vehicle.domain.model.Vehicle;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.vehicle.domain.repository.VehicleRepository;
 import lombok.AllArgsConstructor;
@@ -22,7 +25,7 @@ public class CreateRepairOrderUseCase {
 
     public RepairOrder execute(RepairOrder request) {
         if (request == null) {
-            throw new IllegalArgumentException("Repair order cannot be null");
+            throw new RequiredObjectException("Repair Order");
         }
 
         Client customer = getCustomer(request.getCustomer().getCustomerId());
@@ -45,17 +48,17 @@ public class CreateRepairOrderUseCase {
 
     private Client getCustomer(String customerId) {
         if(customerId == null || customerId.isBlank()) {
-            throw new IllegalArgumentException("Customer ID cannot be empty");
+            throw new RequiredFieldException("customerId");
         }
 
-        return customerRepository.findById(customerId).orElseThrow(() -> new IllegalArgumentException("Customer not found"));
+        return customerRepository.findById(customerId).orElseThrow(() -> new InvalidFieldValueException("customerId", "Customer not found"));
     }
 
     private Vehicle getVehicle(String vehicleId) {
         if(vehicleId == null || vehicleId.isBlank()) {
-            throw new IllegalArgumentException("Vehicle ID cannot be empty");
+            throw new RequiredFieldException("vehicleId");
         }
-        return vehicleRepository.findById(vehicleId).orElseThrow(() -> new IllegalArgumentException("Vehicle not found"));
+        return vehicleRepository.findById(vehicleId).orElseThrow(() -> new InvalidFieldValueException("vehicleId", "Vehicle not found"));
     }
 
 }

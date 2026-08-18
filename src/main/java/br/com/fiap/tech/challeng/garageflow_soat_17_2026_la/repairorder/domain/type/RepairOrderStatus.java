@@ -11,7 +11,6 @@ public enum RepairOrderStatus {
     IN_EXECUTION("Em Execução"),
     FINISHED("Finalizada"),
     DELIVERED("Entregue"),
-    CANCELLED("Cancelada"),
     APPROVED("Aprovado"),
     REJECTED("Rejeitado");
 
