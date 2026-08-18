@@ -1,6 +1,7 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model;
 
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.type.RepairOrderStatus;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.type.WorkshopServiceStatus;
 import lombok.Builder;
 import lombok.Getter;
 import org.jspecify.annotations.NonNull;
@@ -246,6 +247,10 @@ public class RepairOrder {
 
         workshopService.finish(durationInMinutes);
 
+        if (allWorkshopServicesFinished()) {
+            finish();
+        }
+
         updatedDate = LocalDateTime.now();
     }
 
@@ -304,14 +309,43 @@ public class RepairOrder {
     }
 
     public void requestApproval() {
+        validateCanRequestApproval();
+
+        status = RepairOrderStatus.AWAITING_APPROVAL;
+        updatedDate = LocalDateTime.now();
+    }
+
+    private void validateCanRequestApproval() {
         if (status != RepairOrderStatus.IN_DIAGNOSIS) {
             throw new IllegalStateException(
                     "Repair Order must be in diagnosis to request approval."
             );
         }
 
-        status = RepairOrderStatus.AWAITING_APPROVAL;
+        if (workshopServices.isEmpty()) {
+            throw new IllegalStateException(
+                    "Repair Order must have at least one workshop service to request approval."
+            );
+        }
+    }
+
+    public void finish() {
+        if (status != RepairOrderStatus.IN_EXECUTION) {
+            throw new IllegalStateException(
+                    "Repair Order must be in execution to be finished."
+            );
+        }
+
+        status = RepairOrderStatus.FINISHED;
+        finishDate = LocalDateTime.now();
         updatedDate = LocalDateTime.now();
+    }
+
+    private boolean allWorkshopServicesFinished() {
+        return workshopServices.stream()
+                .allMatch(service ->
+                        service.getStatus() == WorkshopServiceStatus.FINISHED
+                );
     }
 
     private WorkshopServiceSnapshot findWorkshopService(String workshopServiceId) {
