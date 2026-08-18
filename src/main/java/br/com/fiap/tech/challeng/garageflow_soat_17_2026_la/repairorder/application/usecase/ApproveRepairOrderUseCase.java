@@ -4,8 +4,10 @@ import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.applicat
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.RepairOrder;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.repository.RepairOrderRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
+@Service
 public class ApproveRepairOrderUseCase {
 
     private final RepairOrderFinder repairOrderFinder;
