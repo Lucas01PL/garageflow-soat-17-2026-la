@@ -60,7 +60,7 @@ class CreateWorkshopServiceUseCaseTest {
     void shouldThrowWhenValueNotGreaterThanZero() {
         WorkshopService svc = new WorkshopService("Test", BigDecimal.ZERO);
         InvalidFieldValueException ex = assertThrows(InvalidFieldValueException.class, () -> useCase.execute(svc));
-        assertEquals("Field 'value' is invalid. Value must be greater than zero.", ex.getMessage());
+        assertEquals("Field 'price' is invalid. Price must be greater than zero.", ex.getMessage());
     }
 }
 
