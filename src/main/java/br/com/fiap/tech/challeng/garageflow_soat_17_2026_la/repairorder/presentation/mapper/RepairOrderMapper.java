@@ -34,7 +34,7 @@ public class RepairOrderMapper {
         repairOrderResponseDTO.setTotal(model.getTotal());
         repairOrderResponseDTO.setCustomer(model.getCustomer());
         repairOrderResponseDTO.setVehicle(model.getVehicle());
-        repairOrderResponseDTO.setWorkshopServices(model.getWorkshopServices().stream().map(workshopServiceMapper::toResponse).collect(java.util.stream.Collectors.toList()));
+        repairOrderResponseDTO.setWorkshopServices(model.getWorkshopServices().stream().map(workshopServiceMapper::toResponse).toList());
         repairOrderResponseDTO.setParts(model.getParts());
         repairOrderResponseDTO.setUserId(model.getUserId());
         repairOrderResponseDTO.setCreatedDate(model.getCreatedDate());

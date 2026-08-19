@@ -1,5 +1,8 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.application.usecase;
 
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.InvalidFieldValueException;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.RequiredFieldException;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.RequiredObjectException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.domain.model.WorkshopService;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.domain.repository.WorkshopServiceRepository;
 import org.junit.jupiter.api.Test;
@@ -42,22 +45,22 @@ class CreateWorkshopServiceUseCaseTest {
 
     @Test
     void shouldThrowWhenServiceIsNull() {
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> useCase.execute(null));
-        assertEquals("Service cannot be null", ex.getMessage());
+        RequiredObjectException ex = assertThrows(RequiredObjectException.class, () -> useCase.execute(null));
+        assertEquals("Service cannot be null.", ex.getMessage());
     }
 
     @Test
     void shouldThrowWhenDescriptionIsEmpty() {
         WorkshopService svc = new WorkshopService("", new BigDecimal("10"));
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> useCase.execute(svc));
-        assertEquals("Description cannot be empty", ex.getMessage());
+        RequiredFieldException ex = assertThrows(RequiredFieldException.class, () -> useCase.execute(svc));
+        assertEquals("Field 'description' is required.", ex.getMessage());
     }
 
     @Test
     void shouldThrowWhenValueNotGreaterThanZero() {
         WorkshopService svc = new WorkshopService("Test", BigDecimal.ZERO);
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> useCase.execute(svc));
-        assertEquals("Value must be greater than zero", ex.getMessage());
+        InvalidFieldValueException ex = assertThrows(InvalidFieldValueException.class, () -> useCase.execute(svc));
+        assertEquals("Field 'value' is invalid. Value must be greater than zero.", ex.getMessage());
     }
 }
 
