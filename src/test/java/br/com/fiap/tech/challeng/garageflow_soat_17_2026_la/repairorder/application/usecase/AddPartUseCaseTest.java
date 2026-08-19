@@ -316,14 +316,10 @@ class AddPartUseCaseTest {
         verify(repository, never())
                 .save(any());
 
-        /*
-         * IMPORTANTE:
-         * O AddPartUseCase adiciona o snapshot antes de
-         * debitar o estoque. Portanto, com a implementação
-         * atual, a OS já foi alterada em memória quando a
-         * exceção ocorre.
-         */
-        assertEquals(1, repairOrder.getParts().size());
+        assertEquals(
+                0,
+                repairOrder.getParts().size()
+        );
     }
 
     @Test
