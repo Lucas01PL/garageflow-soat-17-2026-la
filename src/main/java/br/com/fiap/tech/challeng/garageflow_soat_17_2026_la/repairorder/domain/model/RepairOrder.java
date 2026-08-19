@@ -338,7 +338,8 @@ public class RepairOrder {
     }
 
     private boolean allWorkshopServicesFinished() {
-        return workshopServices.stream()
+        return !workshopServices.isEmpty()
+                && workshopServices.stream()
                 .allMatch(service ->
                         service.getStatus() == WorkshopServiceStatus.FINISHED
                 );
