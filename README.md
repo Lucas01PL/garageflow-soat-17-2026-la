@@ -346,17 +346,6 @@ REJECTED
 ```
 
 > ℹ️ A aplicação pode continuar a partir de OS rejeitadas para ajustes e nova tentativa de aprovação.
-## 📚 Documentação Adicional
-
-Para mais detalhes, consulte os seguintes arquivos:
-
-- 📄 [QUICK_START.md](./QUICK_START.md) — Guia rápido para começar
-- 📄 [START_HERE.md](./START_HERE.md) — Ponto de partida recomendado
-- 📄 [SERVICE_CRUD_README.md](./SERVICE_CRUD_README.md) — Operações de serviços
-- 📄 [TEST_FLOW_README.md](./TEST_FLOW_README.md) — Fluxo de testes
-- 📄 [WINDOWS_TEST_GUIDE.md](./WINDOWS_TEST_GUIDE.md) — Guia para Windows
-- 📄 [CURL_COMMANDS.md](./CURL_COMMANDS.md) — Exemplos de requisições HTTP
-- 📄 [IMPLEMENTATION_SUMMARY.md](./IMPLEMENTATION_SUMMARY.md) — Resumo de implementação
 
 ## ℹ️ Status do Projeto
 
