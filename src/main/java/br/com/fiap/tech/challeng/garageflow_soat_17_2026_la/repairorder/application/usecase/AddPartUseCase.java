@@ -32,14 +32,19 @@ public class AddPartUseCase {
 
         PartSnapshot partSnapshot = PartSnapshot.from(part, request.getQuantity());
 
-        repairOrder.addPart(partSnapshot);
-
         try {
             partStockControlUseCase.debitPartStock(request.getPartId(), request.getQuantity());
         } catch (NotEnoughResourceException e) {
             throw e;
         } catch (Exception e) {
             throw new PartStockOperationException("debit", e.getMessage());
+        }
+
+        try {
+            repairOrder.addPart(partSnapshot);
+        } catch (Exception e) {
+            partStockControlUseCase.addPartStock(request.getPartId(), request.getQuantity());
+            throw e;
         }
 
         return repository.save(repairOrder);
