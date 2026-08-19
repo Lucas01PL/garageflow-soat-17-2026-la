@@ -1,5 +1,6 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception;
 
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.purchasing.domain.exception.InvalidPurchaseListStatusException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -56,5 +57,30 @@ class GlobalExceptionHandlerTest {
         assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(HttpStatus.CONFLICT.value(), response.getBody().status());
+    }
+
+    @Test
+    void shouldHandleNotEnoughResourceException() {
+        when(request.getRequestURI()).thenReturn("/part/debit/id-1");
+        NotEnoughResourceException exception = new NotEnoughResourceException("Not enough stock");
+
+        ResponseEntity<ApiErrorResponse> response = handler.handleNotEnoughResource(exception, request);
+
+        assertEquals(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE.value(), response.getBody().status());
+    }
+
+    @Test
+    void shouldHandleInvalidPurchaseListStatusException() {
+        when(request.getRequestURI()).thenReturn("/purchase-list/pl-1/approve");
+        InvalidPurchaseListStatusException exception = new InvalidPurchaseListStatusException("Only PENDING purchase lists can be approved. Current status: APPROVED");
+
+        ResponseEntity<ApiErrorResponse> response = handler.handleInvalidPurchaseListStatus(exception, request);
+
+        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(HttpStatus.CONFLICT.value(), response.getBody().status());
+        assertEquals(exception.getMessage(), response.getBody().message());
     }
 }

@@ -111,6 +111,18 @@ class PartRepositoryImplTest {
     }
 
     @Test
+    void shouldFindLowStockAndMapToDomainList() {
+        PartDocument document = new PartDocument("P001", "Filtro de oleo", 2, new BigDecimal("29.90"));
+        document.setId("id-1");
+        when(partMongoRepository.findByQuantityLessThanEqual(5)).thenReturn(List.of(document));
+
+        List<Part> result = partRepository.findLowStock(5);
+
+        assertEquals(1, result.size());
+        assertEquals("id-1", result.get(0).getId());
+    }
+
+    @Test
     void shouldDelegateExistsByCode() {
         when(partMongoRepository.existsByCode("P001")).thenReturn(true);
 
