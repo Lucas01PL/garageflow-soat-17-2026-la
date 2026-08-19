@@ -203,6 +203,12 @@ public class RepairOrder {
 
     public void startWorkshopService(String workshopServiceId) {
 
+        if (status != RepairOrderStatus.IN_EXECUTION) {
+            throw new InvalidRepairOrderStateException(
+                    "Repair Order must be IN_EXECUTION to start a workshop service."
+            );
+        }
+
         WorkshopServiceSnapshot workshopService = findWorkshopService(workshopServiceId);
 
         if (!workshopService.isWaitingAttending()) {
@@ -216,6 +222,12 @@ public class RepairOrder {
     public void finishWorkshopService(
             String workshopServiceId,
             Integer durationInMinutes) {
+
+        if (status != RepairOrderStatus.IN_EXECUTION) {
+            throw new InvalidRepairOrderStateException(
+                    "Repair Order must be IN_EXECUTION to start a workshop service."
+            );
+        }
 
         WorkshopServiceSnapshot workshopService =
                 findWorkshopService(workshopServiceId);
