@@ -1,5 +1,6 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model;
 
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.exception.InvalidRepairOrderStateException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.type.WorkshopServiceStatus;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.domain.model.WorkshopService;
 import lombok.Data;
@@ -53,6 +54,10 @@ public class WorkshopServiceSnapshot {
     }
 
     public void finish(Integer durationInMinutes) {
+        if (!isInExecution()) {
+            throw new InvalidRepairOrderStateException("Workshop service not in execution");
+        }
+
         this.status = WorkshopServiceStatus.FINISHED;
         this.durationInMinutes = durationInMinutes;
         this.finishedAt = LocalDateTime.now(ZoneId.systemDefault());

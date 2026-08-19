@@ -232,10 +232,6 @@ public class RepairOrder {
         WorkshopServiceSnapshot workshopService =
                 findWorkshopService(workshopServiceId);
 
-        if (!workshopService.isInExecution()) {
-            throw new InvalidRepairOrderStateException("Workshop service not in execution");
-        }
-
         if (durationInMinutes == null || durationInMinutes <= 0) {
             throw new InvalidRepairOrderItemException(
                     "Duration must be greater than zero.");
