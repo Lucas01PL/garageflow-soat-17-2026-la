@@ -31,12 +31,21 @@ public class RemovePartUseCase {
 
         PartSnapshot partSnapshot = PartSnapshot.from(part, request.getQuantity());
 
-        repairOrder.removePart(partSnapshot);
-
         try {
             partStockControlUseCase.addPartStock(request.getPartId(), request.getQuantity());
         } catch (Exception e) {
             throw new PartStockOperationException("add", e.getMessage());
+        }
+
+        try {
+            repairOrder.removePart(partSnapshot);
+        } catch (Exception e) {
+            try {
+                partStockControlUseCase.debitPartStock(request.getPartId(), request.getQuantity());
+            } catch (Exception rollbackException) {
+                throw new PartStockOperationException("remove", "Failed to rollback stock after remove part failure: " + rollbackException.getMessage());
+            }
+            throw e;
         }
 
         return repository.save(repairOrder);
