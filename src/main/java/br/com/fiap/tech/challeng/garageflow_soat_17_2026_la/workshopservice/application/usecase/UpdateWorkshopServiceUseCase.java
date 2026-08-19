@@ -26,8 +26,8 @@ public class UpdateWorkshopServiceUseCase {
         if (update.getDescription() != null && !update.getDescription().isBlank()) {
             svc.setDescription(update.getDescription());
         }
-        if (update.getValue() != null && update.getValue().compareTo(BigDecimal.ZERO) > 0) {
-            svc.setValue(update.getValue());
+        if (update.getPrice() != null && update.getPrice().compareTo(BigDecimal.ZERO) > 0) {
+            svc.setPrice(update.getPrice());
         }
         return Optional.of(repository.save(svc));
     }

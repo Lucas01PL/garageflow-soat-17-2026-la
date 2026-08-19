@@ -18,7 +18,7 @@ public class WorkshopServiceMapper {
         return new WorkshopServiceResponseDTO(
                 model.getId(),
                 model.getDescription(),
-                model.getValue()
+                model.getPrice()
         );
     }
 }

@@ -23,8 +23,8 @@ public class CreateWorkshopServiceUseCase {
         if (service.getDescription() == null || service.getDescription().isBlank()) {
             throw new RequiredFieldException("description");
         }
-        if (service.getValue() == null || service.getValue().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new InvalidFieldValueException("value", "Value must be greater than zero.");
+        if (service.getPrice() == null || service.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new InvalidFieldValueException("price", "Price must be greater than zero.");
         }
 
         return repository.save(service);

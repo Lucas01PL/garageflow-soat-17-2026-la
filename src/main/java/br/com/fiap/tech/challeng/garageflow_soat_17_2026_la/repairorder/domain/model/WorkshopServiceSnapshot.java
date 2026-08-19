@@ -35,7 +35,7 @@ public class WorkshopServiceSnapshot {
         snapshot.setWorkshopServiceId(workshopService.getId());
         snapshot.setDescription(workshopService.getDescription());
         snapshot.setQuantity(quantity);
-        snapshot.setUnitPrice(workshopService.getValue());
+        snapshot.setUnitPrice(workshopService.getPrice());
         snapshot.setStatus(WorkshopServiceStatus.WAITING_ATTENDING);
         return snapshot;
     }
