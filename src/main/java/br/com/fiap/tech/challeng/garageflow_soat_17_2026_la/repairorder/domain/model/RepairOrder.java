@@ -127,14 +127,6 @@ public class RepairOrder {
         }
 
         updatedDate = LocalDateTime.now(ZoneId.systemDefault());
-
-        // TODO: VERIFICAR A NECESSIDADE DE CRIAR O METODO.
-//        estimatedDurationInMinutes =
-//                workshopServices.stream()
-//                        .mapToInt(service ->
-//                                service.getEstimatedDurationInMinutes()
-//                                        * service.getQuantity())
-//                        .sum();
     }
 
     private @NonNull BigDecimal calculatePartsTotals() {
