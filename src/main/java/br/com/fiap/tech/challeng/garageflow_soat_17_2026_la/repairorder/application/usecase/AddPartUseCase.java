@@ -43,7 +43,12 @@ public class AddPartUseCase {
         try {
             repairOrder.addPart(partSnapshot);
         } catch (Exception e) {
-            partStockControlUseCase.addPartStock(request.getPartId(), request.getQuantity());
+            try {
+                partStockControlUseCase.addPartStock(request.getPartId(), request.getQuantity());
+            } catch (Exception rollbackException) {
+                throw new PartStockOperationException("add", "Failed to rollback stock after add part failure: " + rollbackException.getMessage());
+            }
+
             throw e;
         }
 
