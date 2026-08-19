@@ -1,5 +1,6 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model;
 
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.exception.InvalidRepairOrderStateException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.type.WorkshopServiceStatus;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.domain.model.WorkshopService;
 import org.junit.jupiter.api.Test;
@@ -283,29 +284,19 @@ class WorkshopServiceSnapshotTest {
     }
 
     @Test
-    void shouldAllowFinishWithoutStarting() {
+    void shouldThrowWhenFinishingWorkshopServiceThatIsNotInExecution() {
 
-        WorkshopServiceSnapshot snapshot =
-                createSnapshot();
+        WorkshopServiceSnapshot snapshot = createSnapshot();
 
-        snapshot.finish(45);
-
-        assertEquals(
-                WorkshopServiceStatus.FINISHED,
-                snapshot.getStatus()
-        );
+        InvalidRepairOrderStateException exception =
+                assertThrows(
+                        InvalidRepairOrderStateException.class,
+                        () -> snapshot.finish(45)
+                );
 
         assertEquals(
-                45,
-                snapshot.getDurationInMinutes()
-        );
-
-        assertNull(
-                snapshot.getStartedAt()
-        );
-
-        assertNotNull(
-                snapshot.getFinishedAt()
+                "Invalid Repair Order State: Workshop service not in execution",
+                exception.getMessage()
         );
     }
 
