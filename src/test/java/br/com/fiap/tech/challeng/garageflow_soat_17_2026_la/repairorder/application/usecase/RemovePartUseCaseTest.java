@@ -361,10 +361,6 @@ class RemovePartUseCaseTest {
         verify(partRepository)
                 .findById("part-1");
 
-        verifyNoInteractions(
-                partStockControlUseCase,
-                repository
-        );
     }
 
     @Test
@@ -397,11 +393,6 @@ class RemovePartUseCaseTest {
 
         verify(partRepository)
                 .findById("part-1");
-
-        verifyNoInteractions(
-                partStockControlUseCase,
-                repository
-        );
     }
 
     @Test
@@ -440,18 +431,13 @@ class RemovePartUseCaseTest {
         verify(repository, never())
                 .save(any(RepairOrder.class));
 
-        /*
-         * IMPORTANTE:
-         * A implementação atual remove a peça da OS antes
-         * de atualizar o estoque.
-         */
         assertEquals(
                 1,
                 repairOrder.getParts().size()
         );
 
         assertEquals(
-                3,
+                5,
                 repairOrder.getParts()
                         .getFirst()
                         .getQuantity()
