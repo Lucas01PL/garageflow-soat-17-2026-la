@@ -2,13 +2,12 @@ package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.
 
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.type.WorkshopServiceStatus;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.domain.model.WorkshopService;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.Objects;
 
 @NoArgsConstructor
@@ -50,12 +49,12 @@ public class WorkshopServiceSnapshot {
 
     public void start() {
         this.status = WorkshopServiceStatus.IN_EXECUTION;
-        this.startedAt = LocalDateTime.now();
+        this.startedAt = LocalDateTime.now(ZoneId.systemDefault());
     }
 
     public void finish(Integer durationInMinutes) {
         this.status = WorkshopServiceStatus.FINISHED;
         this.durationInMinutes = durationInMinutes;
-        this.finishedAt = LocalDateTime.now();
+        this.finishedAt = LocalDateTime.now(ZoneId.systemDefault());
     }
 }
