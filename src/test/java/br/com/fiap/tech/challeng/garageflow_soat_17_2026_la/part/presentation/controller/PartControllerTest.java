@@ -4,6 +4,7 @@ import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.application.use
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.application.usecase.DeletePartUseCase;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.application.usecase.GetPartUseCase;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.application.usecase.ListAllPartsUseCase;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.application.usecase.PartListToBuyUseCase;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.application.usecase.PartStockControlUseCase;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.application.usecase.UpdatePartUseCase;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.model.Part;
@@ -48,6 +49,9 @@ class PartControllerTest {
 
     @Mock
     private PartStockControlUseCase partStockControlUseCase;
+
+    @Mock
+    private PartListToBuyUseCase partListToBuyUseCase;
 
     @InjectMocks
     private PartController partController;
@@ -133,6 +137,22 @@ class PartControllerTest {
         assertEquals(200, result.getStatusCode().value());
         assertNotNull(result.getBody());
         assertEquals(2, result.getBody().size());
+    }
+
+    @Test
+    void shouldGetPartsToBuy() {
+        Part part = new Part("id-1", "P001", "Filtro de oleo", 2, new BigDecimal("29.90"));
+        PartResponse response = new PartResponse("id-1", "P001", "Filtro de oleo", 2, new BigDecimal("29.90"));
+
+        when(partListToBuyUseCase.findPartsToBuy(10)).thenReturn(List.of(part));
+        when(partMapper.partToResponse(part)).thenReturn(response);
+
+        ResponseEntity<List<PartResponse>> result = partController.getPartsToBuy(10);
+
+        assertEquals(200, result.getStatusCode().value());
+        assertNotNull(result.getBody());
+        assertEquals(1, result.getBody().size());
+        assertEquals(response, result.getBody().get(0));
     }
 
     @Test

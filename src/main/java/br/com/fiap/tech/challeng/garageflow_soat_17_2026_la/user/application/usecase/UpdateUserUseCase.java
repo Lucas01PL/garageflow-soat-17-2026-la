@@ -4,6 +4,7 @@ import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.Res
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.model.User;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.repository.UserRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @AllArgsConstructor
@@ -11,6 +12,8 @@ import org.springframework.stereotype.Service;
 public class UpdateUserUseCase {
 
     private UserRepository repository;
+
+    private PasswordEncoder passwordEncoder;
 
     public User execute(String id, User update) {
         if (id == null || id.isBlank()) {
@@ -32,12 +35,16 @@ public class UpdateUserUseCase {
             if (update.getPassword().length() < 6) {
                 throw new IllegalArgumentException("Password must be at least 6 characters");
             }
-            existing.setPassword(update.getPassword());
+            existing.setPassword(passwordEncoder.encode(update.getPassword()));
         }
         if (update.getStatus() != null && !update.getStatus().isBlank()) {
             existing.setStatus(update.getStatus());
         }
-        
+        if (update.getRole() != null) {
+            existing.setRole(update.getRole());
+        }
+
+
         return repository.save(existing);
     }
 

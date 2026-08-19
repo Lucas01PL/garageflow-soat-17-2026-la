@@ -1,6 +1,7 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.infrastructure.persistence.repository;
 
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.model.User;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.model.UserRole;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.repository.UserRepository;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.infrastructure.persistence.document.UserDocument;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.infrastructure.persistence.mongo.UserMongoRepository;
@@ -29,6 +30,11 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public boolean existsById(String id) {
         return userMongoRepository.existsById(id);
+    }
+
+    @Override
+    public boolean existsByRole(UserRole role) {
+        return userMongoRepository.existsByRole(role);
     }
 
     @Override
@@ -69,6 +75,7 @@ public class UserRepositoryImpl implements UserRepository {
         domain.setEmail(entity.getEmail());
         domain.setPassword(entity.getPassword());
         domain.setStatus(entity.getStatus());
+        domain.setRole(entity.getRole());
         return domain;
     }
 
@@ -79,6 +86,7 @@ public class UserRepositoryImpl implements UserRepository {
         entity.setEmail(domain.getEmail());
         entity.setPassword(domain.getPassword());
         entity.setStatus(domain.getStatus());
+        entity.setRole(domain.getRole());
         return entity;
     }
 }

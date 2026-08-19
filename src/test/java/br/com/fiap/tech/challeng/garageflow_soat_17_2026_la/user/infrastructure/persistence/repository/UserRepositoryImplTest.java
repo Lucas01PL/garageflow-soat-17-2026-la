@@ -1,10 +1,12 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.infrastructure.persistence.repository;
 
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.model.User;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.model.UserRole;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.infrastructure.persistence.document.UserDocument;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.infrastructure.persistence.mongo.UserMongoRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -33,6 +35,7 @@ class UserRepositoryImplTest {
         domain.setEmail("t@test.com");
         domain.setPassword("pwd");
         domain.setStatus("ACTIVE");
+        domain.setRole(UserRole.OPERATOR);
 
         UserDocument saved = new UserDocument();
         saved.setId("10");
@@ -40,6 +43,7 @@ class UserRepositoryImplTest {
         saved.setEmail(domain.getEmail());
         saved.setPassword(domain.getPassword());
         saved.setStatus(domain.getStatus());
+        saved.setRole(domain.getRole());
 
         when(mongoRepository.save(any(UserDocument.class))).thenReturn(saved);
 
@@ -49,6 +53,20 @@ class UserRepositoryImplTest {
         assertEquals("10", result.getId());
         assertEquals("Test User", result.getFullName());
         assertEquals("t@test.com", result.getEmail());
+        assertEquals(UserRole.OPERATOR, result.getRole());
+
+        ArgumentCaptor<UserDocument> captor = ArgumentCaptor.forClass(UserDocument.class);
+        verify(mongoRepository).save(captor.capture());
+        assertEquals(UserRole.OPERATOR, captor.getValue().getRole());
+    }
+
+    @Test
+    void shouldDelegateExistsByRole() {
+        when(mongoRepository.existsByRole(UserRole.ADMIN)).thenReturn(true);
+        assertTrue(repository.existsByRole(UserRole.ADMIN));
+
+        when(mongoRepository.existsByRole(UserRole.CUSTOMER)).thenReturn(false);
+        assertFalse(repository.existsByRole(UserRole.CUSTOMER));
     }
 
     @Test

@@ -50,6 +50,14 @@ public class PartRepositoryImpl implements PartRepository {
         return partMongoRepository.existsByCode(code);
     }
 
+    @Override
+    public List<Part> findLowStock(Integer threshold) {
+        return partMongoRepository.findByQuantityLessThanEqual(threshold)
+                .stream()
+                .map(this::toPartDomain)
+                .toList();
+    }
+
     private Part toPartDomain(PartDocument partDocument){
         return new Part(
                 partDocument.getId(),
