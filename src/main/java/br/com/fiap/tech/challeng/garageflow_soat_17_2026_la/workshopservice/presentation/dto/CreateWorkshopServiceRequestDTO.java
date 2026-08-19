@@ -18,8 +18,8 @@ public class CreateWorkshopServiceRequestDTO {
     @Size(min = 3, max = 255, message = "Description must be between 3 and 255 characters")
     private String description;
 
-    @Positive(message = "Value must be greater than zero")
-    private BigDecimal value;
+    @Positive(message = "Price must be greater than zero")
+    private BigDecimal price;
 
 }
 
