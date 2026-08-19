@@ -55,15 +55,10 @@ public class RepairOrder {
                 .filter(existingWorkshopService -> existingWorkshopService.getWorkshopServiceId().equals(workshopService.getWorkshopServiceId()))
                 .findFirst()
                 .ifPresentOrElse(
-                existingService -> {
-                    if (existingService.getWorkshopServiceId().equals(workshopService.getWorkshopServiceId())) {
+                        existingService ->
                         existingService.setQuantity(
                                 existingService.getQuantity()
-                                        + workshopService.getQuantity());
-                    } else {
-                        this.workshopServices.add(workshopService);
-                    }
-                },
+                                        + workshopService.getQuantity()),
                 () -> this.workshopServices.add(workshopService)
         );
         recalculateTotals();
@@ -79,15 +74,10 @@ public class RepairOrder {
                 .filter(existingPart -> existingPart.getId().equals(partSnapshot.getId()))
                 .findFirst()
                 .ifPresentOrElse(
-                existingPart -> {
-                    if (existingPart.getId().equals(partSnapshot.getId())) {
+                existingPart ->
                         existingPart.setQuantity(
                                 existingPart.getQuantity()
-                                        + partSnapshot.getQuantity());
-                    } else {
-                        this.parts.add(partSnapshot);
-                    }
-                },
+                                        + partSnapshot.getQuantity()),
                 () -> this.parts.add(partSnapshot)
         );
         recalculateTotals();
