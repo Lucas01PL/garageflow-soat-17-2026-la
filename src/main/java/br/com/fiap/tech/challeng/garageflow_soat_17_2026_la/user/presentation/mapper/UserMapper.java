@@ -10,7 +10,7 @@ public class UserMapper {
 
     public User toModel(CreateUserRequestDTO dto) {
         if (dto == null) return null;
-        return new User(dto.getFullName(), dto.getEmail(), dto.getPassword(), dto.getStatus());
+        return new User(dto.getFullName(), dto.getEmail(), dto.getPassword(), dto.getStatus(), dto.getRole());
     }
 
     public UserResponseDTO toResponse(User model) {
@@ -19,7 +19,8 @@ public class UserMapper {
                 model.getId(),
                 model.getFullName(),
                 model.getEmail(),
-                model.getStatus()
+                model.getStatus(),
+                model.getRole()
         );
     }
 }
