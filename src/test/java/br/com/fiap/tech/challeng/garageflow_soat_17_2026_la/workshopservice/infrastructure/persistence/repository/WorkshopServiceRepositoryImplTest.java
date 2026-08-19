@@ -41,14 +41,14 @@ class WorkshopServiceRepositoryImplTest {
         assertNotNull(result);
         assertEquals("id-1", result.getId());
         assertEquals(domain.getDescription(), result.getDescription());
-        assertEquals(domain.getValue(), result.getValue());
+        assertEquals(domain.getPrice(), result.getPrice());
 
         // verify mapping: the document passed to mongoRepository.save should have same fields
         ArgumentCaptor<WorkshopServiceDocument> captor = ArgumentCaptor.forClass(WorkshopServiceDocument.class);
         verify(mongoRepository).save(captor.capture());
         WorkshopServiceDocument passed = captor.getValue();
         assertEquals(domain.getDescription(), passed.getDescription());
-        assertEquals(domain.getValue(), passed.getValue());
+        assertEquals(domain.getPrice(), passed.getPrice());
     }
 
     @Test

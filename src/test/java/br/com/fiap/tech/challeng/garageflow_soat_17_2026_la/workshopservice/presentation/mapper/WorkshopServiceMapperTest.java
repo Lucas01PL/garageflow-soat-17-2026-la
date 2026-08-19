@@ -21,7 +21,7 @@ class WorkshopServiceMapperTest {
 
         assertNotNull(model);
         assertEquals("Test desc", model.getDescription());
-        assertEquals(new BigDecimal("10"), model.getValue());
+        assertEquals(new BigDecimal("10"), model.getPrice());
     }
 
     @Test
