@@ -225,7 +225,7 @@ public class RepairOrder {
 
         if (status != RepairOrderStatus.IN_EXECUTION) {
             throw new InvalidRepairOrderStateException(
-                    "Repair Order must be IN_EXECUTION to start a workshop service."
+                    "Repair Order must be IN_EXECUTION to finish a workshop service."
             );
         }
 
