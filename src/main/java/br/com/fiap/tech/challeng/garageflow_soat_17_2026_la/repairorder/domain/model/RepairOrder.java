@@ -14,10 +14,7 @@ import org.jspecify.annotations.NonNull;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Builder
 @Getter
@@ -100,7 +97,7 @@ public class RepairOrder {
     }
 
     public void number() {
-        number = "RO" + LocalDateTime.now(ZoneId.systemDefault()).format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+        number = "RO" + UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase();
     }
 
     private void validateCanModifyItems() {
