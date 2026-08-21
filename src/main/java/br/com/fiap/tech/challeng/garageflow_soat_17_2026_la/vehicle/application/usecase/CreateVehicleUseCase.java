@@ -3,6 +3,7 @@ package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.vehicle.application
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.DuplicateResourceException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.vehicle.domain.model.Vehicle;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.vehicle.domain.repository.VehicleRepository;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.vehicle.domain.validator.PlateValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,9 @@ public class CreateVehicleUseCase {
 
     public Vehicle createVehicle(Vehicle vehicle){
         boolean isPresent = vehicleRepository.existsByPlate(vehicle.getPlate());
+
+        PlateValidator.validate(vehicle.getPlate());
+
         if(isPresent){
             log.debug("[DEBUG] - Trying to register duplicated vehicle with plate: {}", vehicle.getPlate());
             throw new DuplicateResourceException("Vehicle", "plate", vehicle.getPlate());
