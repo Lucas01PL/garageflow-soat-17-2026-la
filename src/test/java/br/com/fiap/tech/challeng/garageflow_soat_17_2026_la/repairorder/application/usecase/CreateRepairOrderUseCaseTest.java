@@ -7,6 +7,9 @@ import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.m
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.VehicleSnapshot;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.repository.RepairOrderRepository;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.type.RepairOrderStatus;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.RequiredFieldException;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.RequiredObjectException;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.ResourceNotFoundException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.vehicle.domain.model.Vehicle;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.vehicle.domain.repository.VehicleRepository;
 import org.junit.jupiter.api.Test;
@@ -92,8 +95,8 @@ class CreateRepairOrderUseCaseTest {
                 .vehicle(new VehicleSnapshot("vehicle1"))
                 .build();
 
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> useCase.execute(ro));
-        assertEquals("Customer ID cannot be empty", ex.getMessage());
+        RequiredFieldException ex = assertThrows(RequiredFieldException.class, () -> useCase.execute(ro));
+        assertEquals("Field 'customerId' is required.", ex.getMessage());
     }
 
     @Test
@@ -105,8 +108,8 @@ class CreateRepairOrderUseCaseTest {
 
         when(customerRepository.findById("missing")).thenReturn(Optional.empty());
 
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> useCase.execute(ro));
-        assertEquals("Customer not found", ex.getMessage());
+        ResourceNotFoundException ex = assertThrows(ResourceNotFoundException.class, () -> useCase.execute(ro));
+        assertEquals("Customer with customerId 'missing' was not found.", ex.getMessage());
     }
 
     @Test
@@ -118,8 +121,8 @@ class CreateRepairOrderUseCaseTest {
 
         when(customerRepository.findById("cust1")).thenReturn(Optional.of(sampleClient()));
 
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> useCase.execute(ro));
-        assertEquals("Vehicle ID cannot be empty", ex.getMessage());
+        RequiredFieldException ex = assertThrows(RequiredFieldException.class, () -> useCase.execute(ro));
+        assertEquals("Field 'vehicleId' is required.", ex.getMessage());
     }
 
     @Test
@@ -132,7 +135,7 @@ class CreateRepairOrderUseCaseTest {
         when(customerRepository.findById("cust1")).thenReturn(Optional.of(sampleClient()));
         when(vehicleRepository.findById("missing")).thenReturn(Optional.empty());
 
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> useCase.execute(ro));
-        assertEquals("Vehicle not found", ex.getMessage());
+        ResourceNotFoundException ex = assertThrows(ResourceNotFoundException.class, () -> useCase.execute(ro));
+        assertEquals("Vehicle with vehicleId 'missing' was not found.", ex.getMessage());
     }
 }
