@@ -18,7 +18,6 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
@@ -32,9 +31,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@TestPropertySource(properties = {
-        "spring.mongodb.uri=mongodb://admin:admin123@localhost:27017/garageflow-soat-17-2026-integration-test?authSource=admin"
-})
 class RepairOrderIntegrationTest {
 
     @Autowired
@@ -129,7 +125,7 @@ class RepairOrderIntegrationTest {
                 com.jayway.jsonpath.JsonPath.read(response, "$.id");
 
         /*
-         * Verifica que a informação realmente foi persistida
+         * Verifica que a informação foi persistida
          * e não apenas retornada pelo controller.
          */
         RepairOrder persisted =
