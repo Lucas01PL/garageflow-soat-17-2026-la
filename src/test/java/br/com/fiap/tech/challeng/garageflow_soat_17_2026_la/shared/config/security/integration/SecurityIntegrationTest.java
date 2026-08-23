@@ -1,6 +1,7 @@
-package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.config.security;
+package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.config.security.integration;
 
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.config.MongoTestContainerConfiguration;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.config.security.JwtService;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.presentation.dto.CreateWorkshopServiceRequestDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
