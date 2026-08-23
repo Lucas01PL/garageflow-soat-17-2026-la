@@ -59,6 +59,15 @@ public class RepairOrderRepositoryImpl implements RepairOrderRepository {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<RepairOrder> findByCustomerId(String customerId) {
+        return repairOrderMongoRepository
+                .findByCustomer_CustomerId(customerId)
+                .stream()
+                .map(this::toDomain)
+                .collect(Collectors.toList());
+    }
+
     private RepairOrder toDomain(RepairOrderDocument entity) {
         return RepairOrder.builder()
                                 .id(entity.getId())

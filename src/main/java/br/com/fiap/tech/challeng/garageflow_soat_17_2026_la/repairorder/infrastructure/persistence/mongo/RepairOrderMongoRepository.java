@@ -9,5 +9,7 @@ import java.util.List;
 @Repository
 public interface RepairOrderMongoRepository extends MongoRepository<RepairOrderDocument, String> {
     List<RepairOrderDocument> findByStatusContainingIgnoreCase(String status);
+
+    List<RepairOrderDocument> findByCustomer_CustomerId(String customerId);
 }
 
