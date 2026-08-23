@@ -2,6 +2,7 @@ package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.integra
 
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.client.domain.model.Client;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.client.domain.repository.ClientRepository;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.config.MongoTestContainerConfiguration;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.RepairOrder;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.repository.RepairOrderRepository;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.vehicle.domain.model.Vehicle;
@@ -15,9 +16,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
@@ -31,6 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Import(MongoTestContainerConfiguration.class)
 class RepairOrderIntegrationTest {
 
     @Autowired
@@ -71,7 +73,6 @@ class RepairOrderIntegrationTest {
     }
 
     @Test
-    @WithMockUser(roles = "OPERATOR")
     void shouldCreateAndPersistRepairOrderThroughHttp() throws Exception {
 
         Client client = clientRepository.save(
@@ -160,7 +161,6 @@ class RepairOrderIntegrationTest {
     }
 
     @Test
-    @WithMockUser(roles = "OPERATOR")
     void shouldExecuteCompleteRepairOrderFlowThroughHttp() throws Exception {
 
         Client client = clientRepository.save(
@@ -439,7 +439,6 @@ class RepairOrderIntegrationTest {
     }
 
     @Test
-    @WithMockUser(roles = "OPERATOR")
     void shouldKeepRejectedRepairOrderAsTerminalState() throws Exception {
 
         Client client = clientRepository.save(
