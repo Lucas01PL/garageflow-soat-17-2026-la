@@ -1,6 +1,6 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.application.usecase;
 
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.configuration.security.JwtService;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.config.security.JwtService;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.ResourceNotFoundException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.model.User;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.repository.UserRepository;

@@ -1,4 +1,4 @@
-package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.configuration.security;
+package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.config.security;
 
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.model.User;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.model.UserRole;

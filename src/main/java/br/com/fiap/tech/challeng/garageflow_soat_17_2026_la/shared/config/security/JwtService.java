@@ -1,4 +1,4 @@
-package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.configuration.security;
+package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.config.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
