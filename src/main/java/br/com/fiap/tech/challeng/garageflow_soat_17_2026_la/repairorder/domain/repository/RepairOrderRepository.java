@@ -19,5 +19,7 @@ public interface RepairOrderRepository {
 
     List<RepairOrder> findByStatusContainingIgnoreCase(String status);
 
+    List<RepairOrder> findByCustomerId(String customerId);
+
 }
 
