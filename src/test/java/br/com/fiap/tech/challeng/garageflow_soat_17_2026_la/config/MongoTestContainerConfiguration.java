@@ -1,8 +1,7 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.config;
 
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Bean;
 import org.testcontainers.mongodb.MongoDBContainer;
 
@@ -10,22 +9,8 @@ import org.testcontainers.mongodb.MongoDBContainer;
 public class MongoTestContainerConfiguration {
 
     @Bean
+    @ServiceConnection
     MongoDBContainer mongoDBContainer() {
-
-        MongoDBContainer container =
-                new MongoDBContainer("mongo:7.0");
-
-        container.start();
-
-        return container;
-    }
-
-    @Bean
-    MongoClient mongoClient(
-            MongoDBContainer container) {
-
-        return MongoClients.create(
-                container.getConnectionString()
-        );
+        return new MongoDBContainer("mongo:7.0");
     }
 }
