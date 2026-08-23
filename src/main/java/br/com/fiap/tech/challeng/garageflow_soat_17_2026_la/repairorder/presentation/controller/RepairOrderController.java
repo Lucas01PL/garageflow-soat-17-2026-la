@@ -55,6 +55,8 @@ public class RepairOrderController {
 
     private RequestRepairOrderApprovalUseCase requestRepairOrderApprovalUseCase;
 
+    private ListRepairOrdersByCustomerUseCase listRepairOrdersByCustomerUseCase;
+
     @Operation(
             summary = "Create Repair Order",
             description = "Creates a new repair order."
@@ -279,6 +281,21 @@ public class RepairOrderController {
 
         return ResponseEntity.ok(
                 mapper.toResponse(repairOrder));
+    }
+
+    @GetMapping("/customer/{customerId}")
+    public ResponseEntity<List<RepairOrderResponseDTO>> listByCustomer(
+            @PathVariable String customerId) {
+
+        List<RepairOrder> repairOrders =
+                listRepairOrdersByCustomerUseCase.execute(customerId);
+
+        List<RepairOrderResponseDTO> response =
+                repairOrders.stream()
+                        .map(mapper::toResponse)
+                        .toList();
+
+        return ResponseEntity.ok(response);
     }
 }
 
