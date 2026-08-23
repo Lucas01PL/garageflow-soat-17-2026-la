@@ -345,7 +345,7 @@ Cliente não aprova
 REJECTED
 ```
 
-> ℹ️ A aplicação pode continuar a partir de OS rejeitadas para ajustes e nova tentativa de aprovação.
+> ℹ️ Uma OS rejeitada não retorna ao fluxo de diagnóstico. Para um novo atendimento, deve ser criada uma nova OS.
 
 ## ℹ️ Status do Projeto
 
