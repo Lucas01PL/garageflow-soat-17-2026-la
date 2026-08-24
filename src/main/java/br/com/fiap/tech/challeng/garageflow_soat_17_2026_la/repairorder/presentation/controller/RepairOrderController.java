@@ -6,8 +6,10 @@ import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presenta
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.AddRemoveWorkshopServiceRequest;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.CreateRepairOrderRequest;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.FinishWorkshopServiceRequest;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.response.AverageWorkshopServiceExecutionTimeResponse;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.response.RepairOrderResponseDTO;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.mapper.RepairOrderMapper;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.mapper.WorkshopServiceMonitoringResponseMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -56,6 +58,10 @@ public class RepairOrderController {
     private RequestRepairOrderApprovalUseCase requestRepairOrderApprovalUseCase;
 
     private ListRepairOrdersByCustomerUseCase listRepairOrdersByCustomerUseCase;
+
+    private GetAverageWorkshopServiceExecutionTimeUseCase averageWorkshopServiceExecutionTimeUseCase;
+
+    private WorkshopServiceMonitoringResponseMapper workshopServiceMonitoringResponseMapper;
 
     @Operation(
             summary = "Create Repair Order",
@@ -293,6 +299,25 @@ public class RepairOrderController {
         List<RepairOrderResponseDTO> response =
                 repairOrders.stream()
                         .map(mapper::toResponse)
+                        .toList();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(
+            summary = "Get Average Workshop Service Execution Time",
+            description = "Returns average execution time metrics for completed workshop services."
+    )
+    @GetMapping("/monitoring/services/average-execution-time")
+    public ResponseEntity<List<AverageWorkshopServiceExecutionTimeResponse>>
+    getAverageWorkshopServiceExecutionTime() {
+
+        List<AverageWorkshopServiceExecutionTimeResponse> response =
+                averageWorkshopServiceExecutionTimeUseCase.execute()
+                        .stream()
+                        .map(
+                                workshopServiceMonitoringResponseMapper::toResponse
+                        )
                         .toList();
 
         return ResponseEntity.ok(response);
