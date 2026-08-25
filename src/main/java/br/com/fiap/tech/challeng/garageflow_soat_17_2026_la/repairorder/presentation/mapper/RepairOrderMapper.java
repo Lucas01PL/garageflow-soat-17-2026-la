@@ -3,10 +3,14 @@ package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.present
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.*;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.CreateRepairOrderRequest;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.response.RepairOrderResponseDTO;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+@RequiredArgsConstructor
 @Component
 public class RepairOrderMapper {
+
+    private final WorkshopServiceResponseMapper workshopServiceMapper;
 
     public RepairOrder toModel(CreateRepairOrderRequest dto) {
         if (dto == null) return null;
@@ -30,7 +34,7 @@ public class RepairOrderMapper {
         repairOrderResponseDTO.setTotal(model.getTotal());
         repairOrderResponseDTO.setCustomer(model.getCustomer());
         repairOrderResponseDTO.setVehicle(model.getVehicle());
-        repairOrderResponseDTO.setWorkshopServices(model.getWorkshopServices());
+        repairOrderResponseDTO.setWorkshopServices(model.getWorkshopServices().stream().map(workshopServiceMapper::toResponse).toList());
         repairOrderResponseDTO.setParts(model.getParts());
         repairOrderResponseDTO.setUserId(model.getUserId());
         repairOrderResponseDTO.setCreatedDate(model.getCreatedDate());

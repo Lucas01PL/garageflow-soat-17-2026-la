@@ -4,13 +4,13 @@ import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.client.domain.model.
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.client.domain.repository.ClientRepository;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.*;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.repository.RepairOrderRepository;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.CreateRepairOrderRequest;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.RequiredFieldException;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.RequiredObjectException;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.ResourceNotFoundException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.vehicle.domain.model.Vehicle;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.vehicle.domain.repository.VehicleRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.Objects;
 
 @AllArgsConstructor
 @Service
@@ -22,14 +22,14 @@ public class CreateRepairOrderUseCase {
 
     public RepairOrder execute(RepairOrder request) {
         if (request == null) {
-            throw new IllegalArgumentException("Repair order cannot be null");
+            throw new RequiredObjectException("Repair Order");
         }
 
-        Client customer = getCustomer(request.getCustomer().getCustomerId());
+        Client customer = getCustomer(request.getCustomer());
 
         CustomerSnapshot customerSnapshot = CustomerSnapshot.from(customer);
 
-        Vehicle vehicle = getVehicle(request.getVehicle().getVehicleId());
+        Vehicle vehicle = getVehicle(request.getVehicle());
 
         VehicleSnapshot vehicleSnapshot = VehicleSnapshot.from(vehicle);
 
@@ -43,19 +43,25 @@ public class CreateRepairOrderUseCase {
         return repository.save(repairOrder);
     }
 
-    private Client getCustomer(String customerId) {
-        if(customerId == null || customerId.isBlank()) {
-            throw new IllegalArgumentException("Customer ID cannot be empty");
+    private Client getCustomer(CustomerSnapshot customer) {
+        if(customer == null) {
+            throw new RequiredObjectException("Customer");
+        }
+        if(customer.getCustomerId() == null || customer.getCustomerId().isBlank()) {
+            throw new RequiredFieldException("customerId");
         }
 
-        return customerRepository.findById(customerId).orElseThrow(() -> new IllegalArgumentException("Customer not found"));
+        return customerRepository.findById(customer.getCustomerId()).orElseThrow(() -> new ResourceNotFoundException("Customer", "customerId", customer.getCustomerId()));
     }
 
-    private Vehicle getVehicle(String vehicleId) {
-        if(vehicleId == null || vehicleId.isBlank()) {
-            throw new IllegalArgumentException("Vehicle ID cannot be empty");
+    private Vehicle getVehicle(VehicleSnapshot vehicleSnapshot) {
+        if(vehicleSnapshot == null) {
+            throw new RequiredObjectException("Vehicle");
         }
-        return vehicleRepository.findById(vehicleId).orElseThrow(() -> new IllegalArgumentException("Vehicle not found"));
+        if(vehicleSnapshot.getVehicleId() == null || vehicleSnapshot.getVehicleId().isBlank()) {
+            throw new RequiredFieldException("vehicleId");
+        }
+        return vehicleRepository.findById(vehicleSnapshot.getVehicleId()).orElseThrow(() -> new ResourceNotFoundException("Vehicle", "vehicleId", vehicleSnapshot.getVehicleId()));
     }
 
 }

@@ -3,14 +3,13 @@ package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.applica
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.RepairOrder;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.repository.RepairOrderRepository;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.type.RepairOrderStatus;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.RequiredFieldException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.math.BigDecimal;
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -52,14 +51,14 @@ class GetRepairOrderByIdUseCaseTest {
 
     @Test
     void shouldThrowWhenIdIsEmpty() {
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> useCase.execute(""));
-        assertEquals("Repair order ID cannot be empty", ex.getMessage());
+        RequiredFieldException ex = assertThrows(RequiredFieldException.class, () -> useCase.execute(""));
+        assertEquals("Field 'id' is required.", ex.getMessage());
     }
 
     @Test
     void shouldThrowWhenIdIsNull() {
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> useCase.execute(null));
-        assertEquals("Repair order ID cannot be empty", ex.getMessage());
+        RequiredFieldException ex = assertThrows(RequiredFieldException.class, () -> useCase.execute(null));
+        assertEquals("Field 'id' is required.", ex.getMessage());
     }
 }
 

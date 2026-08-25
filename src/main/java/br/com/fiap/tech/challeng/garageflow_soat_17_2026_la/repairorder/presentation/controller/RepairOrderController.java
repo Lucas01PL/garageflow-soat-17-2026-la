@@ -9,8 +9,6 @@ import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presenta
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.response.RepairOrderResponseDTO;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.mapper.RepairOrderMapper;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @RestController
@@ -42,16 +39,26 @@ public class RepairOrderController {
 
     private StartRepairOrderDiagnosisUseCase startRepairOrderDiagnosisUseCase;
 
+    private StartWorkshopServiceUseCase startWorkshopServiceUseCase;
+
+    private FinishWorkshopServiceUseCase finishWorkshopServiceUseCase;
+
     private RepairOrderMapper mapper;
+
+    private ApproveRepairOrderUseCase approveRepairOrderUseCase;
+
+    private RejectRepairOrderUseCase rejectRepairOrderUseCase;
+
+    private DeliverRepairOrderUseCase deliverRepairOrderUseCase;
+
+    private StartRepairOrderExecutionUseCase startRepairOrderExecutionUseCase;
+
+    private RequestRepairOrderApprovalUseCase requestRepairOrderApprovalUseCase;
 
     @Operation(
             summary = "Create Repair Order",
             description = "Creates a new repair order."
     )
-    @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Repair order created"),
-            @ApiResponse(responseCode = "400", description = "Invalid request")
-    })
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody CreateRepairOrderRequest dto) {
         try {
@@ -67,10 +74,6 @@ public class RepairOrderController {
             summary = "Get Repair Order by ID",
             description = "Retrieves a repair order by its ID."
     )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Repair order found"),
-            @ApiResponse(responseCode = "404", description = "Repair order not found")
-    })
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable String id) {
         try {
@@ -86,13 +89,10 @@ public class RepairOrderController {
             summary = "List All Repair Orders",
             description = "Retrieves a list of all repair orders."
     )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Repair orders found")
-    })
     @GetMapping
     public ResponseEntity<List<RepairOrderResponseDTO>> listAll() {
         List<RepairOrder> list = listAllUseCase.execute();
-        List<RepairOrderResponseDTO> dtos = list.stream().map(mapper::toResponse).collect(Collectors.toList());
+        List<RepairOrderResponseDTO> dtos = list.stream().map(mapper::toResponse).toList();
         return ResponseEntity.ok(dtos);
     }
 
@@ -100,11 +100,8 @@ public class RepairOrderController {
             summary = "Add Workshop Service to Repair Order",
             description = "Adds a workshop service to an existing repair order."
     )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Workshop service added")
-    })
     @PostMapping("/{repairOrderId}/services")
-    public ResponseEntity<?> addWorkshopService(
+    public ResponseEntity<RepairOrderResponseDTO> addWorkshopService(
             @PathVariable String repairOrderId,
             @Valid @RequestBody AddRemoveWorkshopServiceRequest request) {
 
@@ -119,11 +116,8 @@ public class RepairOrderController {
             summary = "Add Part to Repair Order",
             description = "Adds a part to an existing repair order."
     )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Part added")
-    })
     @PostMapping("/{repairOrderId}/parts")
-    public ResponseEntity<?> addPart(
+    public ResponseEntity<RepairOrderResponseDTO> addPart(
             @PathVariable String repairOrderId,
             @Valid @RequestBody AddRemovePartRequest request) {
 
@@ -138,11 +132,8 @@ public class RepairOrderController {
             summary = "Remove Workshop Service from Repair Order",
             description = "Removes a workshop service from an existing repair order."
     )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Workshop service removed")
-    })
     @DeleteMapping("/{repairOrderId}/services")
-    public ResponseEntity<?> removeWorkshopService(
+    public ResponseEntity<RepairOrderResponseDTO> removeWorkshopService(
             @PathVariable String repairOrderId,
             @Valid @RequestBody AddRemoveWorkshopServiceRequest request) {
 
@@ -157,11 +148,8 @@ public class RepairOrderController {
             summary = "Remove Part from Repair Order",
             description = "Removes a part from an existing repair order."
     )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Part removed")
-    })
     @DeleteMapping("/{repairOrderId}/parts")
-    public ResponseEntity<?> removePart(
+    public ResponseEntity<RepairOrderResponseDTO> removePart(
             @PathVariable String repairOrderId,
             @Valid @RequestBody AddRemovePartRequest request) {
 
@@ -176,11 +164,8 @@ public class RepairOrderController {
             summary = "Set Repair Order to In Diagnosis",
             description = "Sets the status of an existing repair order to In Diagnosis."
     )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Repair order updated")
-    })
     @PatchMapping("/{repairOrderId}/status/in-diagnosis")
-    public ResponseEntity<?> inDiagnosis(
+    public ResponseEntity<RepairOrderResponseDTO> inDiagnosis(
             @PathVariable String repairOrderId) {
 
         RepairOrder repairOrder =
@@ -194,32 +179,106 @@ public class RepairOrderController {
             summary = "Start Workshop Service in Repair Order",
             description = "Starts a workshop service in an existing repair order."
     )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Workshop service started")
-    })
     @PatchMapping("/{repairOrderId}/services/{workshopServiceId}/status/start")
-    public ResponseEntity<?> startWorkshopService(
+    public ResponseEntity<RepairOrderResponseDTO> startWorkshopService(
             @PathVariable String repairOrderId,
             @PathVariable String workshopServiceId) {
 
+        RepairOrder repairOrder =
+                startWorkshopServiceUseCase.execute(repairOrderId, workshopServiceId);
 
-        return ResponseEntity.ok("Start Service not implemented yet");
+        return ResponseEntity.ok(mapper.toResponse(repairOrder));
     }
 
     @Operation(
             summary = "Finish Workshop Service in Repair Order",
             description = "Finishes a workshop service in an existing repair order."
     )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Workshop service finished")
-    })
     @PatchMapping("/{repairOrderId}/services/{workshopServiceId}/status/finished")
-    public ResponseEntity<?> finishWorkshopService(
+    public ResponseEntity<RepairOrderResponseDTO> finishWorkshopService(
             @PathVariable String repairOrderId,
             @PathVariable String workshopServiceId,
             @Valid @RequestBody FinishWorkshopServiceRequest request) {
 
-        return ResponseEntity.ok("Finish Service not implemented yet");
+        RepairOrder repairOrder =
+                finishWorkshopServiceUseCase.execute(repairOrderId, workshopServiceId, request);
+
+        return ResponseEntity.ok(mapper.toResponse(repairOrder));
+    }
+
+    @Operation(
+            summary = "Set Repair Order to Approved",
+            description = "Sets the status of an existing repair order to Approved."
+    )
+    @PatchMapping("/{repairOrderId}/status/approved")
+    public ResponseEntity<RepairOrderResponseDTO> approve(
+            @PathVariable String repairOrderId) {
+
+        RepairOrder repairOrder =
+                approveRepairOrderUseCase.execute(repairOrderId);
+
+        return ResponseEntity.ok(
+                mapper.toResponse(repairOrder));
+    }
+
+    @Operation(
+            summary = "Set Repair Order to Rejected",
+            description = "Sets the status of an existing repair order to Rejected."
+    )
+    @PatchMapping("/{repairOrderId}/status/rejected")
+    public ResponseEntity<RepairOrderResponseDTO> reject(
+            @PathVariable String repairOrderId) {
+
+        RepairOrder repairOrder =
+                rejectRepairOrderUseCase.execute(repairOrderId);
+
+        return ResponseEntity.ok(
+                mapper.toResponse(repairOrder));
+    }
+
+    @Operation(
+            summary = "Set Repair Order to Delivered",
+            description = "Sets the status of an existing repair order to Delivered."
+    )
+    @PatchMapping("/{repairOrderId}/status/deliver")
+    public ResponseEntity<RepairOrderResponseDTO> deliver(
+            @PathVariable String repairOrderId) {
+
+        RepairOrder repairOrder =
+                deliverRepairOrderUseCase.execute(repairOrderId);
+
+        return ResponseEntity.ok(
+                mapper.toResponse(repairOrder));
+    }
+
+    @Operation(
+            summary = "Set Repair Order to In Execution",
+            description = "Sets the status of an existing repair order to In Execution."
+    )
+    @PatchMapping("/{repairOrderId}/status/in-execution")
+    public ResponseEntity<RepairOrderResponseDTO> startExecution(
+            @PathVariable String repairOrderId) {
+
+        RepairOrder repairOrder =
+                startRepairOrderExecutionUseCase.execute(repairOrderId);
+
+        return ResponseEntity.ok(
+                mapper.toResponse(repairOrder));
+    }
+
+    @Operation(
+            summary = "Set Repair Order to Awaiting Approval",
+            description = "Sets the status of an existing repair order to Awaiting Approval."
+    )
+    @PatchMapping("/{repairOrderId}/status/awaiting-approval")
+    public ResponseEntity<RepairOrderResponseDTO> requestApproval(
+            @PathVariable String repairOrderId) {
+
+        RepairOrder repairOrder =
+                requestRepairOrderApprovalUseCase.execute(repairOrderId);
+
+        return ResponseEntity.ok(
+                mapper.toResponse(repairOrder));
     }
 }
 

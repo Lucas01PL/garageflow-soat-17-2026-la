@@ -10,7 +10,7 @@ public class WorkshopServiceMapper {
 
     public WorkshopService toModel(CreateWorkshopServiceRequestDTO dto) {
         if (dto == null) return null;
-        return new WorkshopService(dto.getDescription(), dto.getValue());
+        return new WorkshopService(dto.getDescription(), dto.getPrice());
     }
 
     public WorkshopServiceResponseDTO toResponse(WorkshopService model) {
@@ -18,7 +18,7 @@ public class WorkshopServiceMapper {
         return new WorkshopServiceResponseDTO(
                 model.getId(),
                 model.getDescription(),
-                model.getValue()
+                model.getPrice()
         );
     }
 }

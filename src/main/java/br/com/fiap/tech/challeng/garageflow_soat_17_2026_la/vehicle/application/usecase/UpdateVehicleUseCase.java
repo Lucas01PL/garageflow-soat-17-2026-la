@@ -3,6 +3,7 @@ package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.vehicle.application
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.ResourceNotFoundException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.vehicle.domain.model.Vehicle;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.vehicle.domain.repository.VehicleRepository;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.vehicle.domain.validator.PlateValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +18,9 @@ public class UpdateVehicleUseCase {
     }
 
     public Vehicle updateVehicleWithId(String id, Vehicle updatedVehicle) {
+
+        PlateValidator.validate(updatedVehicle.getPlate());
+
         Vehicle existingVehicle = vehicleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Vehicle", "id", id));
 

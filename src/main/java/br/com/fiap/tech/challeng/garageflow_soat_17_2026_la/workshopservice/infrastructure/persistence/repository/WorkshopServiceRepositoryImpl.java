@@ -61,14 +61,14 @@ public class WorkshopServiceRepositoryImpl implements WorkshopServiceRepository 
         WorkshopService domain = new WorkshopService();
         domain.setId(entity.getId());
         domain.setDescription(entity.getDescription());
-        domain.setValue(entity.getValue());
+        domain.setPrice(entity.getPrice());
         return domain;
     }
 
     private WorkshopServiceDocument toEntity(WorkshopService domain){
         WorkshopServiceDocument entity = new WorkshopServiceDocument();
         entity.setDescription(domain.getDescription());
-        entity.setValue(domain.getValue());
+        entity.setPrice(domain.getPrice());
         entity.setId(domain.getId());
         return entity;
     }

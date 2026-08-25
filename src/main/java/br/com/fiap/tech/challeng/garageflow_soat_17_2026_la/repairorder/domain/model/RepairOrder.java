@@ -1,16 +1,20 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model;
 
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.exception.InsufficientQuantityException;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.exception.InvalidRepairOrderItemException;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.exception.InvalidRepairOrderStateException;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.exception.PartNotFoundException;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.exception.WorkshopServiceNotFoundException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.type.RepairOrderStatus;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.type.WorkshopServiceStatus;
 import lombok.Builder;
 import lombok.Getter;
 import org.jspecify.annotations.NonNull;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.time.ZoneId;
+import java.util.*;
 
 @Builder
 @Getter
@@ -48,18 +52,11 @@ public class RepairOrder {
                 .filter(existingWorkshopService -> existingWorkshopService.getWorkshopServiceId().equals(workshopService.getWorkshopServiceId()))
                 .findFirst()
                 .ifPresentOrElse(
-                existingService -> {
-                    if (existingService.getWorkshopServiceId().equals(workshopService.getWorkshopServiceId())) {
+                        existingService ->
                         existingService.setQuantity(
                                 existingService.getQuantity()
-                                        + workshopService.getQuantity());
-                    } else {
-                        this.workshopServices.add(workshopService);
-                    }
-                },
-                () -> {
-                    this.workshopServices.add(workshopService);
-                }
+                                        + workshopService.getQuantity()),
+                () -> this.workshopServices.add(workshopService)
         );
         recalculateTotals();
     }
@@ -74,40 +71,33 @@ public class RepairOrder {
                 .filter(existingPart -> existingPart.getId().equals(partSnapshot.getId()))
                 .findFirst()
                 .ifPresentOrElse(
-                existingPart -> {
-                    if (existingPart.getId().equals(partSnapshot.getId())) {
+                existingPart ->
                         existingPart.setQuantity(
                                 existingPart.getQuantity()
-                                        + partSnapshot.getQuantity());
-                    } else {
-                        this.parts.add(partSnapshot);
-                    }
-                },
-                () -> {
-                    this.parts.add(partSnapshot);
-                }
+                                        + partSnapshot.getQuantity()),
+                () -> this.parts.add(partSnapshot)
         );
         recalculateTotals();
     }
 
     public void received() {
         status = RepairOrderStatus.RECEIVED;
-        createdDate = LocalDateTime.now();
-        initDate = LocalDateTime.now();
+        createdDate = LocalDateTime.now(ZoneId.systemDefault());
+        initDate = LocalDateTime.now(ZoneId.systemDefault());
     }
 
     public void startInDiagnosis() {
         if (status != RepairOrderStatus.RECEIVED) {
-            throw new IllegalArgumentException(
+            throw new InvalidRepairOrderStateException(
                     "Repair Order must be RECEIVED to start diagnosis.");
         }
 
         status = RepairOrderStatus.IN_DIAGNOSIS;
-        updatedDate = LocalDateTime.now();
+        updatedDate = LocalDateTime.now(ZoneId.systemDefault());
     }
 
     public void number() {
-        number = "RO" + LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+        number = "RO" + UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase();
     }
 
     private void validateCanModifyItems() {
@@ -115,7 +105,7 @@ public class RepairOrder {
         if (status != RepairOrderStatus.RECEIVED &&
                 status != RepairOrderStatus.IN_DIAGNOSIS) {
 
-            throw new IllegalArgumentException(
+            throw new InvalidRepairOrderItemException(
                     "Repair Order must be RECEIVED or IN DIAGNOSIS.");
         }
     }
@@ -133,15 +123,7 @@ public class RepairOrder {
             total = BigDecimal.ZERO;
         }
 
-        updatedDate = LocalDateTime.now();
-
-        // TODO: VERIFICAR A NECESSIDADE DE CRIAR O METODO.
-//        estimatedDurationInMinutes =
-//                workshopServices.stream()
-//                        .mapToInt(service ->
-//                                service.getEstimatedDurationInMinutes()
-//                                        * service.getQuantity())
-//                        .sum();
+        updatedDate = LocalDateTime.now(ZoneId.systemDefault());
     }
 
     private @NonNull BigDecimal calculatePartsTotals() {
@@ -169,17 +151,17 @@ public class RepairOrder {
         parts.stream()
                 .filter(existingPart -> existingPart.getId().equals(partSnapshot.getId()))
                 .findFirst()
-                .ifPresentOrElse((existingPart) -> {
+                .ifPresentOrElse(existingPart -> {
                     if (existingPart.getQuantity() > partSnapshot.getQuantity()) {
                         existingPart.setQuantity(
                                 existingPart.getQuantity() - partSnapshot.getQuantity());
                     } else if (existingPart.getQuantity().equals(partSnapshot.getQuantity())) {
                         parts.remove(existingPart);
                     } else {
-                        throw new IllegalArgumentException("Quantity of Part is insufficient to remove the requested amount.");
+                        throw new InsufficientQuantityException("Part", partSnapshot.getId());
                     }
                 }, () -> {
-                    throw new IllegalArgumentException("Part not found in repair order");
+                    throw new PartNotFoundException(partSnapshot.getId());
                 });
         recalculateTotals();
     }
@@ -193,17 +175,17 @@ public class RepairOrder {
         workshopServices.stream()
                 .filter(existingService -> existingService.getWorkshopServiceId().equals(workshopServiceSnapshot.getWorkshopServiceId()))
                 .findFirst()
-                .ifPresentOrElse((existingService) -> {
+                .ifPresentOrElse(existingService -> {
                     if (existingService.getQuantity() > workshopServiceSnapshot.getQuantity()) {
                         existingService.setQuantity(
                                 existingService.getQuantity() - workshopServiceSnapshot.getQuantity());
                     } else if (existingService.getQuantity().equals(workshopServiceSnapshot.getQuantity())) {
                         workshopServices.remove(existingService);
                     } else {
-                        throw new IllegalArgumentException("Quantity of Workshop Service is insufficient to remove the requested amount.");
+                        throw new InsufficientQuantityException("Workshop Service", workshopServiceSnapshot.getWorkshopServiceId());
                     }
                 }, () -> {
-                    throw new IllegalArgumentException("Workshop Service not found in repair order");
+                    throw new WorkshopServiceNotFoundException(workshopServiceSnapshot.getWorkshopServiceId());
                 });
         recalculateTotals();
     }
@@ -214,6 +196,153 @@ public class RepairOrder {
 
     public List<WorkshopServiceSnapshot> getWorkshopServices() {
         return Collections.unmodifiableList(workshopServices);
+    }
+
+    public void startWorkshopService(String workshopServiceId) {
+
+        if (status != RepairOrderStatus.IN_EXECUTION) {
+            throw new InvalidRepairOrderStateException(
+                    "Repair Order must be IN_EXECUTION to start a workshop service."
+            );
+        }
+
+        WorkshopServiceSnapshot workshopService = findWorkshopService(workshopServiceId);
+
+        if (!workshopService.isWaitingAttending()) {
+            throw new InvalidRepairOrderStateException("Workshop service not waiting attending");
+        }
+
+        workshopService.start();
+        updatedDate = LocalDateTime.now(ZoneId.systemDefault());
+    }
+
+    public void finishWorkshopService(
+            String workshopServiceId,
+            Integer durationInMinutes) {
+
+        if (status != RepairOrderStatus.IN_EXECUTION) {
+            throw new InvalidRepairOrderStateException(
+                    "Repair Order must be IN_EXECUTION to finish a workshop service."
+            );
+        }
+
+        WorkshopServiceSnapshot workshopService =
+                findWorkshopService(workshopServiceId);
+
+        if (durationInMinutes == null || durationInMinutes <= 0) {
+            throw new InvalidRepairOrderItemException(
+                    "Duration must be greater than zero.");
+        }
+
+        workshopService.finish(durationInMinutes);
+
+        if (allWorkshopServicesFinished()) {
+            finish();
+        }
+
+        updatedDate = LocalDateTime.now(ZoneId.systemDefault());
+    }
+
+    public void approve() {
+
+        if (!isAwaitingApproval()) {
+            throw new InvalidRepairOrderStateException(
+                    "Repair Order must be awaiting customer approval.");
+        }
+
+        status = RepairOrderStatus.APPROVED;
+        updatedDate = LocalDateTime.now(ZoneId.systemDefault());
+    }
+
+    private boolean isAwaitingApproval() {
+        return status == RepairOrderStatus.AWAITING_APPROVAL;
+    }
+
+    private boolean isApproved() {
+        return status == RepairOrderStatus.APPROVED;
+    }
+
+    public void reject() {
+
+        if (!isAwaitingApproval()) {
+            throw new InvalidRepairOrderStateException(
+                    "Repair Order must be awaiting customer approval.");
+        }
+
+        status = RepairOrderStatus.REJECTED;
+        updatedDate = LocalDateTime.now(ZoneId.systemDefault());
+    }
+
+    public void deliver() {
+
+        if (status != RepairOrderStatus.FINISHED) {
+            throw new InvalidRepairOrderStateException(
+                    "Repair Order must be FINISHED to be delivered."
+            );
+        }
+
+        status = RepairOrderStatus.DELIVERED;
+        updatedDate = LocalDateTime.now(ZoneId.systemDefault());
+    }
+
+    public void startExecution() {
+
+        if (!isApproved()) {
+            throw new InvalidRepairOrderStateException(
+                    "Repair Order must be APPROVED to start execution."
+            );
+        }
+
+        status = RepairOrderStatus.IN_EXECUTION;
+        updatedDate = LocalDateTime.now(ZoneId.systemDefault());
+    }
+
+    public void requestApproval() {
+        validateCanRequestApproval();
+
+        status = RepairOrderStatus.AWAITING_APPROVAL;
+        updatedDate = LocalDateTime.now(ZoneId.systemDefault());
+    }
+
+    private void validateCanRequestApproval() {
+        if (status != RepairOrderStatus.IN_DIAGNOSIS) {
+            throw new InvalidRepairOrderStateException(
+                    "Repair Order must be in diagnosis to request approval."
+            );
+        }
+
+        if (workshopServices.isEmpty()) {
+            throw new InvalidRepairOrderItemException(
+                    "Repair Order must have at least one workshop service to request approval."
+            );
+        }
+    }
+
+    public void finish() {
+        if (status != RepairOrderStatus.IN_EXECUTION) {
+            throw new InvalidRepairOrderStateException(
+                    "Repair Order must be in execution to be finished."
+            );
+        }
+
+        status = RepairOrderStatus.FINISHED;
+        finishDate = LocalDateTime.now(ZoneId.systemDefault());
+        updatedDate = LocalDateTime.now(ZoneId.systemDefault());
+    }
+
+    private boolean allWorkshopServicesFinished() {
+        return !workshopServices.isEmpty()
+                && workshopServices.stream()
+                .allMatch(service ->
+                        service.getStatus() == WorkshopServiceStatus.FINISHED
+                );
+    }
+
+    private WorkshopServiceSnapshot findWorkshopService(String workshopServiceId) {
+        return workshopServices.stream()
+                .filter(service -> service.getWorkshopServiceId().equals(workshopServiceId))
+                .findFirst()
+                .orElseThrow(() -> new WorkshopServiceNotFoundException(workshopServiceId));
     }
 }
 

@@ -85,6 +85,7 @@ public class RepairOrderRepositoryImpl implements RepairOrderRepository {
         vehicleSnapshot.setBrand(vehicle.getBrand());
         vehicleSnapshot.setModel(vehicle.getModel());
         vehicleSnapshot.setYear(vehicle.getYear());
+        vehicleSnapshot.setPlate(vehicle.getPlate());
         return vehicleSnapshot;
     }
 
@@ -125,6 +126,7 @@ public class RepairOrderRepositoryImpl implements RepairOrderRepository {
         vehicleDocument.setBrand(vehicle.getBrand());
         vehicleDocument.setModel(vehicle.getModel());
         vehicleDocument.setYear(vehicle.getYear());
+        vehicleDocument.setPlate(vehicle.getPlate());
         return vehicleDocument;
     }
 
@@ -160,6 +162,9 @@ public class RepairOrderRepositoryImpl implements RepairOrderRepository {
             wsEntity.setQuantity(ws.getQuantity());
             wsEntity.setUnitPrice(ws.getUnitPrice());
             wsEntity.setDurationInMinutes(ws.getDurationInMinutes());
+            wsEntity.setStatus(ws.getStatus());
+            wsEntity.setStartedAt(ws.getStartedAt());
+            wsEntity.setFinishedAt(ws.getFinishedAt());
             return wsEntity;
         }).collect(Collectors.toList());
     }
@@ -186,6 +191,9 @@ public class RepairOrderRepositoryImpl implements RepairOrderRepository {
             wsEntity.setUnitPrice(ws.getUnitPrice());
             wsEntity.setQuantity(ws.getQuantity());
             wsEntity.setDurationInMinutes(ws.getDurationInMinutes());
+            wsEntity.setStatus(ws.getStatus());
+            wsEntity.setStartedAt(ws.getStartedAt());
+            wsEntity.setFinishedAt(ws.getFinishedAt());
             return wsEntity;
         }).collect(Collectors.toList());
     }

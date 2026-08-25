@@ -39,7 +39,7 @@ class UpdateWorkshopServiceUseCaseTest {
 
         assertTrue(result.isPresent());
         assertEquals("New", result.get().getDescription());
-        assertEquals(new BigDecimal("100"), result.get().getValue());
+        assertEquals(new BigDecimal("100"), result.get().getPrice());
         verify(repository).save(existing);
     }
 
@@ -58,7 +58,7 @@ class UpdateWorkshopServiceUseCaseTest {
         assertTrue(result.isPresent());
         // description not updated (null), value not updated (zero is ignored)
         assertEquals("Desc", result.get().getDescription());
-        assertEquals(new BigDecimal("75"), result.get().getValue());
+        assertEquals(new BigDecimal("75"), result.get().getPrice());
     }
 
     @Test

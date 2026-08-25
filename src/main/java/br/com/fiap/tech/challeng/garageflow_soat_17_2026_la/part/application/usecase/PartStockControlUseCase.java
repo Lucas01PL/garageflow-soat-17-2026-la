@@ -19,6 +19,10 @@ public class PartStockControlUseCase {
     }
 
     public String debitPartStock(String id, Integer quantityToDebit){
+        if(quantityToDebit == null || quantityToDebit <= 0){
+            throw new NotEnoughResourceException("Quantity to be debited should be greater than 0");
+        }
+
         Part existingPart = partRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Part", "id", id));
 

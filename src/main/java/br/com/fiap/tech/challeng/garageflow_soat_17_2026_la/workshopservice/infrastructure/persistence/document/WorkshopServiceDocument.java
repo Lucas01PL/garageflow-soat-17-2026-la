@@ -20,12 +20,12 @@ public class WorkshopServiceDocument {
     @NotBlank(message = "Description cannot be blank")
     private String description;
 
-    @Positive(message = "Value must be greater than zero")
-    private BigDecimal value;
+    @Positive(message = "Price must be greater than zero")
+    private BigDecimal price;
 
-    public WorkshopServiceDocument(String description, BigDecimal value) {
+    public WorkshopServiceDocument(String description, BigDecimal price) {
         this.description = description;
-        this.value = value;
+        this.price = price;
     }
 
 }

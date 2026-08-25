@@ -13,11 +13,11 @@ public class WorkshopService {
 
     private String id;
     private String description;
-    private BigDecimal value;
+    private BigDecimal price;
 
-    public WorkshopService(String description, BigDecimal value) {
+    public WorkshopService(String description, BigDecimal price) {
         this.description = description;
-        this.value = value;
+        this.price = price;
     }
 
 }

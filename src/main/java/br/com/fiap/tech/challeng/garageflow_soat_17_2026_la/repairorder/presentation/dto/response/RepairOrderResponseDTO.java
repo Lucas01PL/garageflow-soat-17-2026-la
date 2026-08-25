@@ -24,7 +24,7 @@ public class RepairOrderResponseDTO {
     private BigDecimal total;
     private CustomerSnapshot customer;
     private VehicleSnapshot vehicle;
-    private List<WorkshopServiceSnapshot> workshopServices;
+    private List<WorkshopServiceResponse> workshopServices;
     private List<PartSnapshot> parts;
     private String userId;
     private LocalDateTime createdDate;

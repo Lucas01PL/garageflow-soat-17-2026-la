@@ -16,17 +16,12 @@ public class PartSnapshot {
     private Integer quantity;
     private BigDecimal unitPrice;
 
-    public PartSnapshot(String id, Integer quantity) {
-        this.id = id;
-        this.quantity = quantity;
-    }
-
     public static PartSnapshot from(Part part, Integer quantity) {
 
         Objects.requireNonNull(part);
         Objects.requireNonNull(quantity);
 
-        if (part.getQuantity() < 0) {
+        if (quantity <= 0) {
             throw new IllegalArgumentException("Part quantity must be greater than zero");
         }
 

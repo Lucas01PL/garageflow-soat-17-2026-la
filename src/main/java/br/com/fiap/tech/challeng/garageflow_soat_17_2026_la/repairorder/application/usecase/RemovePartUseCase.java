@@ -1,8 +1,11 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase;
 
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.application.usecase.PartStockControlUseCase;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.model.Part;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.repository.PartRepository;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.service.RepairOrderFinder;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.exception.InvalidPartException;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.exception.PartStockOperationException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.PartSnapshot;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.RepairOrder;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.repository.RepairOrderRepository;
@@ -18,6 +21,7 @@ public class RemovePartUseCase {
     private final RepairOrderRepository repository;
     private final PartRepository partRepository;
     private final RepairOrderFinder repairOrderFinder;
+    private final PartStockControlUseCase partStockControlUseCase;
 
     public RepairOrder execute(String repairOrderId, AddRemovePartRequest request) {
 
@@ -27,19 +31,33 @@ public class RemovePartUseCase {
 
         PartSnapshot partSnapshot = PartSnapshot.from(part, request.getQuantity());
 
-        repairOrder.removePart(partSnapshot);
+        try {
+            partStockControlUseCase.addPartStock(request.getPartId(), request.getQuantity());
+        } catch (Exception e) {
+            throw new PartStockOperationException("add", e.getMessage());
+        }
+
+        try {
+            repairOrder.removePart(partSnapshot);
+        } catch (Exception e) {
+            try {
+                partStockControlUseCase.debitPartStock(request.getPartId(), request.getQuantity());
+            } catch (Exception rollbackException) {
+                throw new PartStockOperationException("remove", "Failed to rollback stock after remove part failure: " + rollbackException.getMessage());
+            }
+            throw e;
+        }
 
         return repository.save(repairOrder);
     }
 
     private Part getPart(String partId) {
         if (partId == null || partId.isBlank()) {
-            throw new IllegalArgumentException("Part ID cannot be empty");
+            throw new InvalidPartException("Part ID cannot be empty");
         }
 
         return partRepository.findById(partId)
                 .orElseThrow(() -> new ResourceNotFoundException("Part", "id", partId));
-
 
     }
 }
