@@ -19,6 +19,7 @@ public class RepairOrderDocument {
     @Id
     private String id;
 
+    @NotBlank(message = "Repair order number cannot be blank")
     private String number;
 
     private RepairOrderStatus status;
