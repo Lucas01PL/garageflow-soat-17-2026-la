@@ -46,28 +46,28 @@ WAITING_ATTENDING  ──▶  IN_EXECUTION  ──▶  FINISHED
 | **Entrega** | Uma OS só pode ser entregue quando estiver em `FINISHED` |
 | **Controle de Estoque** | Alterações de peças consultam o estoque e utilizam operações compensatórias em caso de falha |
 | **Snapshots** | Peças e serviços adicionados à OS preservam dados relevantes do momento da inclusão |
+| **Aprovação de Compra** | Listas de compra só podem ser aprovadas/rejeitadas quando estiverem `PENDING` |
+| **Compra de Insumos** | Ao comprar a lista aprovada, o estoque de cada peça é incrementado automaticamente |
+
 ## 🏗️ Arquitetura
 
 A estrutura segue a separação de responsabilidades da **Clean Architecture**:
 
 ```
-src/main/java/br/com/fiap/tech/challenge/garageflow_soat_17_2026_la/
-├── repairorder/
-│   ├── application/           # Casos de uso e orquestração
-│   │   ├── service/
-│   │   └── usecase/
-│   ├── domain/                # Regras de negócio
-│   │   ├── exception/
-│   │   ├── model/
-│   │   ├── repository/
-│   │   └── type/
-│   └── presentation/          # HTTP e conversão de dados
-│       ├── controller/
-│       ├── dto/
-│       └── mapper/
-├── part/                      # Domínio de Peças
-├── workshopservice/           # Domínio de Serviços
-└── shared/                    # Código compartilhado
+src/main/java/br/com/fiap/tech/challeng/garageflow_soat_17_2026_la/
+├── auth/                     # Segurança e autenticação
+├── client/                   # Clientes da oficina
+├── vehicle/                  # Veículos e placas
+├── user/                     # Usuários do sistema
+├── part/                     # Peças e estoque
+├── workshopservice/          # Serviços de oficina
+├── purchasing/               # Lista de compras e aprovação
+├── repairorder/              # Aggregate Root principal
+│   ├── application/
+│   ├── domain/
+│   └── presentation/
+├── shared/                   # Código compartilhado
+└── config/                   # Segurança e config gerais
 ```
 
 ### Componentes Principais
@@ -180,7 +180,72 @@ A suíte contém cobertura completa:
 
 ## 📡 API REST
 
-Recurso principal: `/repairorder`
+Os módulos da aplicação seguem uma API REST organizada por domínio. Além da RepairOrder, o projeto agora inclui autenticação, usuários, clientes, veículos, peças, serviços e compras.
+
+### Autenticação e Usuários
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `POST` | `/auth/login` | Autentica um usuário e retorna JWT |
+| `POST` | `/user` | Cria um usuário |
+| `GET` | `/user/{id}` | Busca usuário por ID |
+| `GET` | `/user` | Lista todos os usuários |
+| `GET` | `/user/search?fullName=...` | Busca usuários por nome |
+| `PUT` | `/user/{id}` | Atualiza usuário |
+| `DELETE` | `/user/{id}` | Remove usuário |
+
+### Clientes e Veículos
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `POST` | `/client` | Cria cliente |
+| `GET` | `/client/{id}` | Busca cliente por ID |
+| `GET` | `/client/document/{document}` | Busca cliente por documento |
+| `GET` | `/client` | Lista clientes |
+| `PUT` | `/client/{id}` | Atualiza cliente |
+| `DELETE` | `/client/{id}` | Remove cliente |
+| `POST` | `/vehicle` | Cria veículo |
+| `GET` | `/vehicle/{id}` | Busca veículo por ID |
+| `GET` | `/vehicle/plate/{plate}` | Busca veículo por placa |
+| `GET` | `/vehicle` | Lista veículos |
+| `PUT` | `/vehicle/{id}` | Atualiza veículo |
+| `DELETE` | `/vehicle/{id}` | Remove veículo |
+
+### Peças e Estoque
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `POST` | `/part` | Cria peça |
+| `POST` | `/part/debit/{id}?quantityToDebit=...` | Debita estoque |
+| `POST` | `/part/add/{id}?quantityToAdd=...` | Acrescenta estoque |
+| `GET` | `/part/{id}` | Busca peça por ID |
+| `GET` | `/part/code/{code}` | Busca peça por código |
+| `GET` | `/part` | Lista peças |
+| `GET` | `/part/low-stock?threshold=...` | Lista peças em estoque baixo |
+| `PUT` | `/part/{id}` | Atualiza peça |
+| `DELETE` | `/part/{id}` | Remove peça |
+
+### Serviços da Oficina
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `POST` | `/workshopservice` | Cria serviço |
+| `GET` | `/workshopservice/{id}` | Busca serviço por ID |
+| `GET` | `/workshopservice` | Lista serviços |
+| `GET` | `/workshopservice/search?description=...` | Busca por descrição |
+| `PUT` | `/workshopservice/{id}` | Atualiza serviço |
+| `DELETE` | `/workshopservice/{id}` | Remove serviço |
+
+### Compras e Estoque
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `POST` | `/purchase-list` | Gera lista de compra |
+| `GET` | `/purchase-list` | Lista listas de compra |
+| `GET` | `/purchase-list/{id}` | Busca lista por ID |
+| `PATCH` | `/purchase-list/{id}/approve` | Aprova lista |
+| `PATCH` | `/purchase-list/{id}/reject` | Rejeita lista |
+| `POST` | `/purchase-list/{id}/purchase` | Confirma compra e repõe estoque |
 
 ### Ordens de Serviço
 
@@ -189,33 +254,21 @@ Recurso principal: `/repairorder`
 | `POST` | `/repairorder` | Cria uma nova OS |
 | `GET` | `/repairorder/{id}` | Obtém OS por ID |
 | `GET` | `/repairorder` | Lista todas as OS |
-
-### Serviços da OS
-
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
+| `GET` | `/repairorder/customer/{customerId}` | Busca OS por cliente |
 | `POST` | `/repairorder/{repairOrderId}/services` | Adiciona um serviço |
 | `DELETE` | `/repairorder/{repairOrderId}/services` | Remove um serviço |
-| `PATCH` | `/repairorder/{repairOrderId}/services/{workshopServiceId}/status/start` | Inicia um serviço |
-| `PATCH` | `/repairorder/{repairOrderId}/services/{workshopServiceId}/status/finished` | Finaliza um serviço |
-
-### Peças da OS
-
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
 | `POST` | `/repairorder/{repairOrderId}/parts` | Adiciona uma peça |
 | `DELETE` | `/repairorder/{repairOrderId}/parts` | Remove uma peça |
-
-### Transições de Status
-
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
 | `PATCH` | `/repairorder/{repairOrderId}/status/in-diagnosis` | Inicia diagnóstico |
 | `PATCH` | `/repairorder/{repairOrderId}/status/awaiting-approval` | Solicita aprovação |
 | `PATCH` | `/repairorder/{repairOrderId}/status/approved` | Aprova a OS |
 | `PATCH` | `/repairorder/{repairOrderId}/status/rejected` | Rejeita a OS |
 | `PATCH` | `/repairorder/{repairOrderId}/status/in-execution` | Inicia execução |
 | `PATCH` | `/repairorder/{repairOrderId}/status/deliver` | Entrega a OS |
+| `PATCH` | `/repairorder/{repairOrderId}/services/{workshopServiceId}/status/start` | Inicia serviço |
+| `PATCH` | `/repairorder/{repairOrderId}/services/{workshopServiceId}/status/finished` | Finaliza serviço |
+| `PATCH` | `/repairorder/{repairOrderId}/status/cancelled` | Cancela OS |
+| `GET` | `/repairorder/monitoring/services/average-execution-time` | Calcula tempo médio de execução |
 
 ### 📖 Documentação Interativa
 
@@ -223,6 +276,7 @@ Com a aplicação em execução:
 
 - **Swagger UI**: http://localhost:8080/swagger-ui/index.html
 - **Especificação OpenAPI**: http://localhost:8080/v3/api-docs
+
 ## 🗄️ MongoDB com Docker
 
 O `docker-compose.yml` configura um container MongoDB com persistência:
