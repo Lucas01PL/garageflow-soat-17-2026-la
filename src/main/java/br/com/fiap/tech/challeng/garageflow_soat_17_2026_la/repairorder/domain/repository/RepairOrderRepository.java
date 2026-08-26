@@ -1,6 +1,7 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.repository;
 
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.RepairOrder;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.type.RepairOrderStatus;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,6 +21,8 @@ public interface RepairOrderRepository {
     List<RepairOrder> findByStatusContainingIgnoreCase(String status);
 
     List<RepairOrder> findByCustomerId(String customerId);
+
+    boolean existsByPartIdAndStatusIn(String partId, List<RepairOrderStatus> status);
 
 }
 
