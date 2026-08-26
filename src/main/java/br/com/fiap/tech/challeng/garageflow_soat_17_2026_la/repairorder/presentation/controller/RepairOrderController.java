@@ -112,7 +112,7 @@ public class RepairOrderController extends BaseController {
     @PostMapping("/{repairOrderId}/services")
     public ResponseEntity<RepairOrderResponseDTO> addWorkshopService(
             @PathVariable String repairOrderId,
-            @Valid @RequestBody AddRemoveWorkshopServiceRequest request) {
+            @Valid @RequestBody AddWorkshopServiceRequest request) {
 
         RepairOrder repairOrder =
                 addWorkshopServiceUseCase.execute(repairOrderId, request);
@@ -141,13 +141,14 @@ public class RepairOrderController extends BaseController {
             summary = "Remove Workshop Service from Repair Order",
             description = "Removes a workshop service from an existing repair order."
     )
-    @DeleteMapping("/{repairOrderId}/services")
+    @DeleteMapping("/{repairOrderId}/services/{workshopServiceId}")
     public ResponseEntity<RepairOrderResponseDTO> removeWorkshopService(
             @PathVariable String repairOrderId,
-            @Valid @RequestBody AddRemoveWorkshopServiceRequest request) {
+            @PathVariable String workshopServiceId,
+            @Valid @RequestBody RemoveWorkshopServiceRequest request) {
 
         RepairOrder repairOrder =
-                removeWorkshopServiceUseCase.execute(repairOrderId, request);
+                removeWorkshopServiceUseCase.execute(repairOrderId, workshopServiceId, request);
 
         return ResponseEntity.ok(
                 mapper.toResponse(repairOrder));
