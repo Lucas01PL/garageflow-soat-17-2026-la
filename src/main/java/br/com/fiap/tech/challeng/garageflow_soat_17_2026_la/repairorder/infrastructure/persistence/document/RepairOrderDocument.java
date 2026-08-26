@@ -22,7 +22,6 @@ public class RepairOrderDocument {
     @Positive(message = "Number must be greater than zero")
     private String number;
 
-    @NotBlank(message = "Status cannot be blank")
     private RepairOrderStatus status;
 
     private LocalDateTime initDate;
