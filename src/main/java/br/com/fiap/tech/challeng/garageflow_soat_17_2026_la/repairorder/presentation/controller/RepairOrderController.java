@@ -2,10 +2,7 @@ package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.present
 
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase.*;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.RepairOrder;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.AddRemovePartRequest;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.AddRemoveWorkshopServiceRequest;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.CreateRepairOrderRequest;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.FinishWorkshopServiceRequest;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.*;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.response.AverageWorkshopServiceExecutionTimeResponse;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.response.RepairOrderResponseDTO;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.mapper.RepairOrderMapper;
@@ -131,7 +128,7 @@ public class RepairOrderController extends BaseController {
     @PostMapping("/{repairOrderId}/parts")
     public ResponseEntity<RepairOrderResponseDTO> addPart(
             @PathVariable String repairOrderId,
-            @Valid @RequestBody AddRemovePartRequest request) {
+            @Valid @RequestBody AddPartRequest request) {
 
         RepairOrder repairOrder =
                 addPartUseCase.execute(repairOrderId, request);
@@ -160,13 +157,14 @@ public class RepairOrderController extends BaseController {
             summary = "Remove Part from Repair Order",
             description = "Removes a part from an existing repair order."
     )
-    @DeleteMapping("/{repairOrderId}/parts")
+    @DeleteMapping("/{repairOrderId}/parts/{partId}")
     public ResponseEntity<RepairOrderResponseDTO> removePart(
             @PathVariable String repairOrderId,
-            @Valid @RequestBody AddRemovePartRequest request) {
+            @PathVariable String partId,
+            @Valid @RequestBody RemovePartRequest request) {
 
         RepairOrder repairOrder =
-                removePartUseCase.execute(repairOrderId, request);
+                removePartUseCase.execute(repairOrderId, partId, request);
 
         return ResponseEntity.ok(
                 mapper.toResponse(repairOrder));
