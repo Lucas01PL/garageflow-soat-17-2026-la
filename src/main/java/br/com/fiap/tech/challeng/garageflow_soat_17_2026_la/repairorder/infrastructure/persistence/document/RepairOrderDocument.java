@@ -38,16 +38,12 @@ public class RepairOrderDocument {
     @Positive(message = "Total must be greater than zero")
     private BigDecimal total;
 
-    @NotBlank(message = "Workshop Services cannot be blank")
     private List<RepairOrderWorkshopServiceDocument> workshopServices;
 
-    @NotBlank(message = "Parts cannot be blank")
     private List<RepairOrderPartDocument> parts;
 
-    @NotBlank(message = "Customer cannot be blank")
     private RepairOrderCustomerDocument customer;
 
-    @NotBlank(message = "Customer cannot be blank")
     private RepairOrderVehicleDocument vehicle;
 
     @NotBlank(message = "User ID cannot be blank")
