@@ -1,4 +1,4 @@
-package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.presentation.dto.request;
+package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.presentation.dto.response;
 
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.model.UserRole;
 import lombok.AllArgsConstructor;

@@ -4,8 +4,8 @@ import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.Res
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.application.usecase.*;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.model.User;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.model.UserRole;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.presentation.dto.request.UserResponseDTO;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.presentation.dto.response.CreateUserRequestDTO;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.presentation.dto.response.UserResponseDTO;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.presentation.dto.request.CreateUserRequestDTO;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.presentation.mapper.UserMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

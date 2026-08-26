@@ -2,8 +2,8 @@ package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.presentation.c
 
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.application.usecase.*;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.model.User;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.presentation.dto.response.CreateUserRequestDTO;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.presentation.dto.request.UserResponseDTO;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.presentation.dto.request.CreateUserRequestDTO;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.presentation.dto.response.UserResponseDTO;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.presentation.mapper.UserMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
