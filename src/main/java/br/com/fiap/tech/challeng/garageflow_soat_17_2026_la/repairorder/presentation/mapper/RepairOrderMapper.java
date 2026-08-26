@@ -13,11 +13,20 @@ public class RepairOrderMapper {
     private final WorkshopServiceResponseMapper workshopServiceMapper;
 
     public RepairOrder toModel(CreateRepairOrderRequest dto) {
+        return toModel(dto, null);
+    }
+
+    public RepairOrder toModel(CreateRepairOrderRequest dto, String userId) {
         if (dto == null) return null;
+
+        if (userId == null || userId.isBlank()) {
+            throw new IllegalArgumentException("User not authenticated");
+        }
+
         return RepairOrder.builder()
                 .vehicle(new VehicleSnapshot(dto.getVehicleId()))
                 .customer(new CustomerSnapshot(dto.getCustomerId()))
-                .userId("6a60020e609a66a053aea2f0") // TODO: Remove hardcoded userId and get it from the request or security context
+                .userId(userId)
                 .build();
     }
 

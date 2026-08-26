@@ -10,13 +10,16 @@ import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presenta
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.response.RepairOrderResponseDTO;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.mapper.RepairOrderMapper;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.mapper.WorkshopServiceMonitoringResponseMapper;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.config.security.AuthenticatedUser;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
@@ -72,12 +75,30 @@ public class RepairOrderController {
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody CreateRepairOrderRequest dto) {
         try {
-            RepairOrder ro = mapper.toModel(dto);
+            String userId = resolveCurrentUserId();
+            RepairOrder ro = mapper.toModel(dto, userId);
             RepairOrder created = createUseCase.execute(ro);
             return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toResponse(created));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    private String resolveCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || authentication.getPrincipal() == null) {
+            throw new IllegalArgumentException("User not authenticated");
+        }
+
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof AuthenticatedUser authenticatedUser) {
+            if (authenticatedUser.userId() == null || authenticatedUser.userId().isBlank()) {
+                throw new IllegalArgumentException("User ID not present in token");
+            }
+            return authenticatedUser.userId();
+        }
+
+        throw new IllegalArgumentException("User not authenticated");
     }
 
     @Operation(
