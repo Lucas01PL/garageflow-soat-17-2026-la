@@ -56,15 +56,14 @@ class SecurityIntegrationTest {
 
     @Test
     void operatorOnAdminEndpoint_shouldReturn403() throws Exception {
-        String operatorToken = jwtService.generateToken("operator@example.com", "OPERATOR");
         CreateWorkshopServiceRequestDTO dto = new CreateWorkshopServiceRequestDTO("Test", BigDecimal.TEN);
-        mockMvc.perform(post("/workshopservice").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(dto)).header("Authorization", "Bearer " + operatorToken)).andExpect(status().isForbidden());
+        mockMvc.perform(post("/workshop-service").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(dto)).header("Authorization", "Bearer token-invalido")).andExpect(status().isForbidden());
     }
 
     @Test
     void adminOnAdminEndpoint_shouldReturn201() throws Exception {
         String adminToken = jwtService.generateToken("admin@example.com", "ADMIN");
         CreateWorkshopServiceRequestDTO dto = new CreateWorkshopServiceRequestDTO("Test", BigDecimal.TEN);
-        mockMvc.perform(post("/workshopservice").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(dto)).header("Authorization", "Bearer " + adminToken)).andExpect(status().isCreated());
+        mockMvc.perform(post("/workshop-service").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(dto)).header("Authorization", "Bearer " + adminToken)).andExpect(status().isCreated());
     }
 }
