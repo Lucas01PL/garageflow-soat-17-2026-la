@@ -1,20 +1,6 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.controller;
 
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase.AddPartUseCase;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase.AddWorkshopServiceUseCase;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase.ApproveRepairOrderUseCase;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase.CreateRepairOrderUseCase;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase.DeliverRepairOrderUseCase;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase.FinishWorkshopServiceUseCase;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase.GetRepairOrderByIdUseCase;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase.ListAllRepairOrdersUseCase;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase.RejectRepairOrderUseCase;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase.RemovePartUseCase;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase.RemoveWorkshopServiceUseCase;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase.RequestRepairOrderApprovalUseCase;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase.StartRepairOrderDiagnosisUseCase;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase.StartRepairOrderExecutionUseCase;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase.StartWorkshopServiceUseCase;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase.*;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.RepairOrder;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.AddRemovePartRequest;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.AddRemoveWorkshopServiceRequest;
@@ -91,6 +77,9 @@ class RepairOrderControllerTest {
 
     @Mock
     private RequestRepairOrderApprovalUseCase requestRepairOrderApprovalUseCase;
+
+    @Mock
+    private CancelRepairOrderUseCase cancelRepairOrderUseCase;
 
     @InjectMocks
     private RepairOrderController controller;
@@ -713,5 +702,35 @@ class RepairOrderControllerTest {
 
         verify(requestRepairOrderApprovalUseCase)
                 .execute("repair-order-1");
+    }
+
+    @Test
+    void shouldCancelRepairOrderSuccessfully() {
+
+        when(cancelRepairOrderUseCase.execute(
+                "repair-order-1"
+        )).thenReturn(repairOrder);
+
+        when(mapper.toResponse(repairOrder))
+                .thenReturn(response);
+
+        ResponseEntity<RepairOrderResponseDTO> result =
+                controller.cancel("repair-order-1");
+
+        assertEquals(
+                HttpStatus.OK,
+                result.getStatusCode()
+        );
+
+        assertSame(
+                response,
+                result.getBody()
+        );
+
+        verify(cancelRepairOrderUseCase)
+                .execute("repair-order-1");
+
+        verify(mapper)
+                .toResponse(repairOrder);
     }
 }
