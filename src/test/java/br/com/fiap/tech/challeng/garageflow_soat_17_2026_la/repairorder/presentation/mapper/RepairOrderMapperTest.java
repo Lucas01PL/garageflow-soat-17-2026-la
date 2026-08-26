@@ -22,7 +22,7 @@ class RepairOrderMapperTest {
                 "cust1"
         );
 
-        RepairOrder model = mapper.toModel(dto);
+        RepairOrder model = mapper.toModel(dto, "id1");
 
         assertNotNull(model);
         assertEquals("vehicle1", model.getVehicle().getVehicleId());

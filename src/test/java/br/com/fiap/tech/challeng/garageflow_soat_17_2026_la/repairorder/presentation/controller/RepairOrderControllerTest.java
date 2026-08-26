@@ -8,6 +8,7 @@ import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presenta
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.FinishWorkshopServiceRequest;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.response.RepairOrderResponseDTO;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.mapper.RepairOrderMapper;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.config.security.AuthenticatedUser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,6 +17,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
 import java.util.Optional;
@@ -103,6 +106,14 @@ class RepairOrderControllerTest {
         workshopServiceRequest = new AddRemoveWorkshopServiceRequest();
         partRequest = new AddRemovePartRequest();
         finishRequest = new FinishWorkshopServiceRequest();
+
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(
+                        new AuthenticatedUser("user-123", "user@email.com"),
+                        null,
+                        List.of()
+                )
+        );
     }
 
     @Test
@@ -111,7 +122,7 @@ class RepairOrderControllerTest {
         RepairOrder model = repairOrder;
         RepairOrder created = repairOrder;
 
-        when(mapper.toModel(createRequest))
+        when(mapper.toModel(createRequest, "user-123"))
                 .thenReturn(model);
 
         when(createUseCase.execute(model))
@@ -134,7 +145,7 @@ class RepairOrderControllerTest {
         );
 
         verify(mapper)
-                .toModel(createRequest);
+                .toModel(createRequest, "user-123");
 
         verify(createUseCase)
                 .execute(model);
@@ -146,7 +157,7 @@ class RepairOrderControllerTest {
     @Test
     void shouldReturnBadRequestWhenCreateThrowsIllegalArgumentException() {
 
-        when(mapper.toModel(createRequest))
+        when(mapper.toModel(createRequest, "user-123"))
                 .thenReturn(repairOrder);
 
         when(createUseCase.execute(repairOrder))
@@ -174,6 +185,19 @@ class RepairOrderControllerTest {
 
         verify(mapper, never())
                 .toResponse(any());
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenUserIsNotAuthenticated() {
+        SecurityContextHolder.getContext().setAuthentication(null);
+
+        ResponseEntity<?> result = controller.create(createRequest);
+
+        assertEquals(HttpStatus.BAD_REQUEST, result.getStatusCode());
+        assertEquals("User not authenticated", result.getBody());
+
+        verifyNoInteractions(createUseCase);
+        verifyNoInteractions(mapper);
     }
 
     @Test
