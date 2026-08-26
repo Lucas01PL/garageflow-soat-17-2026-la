@@ -400,7 +400,7 @@ class RepairOrderIntegrationTest {
          */
         mockMvc.perform(
                         patch(
-                                "/repairorder/{id}/status/deliver",
+                                "/repairorder/{id}/status/delivered",
                                 repairOrderId
                         )
                                 .header(
