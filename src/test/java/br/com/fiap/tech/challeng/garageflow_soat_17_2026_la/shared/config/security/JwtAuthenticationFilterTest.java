@@ -70,7 +70,7 @@ class JwtAuthenticationFilterTest {
 
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         assertNotNull(authentication);
-        assertEquals("admin@garageflow.com", authentication.getPrincipal());
+        assertEquals("admin@garageflow.com", ((AuthenticatedUser) authentication.getPrincipal()).email());
         assertTrue(authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")));
         verify(filterChain).doFilter(request, response);
     }
