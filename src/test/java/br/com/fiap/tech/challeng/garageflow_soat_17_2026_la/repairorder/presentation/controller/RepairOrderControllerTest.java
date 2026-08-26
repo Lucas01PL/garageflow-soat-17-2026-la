@@ -87,7 +87,8 @@ class RepairOrderControllerTest {
     private RepairOrder repairOrder;
     private RepairOrderResponseDTO response;
     private CreateRepairOrderRequest createRequest;
-    private AddRemoveWorkshopServiceRequest workshopServiceRequest;
+    private AddWorkshopServiceRequest workshopServiceRequest;
+    private RemoveWorkshopServiceRequest removeWorkshopServiceRequest;
     private AddPartRequest partRequest;
     private RemovePartRequest partRemoveRequest;
     private FinishWorkshopServiceRequest finishRequest;
@@ -101,7 +102,7 @@ class RepairOrderControllerTest {
         response = new RepairOrderResponseDTO();
 
         createRequest = new CreateRepairOrderRequest();
-        workshopServiceRequest = new AddRemoveWorkshopServiceRequest();
+        workshopServiceRequest = new AddWorkshopServiceRequest();
         partRequest = new AddPartRequest();
         partRemoveRequest = new RemovePartRequest();
         finishRequest = new FinishWorkshopServiceRequest();
@@ -419,7 +420,8 @@ class RepairOrderControllerTest {
 
         when(removeWorkshopServiceUseCase.execute(
                 "repair-order-1",
-                workshopServiceRequest
+                "workshop-service-1",
+                removeWorkshopServiceRequest
         )).thenReturn(repairOrder);
 
         when(mapper.toResponse(repairOrder))
@@ -428,7 +430,8 @@ class RepairOrderControllerTest {
         ResponseEntity<?> result =
                 controller.removeWorkshopService(
                         "repair-order-1",
-                        workshopServiceRequest
+                        "workshop-service-1",
+                        removeWorkshopServiceRequest
                 );
 
         assertEquals(
@@ -444,7 +447,8 @@ class RepairOrderControllerTest {
         verify(removeWorkshopServiceUseCase)
                 .execute(
                         "repair-order-1",
-                        workshopServiceRequest
+                        "workshop-service-1",
+                        removeWorkshopServiceRequest
                 );
     }
 
