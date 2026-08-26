@@ -2,10 +2,7 @@ package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.present
 
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase.*;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.RepairOrder;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.AddRemovePartRequest;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.AddRemoveWorkshopServiceRequest;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.CreateRepairOrderRequest;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.FinishWorkshopServiceRequest;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.*;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.response.RepairOrderResponseDTO;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.mapper.RepairOrderMapper;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.config.security.AuthenticatedUser;
@@ -91,7 +88,8 @@ class RepairOrderControllerTest {
     private RepairOrderResponseDTO response;
     private CreateRepairOrderRequest createRequest;
     private AddRemoveWorkshopServiceRequest workshopServiceRequest;
-    private AddRemovePartRequest partRequest;
+    private AddPartRequest partRequest;
+    private RemovePartRequest partRemoveRequest;
     private FinishWorkshopServiceRequest finishRequest;
 
     @BeforeEach
@@ -104,7 +102,8 @@ class RepairOrderControllerTest {
 
         createRequest = new CreateRepairOrderRequest();
         workshopServiceRequest = new AddRemoveWorkshopServiceRequest();
-        partRequest = new AddRemovePartRequest();
+        partRequest = new AddPartRequest();
+        partRemoveRequest = new RemovePartRequest();
         finishRequest = new FinishWorkshopServiceRequest();
 
         SecurityContextHolder.getContext().setAuthentication(
@@ -454,7 +453,8 @@ class RepairOrderControllerTest {
 
         when(removePartUseCase.execute(
                 "repair-order-1",
-                partRequest
+                "partId",
+                partRemoveRequest
         )).thenReturn(repairOrder);
 
         when(mapper.toResponse(repairOrder))
@@ -463,7 +463,8 @@ class RepairOrderControllerTest {
         ResponseEntity<?> result =
                 controller.removePart(
                         "repair-order-1",
-                        partRequest
+                        "partId",
+                        partRemoveRequest
                 );
 
         assertEquals(
@@ -479,7 +480,8 @@ class RepairOrderControllerTest {
         verify(removePartUseCase)
                 .execute(
                         "repair-order-1",
-                        partRequest
+                        "partId",
+                        partRemoveRequest
                 );
     }
 
