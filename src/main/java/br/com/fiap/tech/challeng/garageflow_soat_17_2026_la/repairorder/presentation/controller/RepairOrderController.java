@@ -190,7 +190,7 @@ public class RepairOrderController extends BaseController {
             summary = "Start Workshop Service in Repair Order",
             description = "Starts a workshop service in an existing repair order."
     )
-    @PatchMapping("/{repairOrderId}/services/{workshopServiceId}/status/start")
+    @PatchMapping("/{repairOrderId}/services/{workshopServiceId}/status/started")
     public ResponseEntity<RepairOrderResponseDTO> startWorkshopService(
             @PathVariable String repairOrderId,
             @PathVariable String workshopServiceId) {
@@ -251,7 +251,7 @@ public class RepairOrderController extends BaseController {
             summary = "Set Repair Order to Delivered",
             description = "Sets the status of an existing repair order to Delivered."
     )
-    @PatchMapping("/{repairOrderId}/status/deliver")
+    @PatchMapping("/{repairOrderId}/status/delivered")
     public ResponseEntity<RepairOrderResponseDTO> deliver(
             @PathVariable String repairOrderId) {
 
