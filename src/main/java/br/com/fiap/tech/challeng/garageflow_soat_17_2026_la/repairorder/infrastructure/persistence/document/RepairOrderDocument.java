@@ -19,7 +19,6 @@ public class RepairOrderDocument {
     @Id
     private String id;
 
-    @Positive(message = "Number must be greater than zero")
     private String number;
 
     private RepairOrderStatus status;
