@@ -63,7 +63,7 @@ public class PartController {
             @ApiResponse(responseCode = "404", description = "Auto Part/Maintenance Supplies not found"),
             @ApiResponse(responseCode = "416", description = "Not enough stock to debit")
     })
-    @PostMapping("/debit/{id}")
+    @PostMapping("{id}/stock/debit")
     public ResponseEntity<String> debitPartStock(@PathVariable String id, @RequestParam Integer quantityToDebit) {
         String result = partStockControlUseCase.debitPartStock(id, quantityToDebit);
         return ResponseEntity.status(HttpStatus.OK).body(result);
@@ -78,7 +78,7 @@ public class PartController {
             @ApiResponse(responseCode = "404", description = "Auto Part/Maintenance Supplies not found"),
             @ApiResponse(responseCode = "416", description = "Quantity to add must be greater than zero")
     })
-    @PostMapping("/add/{id}")
+    @PostMapping("{id}/stock/add")
     public ResponseEntity<String> addPartStock(@PathVariable String id, @RequestParam Integer quantityToAdd) {
         String result = partStockControlUseCase.addPartStock(id, quantityToAdd);
         return ResponseEntity.status(HttpStatus.OK).body(result);
