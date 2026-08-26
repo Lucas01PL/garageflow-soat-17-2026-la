@@ -9,7 +9,7 @@ import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.e
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.PartSnapshot;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.RepairOrder;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.repository.RepairOrderRepository;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.AddRemovePartRequest;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.AddPartRequest;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.NotEnoughResourceException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.ResourceNotFoundException;
 import lombok.AllArgsConstructor;
@@ -24,7 +24,7 @@ public class AddPartUseCase {
     private final RepairOrderFinder repairOrderFinder;
     private final PartStockControlUseCase partStockControlUseCase;
 
-    public RepairOrder execute(String repairOrderId, AddRemovePartRequest request) {
+    public RepairOrder execute(String repairOrderId, AddPartRequest request) {
 
         RepairOrder repairOrder = repairOrderFinder.findById(repairOrderId);
 
