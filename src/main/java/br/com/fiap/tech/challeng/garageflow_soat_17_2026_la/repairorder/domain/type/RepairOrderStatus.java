@@ -14,7 +14,8 @@ public enum RepairOrderStatus {
     FINISHED("Finalizada"),
     DELIVERED("Entregue"),
     APPROVED("Aprovado"),
-    REJECTED("Rejeitado");
+    REJECTED("Rejeitado"),
+    CANCELLED("Cancelado");
 
     private final String description;
 
