@@ -47,13 +47,9 @@ public class WorkshopServiceController {
     })
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody CreateWorkshopServiceRequestDTO dto) {
-        try {
-            WorkshopService svc = mapper.toModel(dto);
-            WorkshopService created = createUseCase.execute(svc);
-            return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toResponse(created));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        WorkshopService svc = mapper.toModel(dto);
+        WorkshopService created = createUseCase.execute(svc);
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toResponse(created));
     }
 
     @Operation(
@@ -66,13 +62,9 @@ public class WorkshopServiceController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable String id) {
-        try {
-            Optional<WorkshopService> svc = getByIdUseCase.execute(id);
-            return svc.map(workshopService -> ResponseEntity.ok(mapper.toResponse(workshopService)))
-                    .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        Optional<WorkshopService> svc = getByIdUseCase.execute(id);
+        return svc.map(workshopService -> ResponseEntity.ok(mapper.toResponse(workshopService)))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @Operation(
@@ -99,13 +91,9 @@ public class WorkshopServiceController {
     })
     @GetMapping("/search")
     public ResponseEntity<?> search(@RequestParam String description) {
-        try {
-            List<WorkshopService> list = searchUseCase.execute(description);
-            List<WorkshopServiceResponseDTO> dtos = list.stream().map(mapper::toResponse).collect(Collectors.toList());
-            return ResponseEntity.ok(dtos);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        List<WorkshopService> list = searchUseCase.execute(description);
+        List<WorkshopServiceResponseDTO> dtos = list.stream().map(mapper::toResponse).collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
     }
 
     @Operation(
@@ -118,14 +106,10 @@ public class WorkshopServiceController {
     })
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable String id, @Valid @RequestBody CreateWorkshopServiceRequestDTO dto) {
-        try {
-            WorkshopService update = mapper.toModel(dto);
-            Optional<WorkshopService> updated = updateUseCase.execute(id, update);
-            return updated.map(workshopService -> ResponseEntity.ok(mapper.toResponse(workshopService)))
-                    .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        WorkshopService update = mapper.toModel(dto);
+        Optional<WorkshopService> updated = updateUseCase.execute(id, update);
+        return updated.map(workshopService -> ResponseEntity.ok(mapper.toResponse(workshopService)))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @Operation(
@@ -138,13 +122,9 @@ public class WorkshopServiceController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable String id) {
-        try {
-            boolean deleted = deleteUseCase.execute(id);
-            if (deleted) return ResponseEntity.noContent().build();
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Service not found");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        boolean deleted = deleteUseCase.execute(id);
+        if (deleted) return ResponseEntity.noContent().build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Service not found");
     }
 }
 
