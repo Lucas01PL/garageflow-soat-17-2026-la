@@ -28,13 +28,10 @@ public class RepairOrderDocument {
 
     private LocalDateTime finishDate;
 
-    @Positive(message = "Total services must be greater than zero")
     private BigDecimal totalServices;
 
-    @Positive(message = "Total parts must be greater than zero")
     private BigDecimal totalParts;
 
-    @Positive(message = "Total must be greater than zero")
     private BigDecimal total;
 
     private List<RepairOrderWorkshopServiceDocument> workshopServices;
