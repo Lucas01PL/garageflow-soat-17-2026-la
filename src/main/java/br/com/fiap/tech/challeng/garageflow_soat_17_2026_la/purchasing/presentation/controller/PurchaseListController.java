@@ -6,6 +6,7 @@ import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.purchasing.domain.mo
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.purchasing.presentation.dto.PurchaseListDecisionRequest;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.purchasing.presentation.dto.PurchaseListResponse;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.purchasing.presentation.mapper.PurchaseListMapper;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.presentation.controller.BaseController;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -18,7 +19,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/purchase-list")
-public class PurchaseListController {
+public class PurchaseListController extends BaseController {
 
     private final GeneratePurchaseListUseCase generatePurchaseListUseCase;
     private final ListPurchaseListsUseCase listPurchaseListsUseCase;
@@ -96,8 +97,9 @@ public class PurchaseListController {
             @ApiResponse(responseCode = "409", description = "Purchase list is not pending")
     })
     @PatchMapping("/{id}/approve")
-    public ResponseEntity<PurchaseListResponse> approve(@PathVariable String id, @Valid @RequestBody PurchaseListDecisionRequest request) {
-        PurchaseList purchaseList = approvePurchaseListUseCase.execute(id, request.userId());
+    public ResponseEntity<PurchaseListResponse> approve(@PathVariable String id) {
+        String userId = resolveCurrentUserId();
+        PurchaseList purchaseList = approvePurchaseListUseCase.execute(id, userId);
         return ResponseEntity.status(HttpStatus.OK).body(mapper.toResponse(purchaseList));
     }
 
@@ -111,8 +113,9 @@ public class PurchaseListController {
             @ApiResponse(responseCode = "409", description = "Purchase list is not pending")
     })
     @PatchMapping("/{id}/reject")
-    public ResponseEntity<PurchaseListResponse> reject(@PathVariable String id, @Valid @RequestBody PurchaseListDecisionRequest request) {
-        PurchaseList purchaseList = rejectPurchaseListUseCase.execute(id, request.userId());
+    public ResponseEntity<PurchaseListResponse> reject(@PathVariable String id) {
+        String userId = resolveCurrentUserId();
+        PurchaseList purchaseList = rejectPurchaseListUseCase.execute(id, userId);
         return ResponseEntity.status(HttpStatus.OK).body(mapper.toResponse(purchaseList));
     }
 
