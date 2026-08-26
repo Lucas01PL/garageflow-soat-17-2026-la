@@ -27,6 +27,6 @@ public class LoginUseCase {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
 
-        return jwtService.generateToken(user.getEmail(), user.getRole().name());
+        return jwtService.generateToken(user.getId(), user.getEmail(), user.getRole().name());
     }
 }
