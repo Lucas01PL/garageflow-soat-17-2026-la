@@ -63,6 +63,8 @@ public class RepairOrderController {
 
     private WorkshopServiceMonitoringResponseMapper workshopServiceMonitoringResponseMapper;
 
+    private CancelRepairOrderUseCase cancelRepairOrderUseCase;
+
     @Operation(
             summary = "Create Repair Order",
             description = "Creates a new repair order."
@@ -321,6 +323,22 @@ public class RepairOrderController {
                         .toList();
 
         return ResponseEntity.ok(response);
+    }
+
+    @Operation(
+            summary = "Cancel Repair Order",
+            description = "Cancels a repair order that has not started execution."
+    )
+    @PatchMapping("/{repairOrderId}/status/cancelled")
+    public ResponseEntity<RepairOrderResponseDTO> cancel(
+            @PathVariable String repairOrderId) {
+
+        RepairOrder repairOrder =
+                cancelRepairOrderUseCase.execute(repairOrderId);
+
+        return ResponseEntity.ok(
+                mapper.toResponse(repairOrder)
+        );
     }
 }
 
