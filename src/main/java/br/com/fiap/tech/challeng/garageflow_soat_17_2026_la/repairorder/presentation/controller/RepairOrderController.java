@@ -69,14 +69,10 @@ public class RepairOrderController extends BaseController {
     )
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody CreateRepairOrderRequest dto) {
-        try {
-            String userId = resolveCurrentUserId();
-            RepairOrder ro = mapper.toModel(dto, userId);
-            RepairOrder created = createUseCase.execute(ro);
-            return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toResponse(created));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        String userId = resolveCurrentUserId();
+        RepairOrder ro = mapper.toModel(dto, userId);
+        RepairOrder created = createUseCase.execute(ro);
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toResponse(created));
     }
 
     @Operation(
@@ -85,13 +81,9 @@ public class RepairOrderController extends BaseController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable String id) {
-        try {
-            Optional<RepairOrder> ro = getByIdUseCase.execute(id);
-            return ro.map(repairOrder -> ResponseEntity.ok(mapper.toResponse(repairOrder)))
-                    .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        Optional<RepairOrder> ro = getByIdUseCase.execute(id);
+        return ro.map(repairOrder -> ResponseEntity.ok(mapper.toResponse(repairOrder)))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @Operation(
