@@ -2,6 +2,7 @@ package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.infrast
 
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.*;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.repository.RepairOrderRepository;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.type.RepairOrderStatus;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.infrastructure.persistence.document.*;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.infrastructure.persistence.mongo.RepairOrderMongoRepository;
 import jakarta.validation.constraints.NotBlank;
@@ -66,6 +67,18 @@ public class RepairOrderRepositoryImpl implements RepairOrderRepository {
                 .stream()
                 .map(this::toDomain)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean existsByPartIdAndStatusIn(
+            String partId,
+            List<RepairOrderStatus> statuses) {
+
+        return repairOrderMongoRepository
+                .existsByPartIdAndStatusIn(
+                        statuses,
+                        partId
+                );
     }
 
     private RepairOrder toDomain(RepairOrderDocument entity) {
