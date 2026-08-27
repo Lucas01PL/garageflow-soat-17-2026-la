@@ -2,6 +2,7 @@ package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.pre
 
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.InvalidFieldValueException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.RequiredFieldException;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.ResourceNotFoundException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.application.usecase.*;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.domain.model.WorkshopService;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.presentation.dto.CreateWorkshopServiceRequestDTO;
@@ -187,12 +188,9 @@ class WorkshopServiceControllerTest {
 
     @Test
     void deleteShouldReturnNotFoundWhenMissing() {
-        when(deleteUseCase.execute("x")).thenReturn(false);
+        when(deleteUseCase.execute("x")).thenThrow(ResourceNotFoundException.class);
 
-        var response = controller.delete("x");
-
-        assertEquals(404, response.getStatusCode().value());
-        assertEquals("Service not found", response.getBody());
+        assertThrows(ResourceNotFoundException.class, () -> controller.delete("x"));
     }
 
     @Test
