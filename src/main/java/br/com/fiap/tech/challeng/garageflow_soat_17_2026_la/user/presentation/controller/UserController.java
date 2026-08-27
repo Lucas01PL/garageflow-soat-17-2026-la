@@ -66,31 +66,23 @@ public class UserController {
     }
 
     @Operation(
-            summary = "List All Users",
-            description = "Retrieves a list of all users."
+            summary = "List Users",
+            description = "Lists users optionally filtered by full name."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Users found")
     })
     @GetMapping
-    public ResponseEntity<List<UserResponseDTO>> listAll() {
-        List<User> list = listAllUseCase.execute();
-        List<UserResponseDTO> dtos = list.stream().map(mapper::toResponse).collect(Collectors.toList());
-        return ResponseEntity.ok(dtos);
-    }
+    public ResponseEntity<List<UserResponseDTO>> list(@RequestParam String fullName) {
 
-    @Operation(
-            summary = "Search Users by Full Name",
-            description = "Searches for users by their full name."
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Users found"),
-            @ApiResponse(responseCode = "404", description = "Users not found")
-    })
-    @GetMapping("/search")
-    public ResponseEntity<?> search(@RequestParam String fullName) {
-            List<User> list = searchUseCase.execute(fullName);
-            List<UserResponseDTO> dtos = list.stream().map(mapper::toResponse).collect(Collectors.toList());
+            List<User> users;
+
+            if (fullName == null || fullName.isBlank()) {
+                users = listAllUseCase.execute();
+            } else {
+                users = searchUseCase.execute(fullName);
+            }
+            List<UserResponseDTO> dtos = users.stream().map(mapper::toResponse).collect(Collectors.toList());
             return ResponseEntity.ok(dtos);
     }
 

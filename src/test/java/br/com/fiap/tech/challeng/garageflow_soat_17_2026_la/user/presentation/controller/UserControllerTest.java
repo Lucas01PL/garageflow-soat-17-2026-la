@@ -101,7 +101,7 @@ class UserControllerTest {
         when(listAllUseCase.execute()).thenReturn(List.of(model));
         when(mapper.toResponse(model)).thenReturn(responseDto);
 
-        ResponseEntity<List<UserResponseDTO>> resp = controller.listAll();
+        ResponseEntity<List<UserResponseDTO>> resp = controller.list("");
 
         assertEquals(HttpStatus.OK, resp.getStatusCode());
         assertNotNull(resp.getBody());
@@ -113,7 +113,7 @@ class UserControllerTest {
         when(searchUseCase.execute("Name")).thenReturn(List.of(model));
         when(mapper.toResponse(model)).thenReturn(responseDto);
 
-        ResponseEntity<?> resp = controller.search("Name");
+        ResponseEntity<?> resp = controller.list("Name");
 
         assertEquals(HttpStatus.OK, resp.getStatusCode());
     }
