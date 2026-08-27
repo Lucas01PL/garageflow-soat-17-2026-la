@@ -20,7 +20,7 @@ import java.util.Optional;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/repairorder")
+@RequestMapping("/repair-order")
 public class RepairOrderController extends BaseController {
 
     private CreateRepairOrderUseCase createUseCase;
@@ -101,7 +101,7 @@ public class RepairOrderController extends BaseController {
             summary = "Add Workshop Service to Repair Order",
             description = "Adds a workshop service to an existing repair order."
     )
-    @PostMapping("/{repairOrderId}/services")
+    @PostMapping("/{repairOrderId}/workshop-services")
     public ResponseEntity<RepairOrderResponseDTO> addWorkshopService(
             @PathVariable String repairOrderId,
             @Valid @RequestBody AddWorkshopServiceRequest request) {
@@ -133,7 +133,7 @@ public class RepairOrderController extends BaseController {
             summary = "Remove Workshop Service from Repair Order",
             description = "Removes a workshop service from an existing repair order."
     )
-    @DeleteMapping("/{repairOrderId}/services/{workshopServiceId}")
+    @DeleteMapping("/{repairOrderId}/workshop-services/{workshopServiceId}")
     public ResponseEntity<RepairOrderResponseDTO> removeWorkshopService(
             @PathVariable String repairOrderId,
             @PathVariable String workshopServiceId,
@@ -182,7 +182,7 @@ public class RepairOrderController extends BaseController {
             summary = "Start Workshop Service in Repair Order",
             description = "Starts a workshop service in an existing repair order."
     )
-    @PatchMapping("/{repairOrderId}/services/{workshopServiceId}/status/started")
+    @PatchMapping("/{repairOrderId}/workshop-services/{workshopServiceId}/status/started")
     public ResponseEntity<RepairOrderResponseDTO> startWorkshopService(
             @PathVariable String repairOrderId,
             @PathVariable String workshopServiceId) {
@@ -197,7 +197,7 @@ public class RepairOrderController extends BaseController {
             summary = "Finish Workshop Service in Repair Order",
             description = "Finishes a workshop service in an existing repair order."
     )
-    @PatchMapping("/{repairOrderId}/services/{workshopServiceId}/status/finished")
+    @PatchMapping("/{repairOrderId}/workshop-services/{workshopServiceId}/status/finished")
     public ResponseEntity<RepairOrderResponseDTO> finishWorkshopService(
             @PathVariable String repairOrderId,
             @PathVariable String workshopServiceId,
@@ -303,7 +303,7 @@ public class RepairOrderController extends BaseController {
             summary = "Get Average Workshop Service Execution Time",
             description = "Returns average execution time metrics for completed workshop services."
     )
-    @GetMapping("/monitoring/services/average-execution-time")
+    @GetMapping("/monitoring/workshop-services/average-execution-time")
     public ResponseEntity<List<AverageWorkshopServiceExecutionTimeResponse>>
     getAverageWorkshopServiceExecutionTime() {
 
