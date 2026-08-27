@@ -1,5 +1,7 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.presentation.controller;
 
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.InvalidFieldValueException;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.RequiredFieldException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.application.usecase.*;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.domain.model.WorkshopService;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.presentation.dto.CreateWorkshopServiceRequestDTO;
@@ -69,12 +71,9 @@ class WorkshopServiceControllerTest {
         WorkshopService model = new WorkshopService("Desc", new BigDecimal("10"));
 
         when(mapper.toModel(dto)).thenReturn(model);
-        when(createUseCase.execute(model)).thenThrow(new IllegalArgumentException("Invalid"));
+        when(createUseCase.execute(model)).thenThrow(new InvalidFieldValueException("price", "Price must be greater than zero."));
 
-        var response = controller.create(dto);
-
-        assertEquals(400, response.getStatusCode().value());
-        assertEquals("Invalid", response.getBody());
+        assertThrows(InvalidFieldValueException.class, () -> controller.create(dto));
     }
 
     @Test
@@ -103,12 +102,9 @@ class WorkshopServiceControllerTest {
 
     @Test
     void getByIdShouldReturnBadRequestWhenUseCaseThrows() {
-        when(getByIdUseCase.execute(null)).thenThrow(new IllegalArgumentException("bad id"));
+        when(getByIdUseCase.execute(null)).thenThrow(new RequiredFieldException("id"));
 
-        var response = controller.getById(null);
-
-        assertEquals(400, response.getStatusCode().value());
-        assertEquals("bad id", response.getBody());
+        assertThrows(RequiredFieldException.class, () -> controller.getById(null));
     }
 
     @Test
@@ -126,7 +122,7 @@ class WorkshopServiceControllerTest {
         var body = response.getBody();
         assertNotNull(body);
         assertEquals(1, body.size());
-        assertEquals(d1, body.get(0));
+        assertEquals(d1, body.getFirst());
     }
 
     @Test
@@ -146,12 +142,9 @@ class WorkshopServiceControllerTest {
 
     @Test
     void searchShouldReturnBadRequestWhenUseCaseThrows() {
-        when(searchUseCase.execute("")).thenThrow(new IllegalArgumentException("empty"));
+        when(searchUseCase.execute("")).thenThrow(new RequiredFieldException("description"));
 
-        var response = controller.search("");
-
-        assertEquals(400, response.getStatusCode().value());
-        assertEquals("empty", response.getBody());
+        assertThrows(RequiredFieldException.class, () -> controller.search(""));
     }
 
     @Test
@@ -204,12 +197,9 @@ class WorkshopServiceControllerTest {
 
     @Test
     void deleteShouldReturnBadRequestWhenUseCaseThrows() {
-        when(deleteUseCase.execute(null)).thenThrow(new IllegalArgumentException("bad"));
+        when(deleteUseCase.execute(null)).thenThrow(new RequiredFieldException("id"));
 
-        var response = controller.delete(null);
-
-        assertEquals(400, response.getStatusCode().value());
-        assertEquals("bad", response.getBody());
+        assertThrows(RequiredFieldException.class, () -> controller.delete(null));
     }
 }
 
