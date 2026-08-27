@@ -117,7 +117,7 @@ class WorkshopServiceControllerTest {
         when(listAllUseCase.execute()).thenReturn(List.of(s1));
         when(mapper.toResponse(s1)).thenReturn(d1);
 
-        var response = controller.listAll();
+        var response = controller.list("");
 
         assertEquals(200, response.getStatusCode().value());
         var body = response.getBody();
@@ -135,17 +135,10 @@ class WorkshopServiceControllerTest {
         when(searchUseCase.execute("oil")).thenReturn(List.of(s));
         when(mapper.toResponse(s)).thenReturn(dto);
 
-        var response = controller.search("oil");
+        var response = controller.list("oil");
 
         assertEquals(200, response.getStatusCode().value());
         assertEquals(List.of(dto), response.getBody());
-    }
-
-    @Test
-    void searchShouldReturnBadRequestWhenUseCaseThrows() {
-        when(searchUseCase.execute("")).thenThrow(new RequiredFieldException("description"));
-
-        assertThrows(RequiredFieldException.class, () -> controller.search(""));
     }
 
     @Test

@@ -69,29 +69,19 @@ public class WorkshopServiceController {
 
     @Operation(
             summary = "List All Workshop Services",
-            description = "Retrieves a list of all workshop services."
+            description = "List of all workshop services optionally filtered by description."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Services found")
     })
     @GetMapping
-    public ResponseEntity<List<WorkshopServiceResponseDTO>> listAll() {
-        List<WorkshopService> list = listAllUseCase.execute();
-        List<WorkshopServiceResponseDTO> dtos = list.stream().map(mapper::toResponse).collect(Collectors.toList());
-        return ResponseEntity.ok(dtos);
-    }
-
-    @Operation(
-            summary = "Search Workshop Services",
-            description = "Searches for workshop services by description."
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Services found"),
-            @ApiResponse(responseCode = "400", description = "Invalid request")
-    })
-    @GetMapping("/search")
-    public ResponseEntity<?> search(@RequestParam String description) {
-        List<WorkshopService> list = searchUseCase.execute(description);
+    public ResponseEntity<List<WorkshopServiceResponseDTO>> list(@RequestParam String description) {
+        List<WorkshopService> list;
+        if (description == null || description.isBlank()) {
+            list = listAllUseCase.execute();
+        } else {
+            list = searchUseCase.execute(description);
+        }
         List<WorkshopServiceResponseDTO> dtos = list.stream().map(mapper::toResponse).collect(Collectors.toList());
         return ResponseEntity.ok(dtos);
     }
