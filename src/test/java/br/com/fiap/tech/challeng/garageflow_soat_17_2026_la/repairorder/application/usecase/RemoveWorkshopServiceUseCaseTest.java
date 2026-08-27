@@ -7,8 +7,8 @@ import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.m
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.WorkshopServiceSnapshot;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.repository.RepairOrderRepository;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.type.RepairOrderStatus;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.AddWorkshopServiceRequest;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.RemoveWorkshopServiceRequest;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.InvalidFieldValueException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.RequiredFieldException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.ResourceNotFoundException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.domain.model.WorkshopService;
@@ -405,9 +405,9 @@ class RemoveWorkshopServiceUseCaseTest {
         when(workshopServiceRepository.findById("workshop-service-1"))
                 .thenReturn(Optional.of(workshopService));
 
-        IllegalArgumentException exception =
+        InvalidFieldValueException exception =
                 assertThrows(
-                        IllegalArgumentException.class,
+                        InvalidFieldValueException.class,
                         () -> useCase.execute(
                                 "repair-order-1",
                                 "workshop-service-1",
@@ -416,7 +416,7 @@ class RemoveWorkshopServiceUseCaseTest {
                 );
 
         assertEquals(
-                "Workshop service quantity must be greater than zero.",
+                "Field 'quantity' is invalid. Workshop service quantity must be greater than zero.",
                 exception.getMessage()
         );
 
@@ -435,9 +435,9 @@ class RemoveWorkshopServiceUseCaseTest {
         when(workshopServiceRepository.findById("workshop-service-1"))
                 .thenReturn(Optional.of(workshopService));
 
-        IllegalArgumentException exception =
+        InvalidFieldValueException exception =
                 assertThrows(
-                        IllegalArgumentException.class,
+                        InvalidFieldValueException.class,
                         () -> useCase.execute(
                                 "repair-order-1",
                                 "workshop-service-1",
@@ -446,7 +446,7 @@ class RemoveWorkshopServiceUseCaseTest {
                 );
 
         assertEquals(
-                "Workshop service quantity must be greater than zero.",
+                "Field 'quantity' is invalid. Workshop service quantity must be greater than zero.",
                 exception.getMessage()
         );
 
