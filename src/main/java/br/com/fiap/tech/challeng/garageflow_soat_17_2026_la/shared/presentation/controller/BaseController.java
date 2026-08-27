@@ -1,6 +1,7 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.presentation.controller;
 
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.config.security.AuthenticatedUser;
+import io.jsonwebtoken.MalformedJwtException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,7 +17,7 @@ public class BaseController {
         Object principal = authentication.getPrincipal();
         if (principal instanceof AuthenticatedUser authenticatedUser) {
             if (authenticatedUser.userId() == null || authenticatedUser.userId().isBlank()) {
-                throw new IllegalArgumentException("User ID not present in token");
+                throw new MalformedJwtException("User ID not present in token");
             }
             return authenticatedUser.userId();
         }
