@@ -1,6 +1,7 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.application.usecase;
 
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.RequiredFieldException;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.ResourceNotFoundException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.domain.model.WorkshopService;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.domain.repository.WorkshopServiceRepository;
 import lombok.AllArgsConstructor;
@@ -21,7 +22,7 @@ public class UpdateWorkshopServiceUseCase {
         }
         Optional<WorkshopService> existing = repository.findById(id);
         if (existing.isEmpty()) {
-            return Optional.empty();
+            throw new ResourceNotFoundException("WorkshopService", "id", id);
         }
         WorkshopService svc = existing.get();
         if (update.getDescription() != null && !update.getDescription().isBlank()) {
