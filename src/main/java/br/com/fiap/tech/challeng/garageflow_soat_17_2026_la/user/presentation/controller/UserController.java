@@ -73,7 +73,7 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "Users found")
     })
     @GetMapping
-    public ResponseEntity<List<UserResponseDTO>> list(@RequestParam String fullName) {
+    public ResponseEntity<List<UserResponseDTO>> list(@RequestParam(required = false) String fullName) {
 
             List<User> users;
 

@@ -75,7 +75,7 @@ public class WorkshopServiceController {
             @ApiResponse(responseCode = "200", description = "Services found")
     })
     @GetMapping
-    public ResponseEntity<List<WorkshopServiceResponseDTO>> list(@RequestParam String description) {
+    public ResponseEntity<List<WorkshopServiceResponseDTO>> list(@RequestParam(required = false) String description) {
         List<WorkshopService> list;
         if (description == null || description.isBlank()) {
             list = listAllUseCase.execute();

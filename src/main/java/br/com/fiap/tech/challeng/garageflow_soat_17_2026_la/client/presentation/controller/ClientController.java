@@ -74,7 +74,7 @@ public class ClientController {
             @ApiResponse(responseCode = "200", description = "Client found")
     })
     @GetMapping
-    public ResponseEntity<List<ClientResponse>> listClients(@RequestParam String document) {
+    public ResponseEntity<List<ClientResponse>> listClients(@RequestParam(required = false) String document) {
         List<Client> clients;
 
         if (document == null || document.isBlank()) {

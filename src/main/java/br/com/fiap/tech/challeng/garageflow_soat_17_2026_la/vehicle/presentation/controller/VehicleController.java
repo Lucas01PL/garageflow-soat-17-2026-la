@@ -74,7 +74,7 @@ public class VehicleController {
             @ApiResponse(responseCode = "200", description = "Vehicle found")
     })
     @GetMapping
-    public ResponseEntity<List<VehicleResponse>> listVehicles(@RequestParam String plate){
+    public ResponseEntity<List<VehicleResponse>> listVehicles(@RequestParam(required = false) String plate){
         List<Vehicle> vehicles;
         if (plate == null || plate.isBlank()) {
             vehicles = listAllVehiclesUseCase.findAll();

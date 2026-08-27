@@ -107,7 +107,7 @@ public class PartController {
             @ApiResponse(responseCode = "200", description = "Auto Parts/Maintenance Supplies listed")
     })
     @GetMapping
-    public ResponseEntity<List<PartResponse>> listParts(@RequestParam String code){
+    public ResponseEntity<List<PartResponse>> listParts(@RequestParam(required = false) String code){
         List<Part> allParts;
         if (code == null || code.isBlank()) {
             allParts = listAllPartsUseCase.findAll();
