@@ -67,31 +67,23 @@ public class ClientController {
     }
 
     @Operation(
-            summary = "Get Client by document.",
-            description = "Retrieves a client by its document."
+            summary = "List Clients",
+            description = "List clients optionally filtered by document. If no document is provided, all clients will be listed."
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Client found"),
-            @ApiResponse(responseCode = "404", description = "Client not found")
-    })
-    @GetMapping("/document/{document}")
-    public ResponseEntity<ClientResponse> getClientByDocument(@PathVariable String document) {
-        Optional<Client> clientByDocument = getClientUseCase.getClientByDocument(document);
-        ClientResponse clientResponse = clientMapper.clientToResponse(clientByDocument.get());
-        return ResponseEntity.status(HttpStatus.OK).body(clientResponse);
-    }
-
-    @Operation(
-            summary = "List Clients.",
-            description = "Retrieves all clients."
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Clients listed")
+            @ApiResponse(responseCode = "200", description = "Client found")
     })
     @GetMapping
-    public ResponseEntity<List<ClientResponse>> getAllClients() {
-        List<Client> allClients = listAllClientsUseCase.findAll();
-        List<ClientResponse> clientResponseList = allClients.stream().map(clientMapper::clientToResponse).toList();
+    public ResponseEntity<List<ClientResponse>> listClients(@RequestParam String document) {
+        List<Client> clients;
+
+        if (document == null || document.isBlank()) {
+            clients = listAllClientsUseCase.findAll();
+        } else {
+            clients = getClientUseCase.getClientByDocument(document).stream().toList();
+        }
+
+        List<ClientResponse> clientResponseList = clients.stream().map(clientMapper::clientToResponse).toList();
         return ResponseEntity.status(HttpStatus.OK).body(clientResponseList);
     }
 

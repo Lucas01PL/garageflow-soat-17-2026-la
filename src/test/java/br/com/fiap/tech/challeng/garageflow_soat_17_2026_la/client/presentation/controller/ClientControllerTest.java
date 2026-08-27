@@ -86,10 +86,10 @@ class ClientControllerTest {
         when(getClientUseCase.getClientByDocument("52998224725")).thenReturn(Optional.of(client));
         when(clientMapper.clientToResponse(client)).thenReturn(response);
 
-        ResponseEntity<ClientResponse> result = clientController.getClientByDocument("52998224725");
+        ResponseEntity<List<ClientResponse>> result = clientController.listClients("52998224725");
 
         assertEquals(200, result.getStatusCode().value());
-        assertEquals(response, result.getBody());
+        assertEquals(response, result.getBody().getFirst());
     }
 
     @Test
@@ -103,7 +103,7 @@ class ClientControllerTest {
         when(clientMapper.clientToResponse(client1)).thenReturn(response1);
         when(clientMapper.clientToResponse(client2)).thenReturn(response2);
 
-        ResponseEntity<List<ClientResponse>> result = clientController.getAllClients();
+        ResponseEntity<List<ClientResponse>> result = clientController.listClients(null);
 
         assertEquals(200, result.getStatusCode().value());
         assertNotNull(result.getBody());
