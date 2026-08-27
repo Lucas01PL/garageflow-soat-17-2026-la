@@ -1,6 +1,7 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.application.usecase;
 
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.RequiredFieldException;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.ResourceNotFoundException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.domain.repository.WorkshopServiceRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,11 +34,9 @@ class DeleteWorkshopServiceUseCaseTest {
 
     @Test
     void shouldReturnFalseWhenNotFound() {
-        when(repository.existsById("nope")).thenReturn(false);
+        when(repository.existsById("nope")).thenThrow(ResourceNotFoundException.class);
 
-        boolean result = useCase.execute("nope");
-
-        assertFalse(result);
+        assertThrows(ResourceNotFoundException.class, () -> useCase.execute("nope"));
     }
 
     @Test
