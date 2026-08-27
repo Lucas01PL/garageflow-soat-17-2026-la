@@ -248,19 +248,4 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
     }
-
-    @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<ApiErrorResponse> handleAuthenticationException(
-            AuthenticationException ex) {
-
-        ApiErrorResponse error = new ApiErrorResponse(
-                HttpStatus.UNAUTHORIZED.value(),
-                HttpStatus.UNAUTHORIZED.getReasonPhrase(),
-                ex.getMessage(),
-                Instant.now(),
-                ""
-        );
-
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
-    }
 }
