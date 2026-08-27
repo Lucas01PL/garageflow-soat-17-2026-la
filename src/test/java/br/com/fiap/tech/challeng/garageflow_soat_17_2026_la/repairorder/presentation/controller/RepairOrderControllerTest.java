@@ -6,6 +6,7 @@ import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presenta
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.response.RepairOrderResponseDTO;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.mapper.RepairOrderMapper;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.config.security.AuthenticatedUser;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.RequiredFieldException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -21,8 +23,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -155,46 +155,12 @@ class RepairOrderControllerTest {
     }
 
     @Test
-    void shouldReturnBadRequestWhenCreateThrowsIllegalArgumentException() {
-
-        when(mapper.toModel(createRequest, "user-123"))
-                .thenReturn(repairOrder);
-
-        when(createUseCase.execute(repairOrder))
-                .thenThrow(
-                        new IllegalArgumentException(
-                                "Invalid repair order"
-                        )
-                );
-
-        ResponseEntity<?> result =
-                controller.create(createRequest);
-
-        assertEquals(
-                HttpStatus.BAD_REQUEST,
-                result.getStatusCode()
-        );
-
-        assertEquals(
-                "Invalid repair order",
-                result.getBody()
-        );
-
-        verify(createUseCase)
-                .execute(repairOrder);
-
-        verify(mapper, never())
-                .toResponse(any());
-    }
-
-    @Test
     void shouldReturnBadRequestWhenUserIsNotAuthenticated() {
         SecurityContextHolder.getContext().setAuthentication(null);
 
-        ResponseEntity<?> result = controller.create(createRequest);
-
-        assertEquals(HttpStatus.BAD_REQUEST, result.getStatusCode());
-        assertEquals("User not authenticated", result.getBody());
+        assertThrows(AuthenticationCredentialsNotFoundException.class, () -> {
+            controller.create(createRequest);
+        });
 
         verifyNoInteractions(createUseCase);
         verifyNoInteractions(mapper);
@@ -252,27 +218,18 @@ class RepairOrderControllerTest {
     }
 
     @Test
-    void shouldReturnBadRequestWhenGetByIdThrowsIllegalArgumentException() {
+    void shouldReturnBadRequestWhenGetByIdThrowsRequiredFieldException() {
 
         when(getByIdUseCase.execute(" "))
                 .thenThrow(
-                        new IllegalArgumentException(
-                                "repairOrderId cannot be empty"
+                        new RequiredFieldException(
+                                "repairOrderId"
                         )
                 );
 
-        ResponseEntity<?> result =
-                controller.getById(" ");
-
-        assertEquals(
-                HttpStatus.BAD_REQUEST,
-                result.getStatusCode()
-        );
-
-        assertEquals(
-                "repairOrderId cannot be empty",
-                result.getBody()
-        );
+        assertThrows(RequiredFieldException.class, () -> {
+            controller.getById(" ");
+        });
 
         verify(getByIdUseCase)
                 .execute(" ");
