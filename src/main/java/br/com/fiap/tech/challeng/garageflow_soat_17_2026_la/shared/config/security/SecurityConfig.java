@@ -55,16 +55,16 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/docs/**", "/openapi/**", "/v3/api-docs/**", "/swagger-ui/**", "/webjars/**").permitAll()
 
-                        .requestMatchers("/user/**").hasRole("ADMIN")
+                        .requestMatchers("/users/**").hasRole("ADMIN")
 
-                        .requestMatchers(HttpMethod.GET, "/workshop-service/**").hasAnyRole("OPERATOR", "ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/workshop-service/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/workshop-service/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/workshop-service/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/workshop-services/**").hasAnyRole("OPERATOR", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/workshop-services/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/workshop-services/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/workshop-services/**").hasRole("ADMIN")
 
-                        .requestMatchers(HttpMethod.DELETE, "/client/**", "/vehicle/**", "/part/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/clients/**", "/vehicles/**", "/parts/**").hasRole("ADMIN")
 
-                        .requestMatchers("/client/**", "/vehicle/**", "/repair-order/**", "/part/**", "/purchase-list/**")
+                        .requestMatchers("/clients/**", "/vehicles/**", "/repair-orders/**", "/parts/**", "/purchase-lists/**")
                         .hasAnyRole("OPERATOR", "ADMIN")
 
                         .anyRequest().authenticated()
