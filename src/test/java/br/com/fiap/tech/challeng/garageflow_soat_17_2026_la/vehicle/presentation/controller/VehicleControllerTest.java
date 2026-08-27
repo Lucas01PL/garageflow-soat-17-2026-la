@@ -86,10 +86,10 @@ class VehicleControllerTest {
         when(getVehicleUseCase.getVehicleByPlate("ABC1D23")).thenReturn(Optional.of(vehicle));
         when(vehicleMapper.vehicleToResponse(vehicle)).thenReturn(response);
 
-        ResponseEntity<VehicleResponse> result = vehicleController.getVehicleByPlate("ABC1D23");
+        ResponseEntity<List<VehicleResponse>> result = vehicleController.listVehicles("ABC1D23");
 
         assertEquals(200, result.getStatusCode().value());
-        assertEquals(response, result.getBody());
+        assertEquals(response, result.getBody().getFirst());
     }
 
     @Test
@@ -103,7 +103,7 @@ class VehicleControllerTest {
         when(vehicleMapper.vehicleToResponse(vehicle1)).thenReturn(response1);
         when(vehicleMapper.vehicleToResponse(vehicle2)).thenReturn(response2);
 
-        ResponseEntity<List<VehicleResponse>> result = vehicleController.getAllVehicles();
+        ResponseEntity<List<VehicleResponse>> result = vehicleController.listVehicles("");
 
         assertEquals(200, result.getStatusCode().value());
         assertNotNull(result.getBody());
