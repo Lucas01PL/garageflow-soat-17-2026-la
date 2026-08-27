@@ -67,7 +67,7 @@ public class UserController {
 
     @Operation(
             summary = "List Users",
-            description = "Lists users optionally filtered by full name."
+            description = "Lists users optionally filtered by full name. If no full name is provided, all users will be listed."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Users found")
