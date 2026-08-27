@@ -95,7 +95,7 @@ class RepairOrderIntegrationTest {
         );
 
         String response = mockMvc.perform(
-                        post("/repair-order")
+                        post("/repair-orders")
                                 .header(
                                         HttpHeaders.AUTHORIZATION,
                                         "Bearer " + getAuthToken()
@@ -149,7 +149,7 @@ class RepairOrderIntegrationTest {
          * Consulta novamente através da API.
          */
         mockMvc.perform(
-                        get("/repair-order/{id}", repairOrderId)
+                        get("/repair-orders/{id}", repairOrderId)
                                 .header(
                                         HttpHeaders.AUTHORIZATION,
                                         "Bearer " + getAuthToken()
@@ -195,7 +195,7 @@ class RepairOrderIntegrationTest {
          */
         String createResponse =
                 mockMvc.perform(
-                                post("/repair-order")
+                                post("/repair-orders")
                                         .header(
                                                 HttpHeaders.AUTHORIZATION,
                                                 "Bearer " + getAuthToken()
@@ -229,7 +229,7 @@ class RepairOrderIntegrationTest {
          */
         mockMvc.perform(
                         patch(
-                                "/repair-order/{id}/status/in-diagnosis",
+                                "/repair-orders/{id}/status/in-diagnosis",
                                 repairOrderId
                         )
                                 .header(
@@ -245,7 +245,7 @@ class RepairOrderIntegrationTest {
          */
         mockMvc.perform(
                         post(
-                                "/repair-order/{id}/workshop-services",
+                                "/repair-orders/{id}/workshop-services",
                                 repairOrderId
                         )
                                 .header(
@@ -285,7 +285,7 @@ class RepairOrderIntegrationTest {
          */
         mockMvc.perform(
                         patch(
-                                "/repair-order/{id}/status/awaiting-approval",
+                                "/repair-orders/{id}/status/awaiting-approval",
                                 repairOrderId
                         )
                                 .header(
@@ -304,7 +304,7 @@ class RepairOrderIntegrationTest {
          */
         mockMvc.perform(
                         patch(
-                                "/repair-order/{id}/status/approved",
+                                "/repair-orders/{id}/status/approved",
                                 repairOrderId
                         )
                                 .header(
@@ -323,7 +323,7 @@ class RepairOrderIntegrationTest {
          */
         mockMvc.perform(
                         patch(
-                                "/repair-order/{id}/status/in-execution",
+                                "/repair-orders/{id}/status/in-execution",
                                 repairOrderId
                         )
                                 .header(
@@ -342,7 +342,7 @@ class RepairOrderIntegrationTest {
          */
         mockMvc.perform(
                         patch(
-                                "/repair-order/{id}/workshop-services/{serviceId}/status/in-execution",
+                                "/repair-orders/{id}/workshop-services/{serviceId}/status/in-execution",
                                 repairOrderId,
                                 service.getId()
                         )
@@ -366,7 +366,7 @@ class RepairOrderIntegrationTest {
          */
         mockMvc.perform(
                         patch(
-                                "/repair-order/{id}/workshop-services/{serviceId}/status/finished",
+                                "/repair-orders/{id}/workshop-services/{serviceId}/status/finished",
                                 repairOrderId,
                                 service.getId()
                         )
@@ -400,7 +400,7 @@ class RepairOrderIntegrationTest {
          */
         mockMvc.perform(
                         patch(
-                                "/repair-order/{id}/status/delivered",
+                                "/repair-orders/{id}/status/delivered",
                                 repairOrderId
                         )
                                 .header(
@@ -470,7 +470,7 @@ class RepairOrderIntegrationTest {
 
         String response =
                 mockMvc.perform(
-                                post("/repair-order")
+                                post("/repair-orders")
                                         .header(
                                                 HttpHeaders.AUTHORIZATION,
                                                 "Bearer " + getAuthToken()
@@ -503,7 +503,7 @@ class RepairOrderIntegrationTest {
          */
         mockMvc.perform(
                         patch(
-                                "/repair-order/{id}/status/in-diagnosis",
+                                "/repair-orders/{id}/status/in-diagnosis",
                                 repairOrderId
                         )
                                 .header(
@@ -518,7 +518,7 @@ class RepairOrderIntegrationTest {
          */
         mockMvc.perform(
                         post(
-                                "/repair-order/{id}/workshop-services",
+                                "/repair-orders/{id}/workshop-services",
                                 repairOrderId
                         )
                                 .header(
@@ -540,7 +540,7 @@ class RepairOrderIntegrationTest {
          */
         mockMvc.perform(
                         patch(
-                                "/repair-order/{id}/status/awaiting-approval",
+                                "/repair-orders/{id}/status/awaiting-approval",
                                 repairOrderId
                         )
                                 .header(
@@ -555,7 +555,7 @@ class RepairOrderIntegrationTest {
          */
         mockMvc.perform(
                         patch(
-                                "/repair-order/{id}/status/rejected",
+                                "/repair-orders/{id}/status/rejected",
                                 repairOrderId
                         )
                                 .header(
@@ -575,7 +575,7 @@ class RepairOrderIntegrationTest {
          */
         mockMvc.perform(
                         patch(
-                                "/repair-order/{id}/status/approved",
+                                "/repair-orders/{id}/status/approved",
                                 repairOrderId
                         )
                                 .header(
@@ -591,7 +591,7 @@ class RepairOrderIntegrationTest {
          */
         mockMvc.perform(
                         patch(
-                                "/repair-order/{id}/status/in-diagnosis",
+                                "/repair-orders/{id}/status/in-diagnosis",
                                 repairOrderId
                         )
                                 .header(
