@@ -60,10 +60,10 @@ public class GlobalExceptionHandler {
             NotEnoughResourceException ex,
             HttpServletRequest request) {
 
-        return ResponseEntity.status(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE)
+        return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(new ApiErrorResponse(
-                        HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE.value(),
-                        HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE.getReasonPhrase(),
+                        HttpStatus.CONFLICT.value(),
+                        HttpStatus.CONFLICT.getReasonPhrase(),
                         ex.getMessage(),
                         Instant.now(),
                         request.getRequestURI()
@@ -150,10 +150,10 @@ public class GlobalExceptionHandler {
             InsufficientQuantityException ex,
             HttpServletRequest request) {
 
-        return ResponseEntity.status(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE)
+        return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(new ApiErrorResponse(
-                        HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE.value(),
-                        HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE.getReasonPhrase(),
+                        HttpStatus.CONFLICT.value(),
+                        HttpStatus.CONFLICT.getReasonPhrase(),
                         ex.getMessage(),
                         Instant.now(),
                         request.getRequestURI()
