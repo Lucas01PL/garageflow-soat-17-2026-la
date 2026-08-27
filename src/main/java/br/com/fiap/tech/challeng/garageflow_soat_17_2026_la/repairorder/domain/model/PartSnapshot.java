@@ -1,6 +1,7 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model;
 
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.model.Part;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.InvalidFieldValueException;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -22,7 +23,7 @@ public class PartSnapshot {
         Objects.requireNonNull(quantity);
 
         if (quantity <= 0) {
-            throw new IllegalArgumentException("Part quantity must be greater than zero");
+            throw new InvalidFieldValueException("quantity", "Part quantity must be greater than zero");
         }
 
         PartSnapshot snapshot = new PartSnapshot();
