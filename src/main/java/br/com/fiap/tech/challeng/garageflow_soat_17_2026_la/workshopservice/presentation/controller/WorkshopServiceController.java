@@ -122,9 +122,8 @@ public class WorkshopServiceController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable String id) {
-        boolean deleted = deleteUseCase.execute(id);
-        if (deleted) return ResponseEntity.noContent().build();
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Service not found");
+        deleteUseCase.execute(id);
+        return ResponseEntity.noContent().build();
     }
 }
 
