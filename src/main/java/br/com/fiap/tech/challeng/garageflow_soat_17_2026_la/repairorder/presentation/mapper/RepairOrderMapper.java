@@ -4,6 +4,7 @@ import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.m
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.CreateRepairOrderRequest;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.response.RepairOrderResponseDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
@@ -20,7 +21,7 @@ public class RepairOrderMapper {
         if (dto == null) return null;
 
         if (userId == null || userId.isBlank()) {
-            throw new IllegalArgumentException("User not authenticated");
+            throw new AuthenticationCredentialsNotFoundException("User not authenticated");
         }
 
         return RepairOrder.builder()
