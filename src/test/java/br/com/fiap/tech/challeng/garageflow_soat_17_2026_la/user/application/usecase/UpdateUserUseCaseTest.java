@@ -1,5 +1,7 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.application.usecase;
 
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.InvalidFieldValueException;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.RequiredFieldException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.ResourceNotFoundException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.model.User;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.repository.UserRepository;
@@ -64,8 +66,8 @@ class UpdateUserUseCaseTest {
 
     @Test
     void shouldThrowWhenIdIsNull() {
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> useCase.execute(null, new User()));
-        assertEquals("User ID cannot be empty", ex.getMessage());
+        RequiredFieldException ex = assertThrows(RequiredFieldException.class, () -> useCase.execute(null, new User()));
+        assertEquals("Field 'id' is required.", ex.getMessage());
     }
 
     @Test
@@ -77,8 +79,8 @@ class UpdateUserUseCaseTest {
         User update = new User();
         update.setEmail("invalid-email");
 
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> useCase.execute("2", update));
-        assertEquals("Email format is invalid", ex.getMessage());
+        InvalidFieldValueException ex = assertThrows(InvalidFieldValueException.class, () -> useCase.execute("2", update));
+        assertEquals("Field 'email' is invalid. Email format is invalid", ex.getMessage());
     }
 
     @Test
@@ -90,8 +92,8 @@ class UpdateUserUseCaseTest {
         User update = new User();
         update.setPassword("123");
 
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> useCase.execute("3", update));
-        assertEquals("Password must be at least 6 characters", ex.getMessage());
+        InvalidFieldValueException ex = assertThrows(InvalidFieldValueException.class, () -> useCase.execute("3", update));
+        assertEquals("Field 'password' is invalid. Password must be at least 6 characters", ex.getMessage());
     }
 }
 

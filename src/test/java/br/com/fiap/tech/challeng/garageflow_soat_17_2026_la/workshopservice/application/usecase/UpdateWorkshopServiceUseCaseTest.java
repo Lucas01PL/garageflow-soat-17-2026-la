@@ -1,5 +1,6 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.application.usecase;
 
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.RequiredFieldException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.domain.model.WorkshopService;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.domain.repository.WorkshopServiceRepository;
 import org.junit.jupiter.api.Test;
@@ -72,11 +73,11 @@ class UpdateWorkshopServiceUseCaseTest {
 
     @Test
     void shouldThrowWhenIdIsNullOrBlank() {
-        IllegalArgumentException ex1 = assertThrows(IllegalArgumentException.class, () -> useCase.execute(null, new WorkshopService()));
-        assertEquals("Service ID cannot be empty", ex1.getMessage());
+        RequiredFieldException ex1 = assertThrows(RequiredFieldException.class, () -> useCase.execute(null, new WorkshopService()));
+        assertEquals("Field 'id' is required.", ex1.getMessage());
 
-        IllegalArgumentException ex2 = assertThrows(IllegalArgumentException.class, () -> useCase.execute("  ", new WorkshopService()));
-        assertEquals("Service ID cannot be empty", ex2.getMessage());
+        RequiredFieldException ex2 = assertThrows(RequiredFieldException.class, () -> useCase.execute("  ", new WorkshopService()));
+        assertEquals("Field 'id' is required.", ex2.getMessage());
     }
 }
 

@@ -1,5 +1,6 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.application.usecase;
 
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.RequiredFieldException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.model.User;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -36,8 +37,8 @@ class GetUserByIdUseCaseTest {
 
     @Test
     void shouldThrowWhenIdInvalid() {
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> useCase.execute(""));
-        assertEquals("User ID cannot be empty", ex.getMessage());
+        RequiredFieldException ex = assertThrows(RequiredFieldException.class, () -> useCase.execute(""));
+        assertEquals("Field 'id' is required.", ex.getMessage());
     }
 }
 
