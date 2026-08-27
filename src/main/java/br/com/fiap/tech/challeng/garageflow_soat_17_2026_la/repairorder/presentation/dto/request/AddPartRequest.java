@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 public class AddPartRequest {
 
-    @NotBlank(message = "Workshop Service ID cannot be blank")
+    @NotBlank(message = "Part ID cannot be blank")
     private String partId;
 
     @Min(value = 1, message = "Quantity must be a positive integer")
