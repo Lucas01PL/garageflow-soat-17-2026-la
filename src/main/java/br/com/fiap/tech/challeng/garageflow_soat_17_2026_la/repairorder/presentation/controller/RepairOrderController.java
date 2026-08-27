@@ -20,7 +20,7 @@ import java.util.Optional;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/repair-order")
+@RequestMapping("/repair-orders")
 public class RepairOrderController extends BaseController {
 
     private CreateRepairOrderUseCase createUseCase;

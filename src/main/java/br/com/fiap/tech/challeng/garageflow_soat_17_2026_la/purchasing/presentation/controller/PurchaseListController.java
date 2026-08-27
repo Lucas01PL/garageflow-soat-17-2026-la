@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/purchase-list")
+@RequestMapping("/purchase-lists")
 public class PurchaseListController extends BaseController {
 
     private final GeneratePurchaseListUseCase generatePurchaseListUseCase;
