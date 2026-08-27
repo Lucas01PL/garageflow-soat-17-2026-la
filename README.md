@@ -221,8 +221,8 @@ Os módulos da aplicação seguem uma API REST organizada por domínio. Além da
 | Método | Endpoint | Descrição |
 |--------|----------|-----------|
 | `POST` | `/part` | Cria peça |
-| `POST` | `/part/debit/{id}?quantityToDebit=...` | Debita estoque |
-| `POST` | `/part/add/{id}?quantityToAdd=...` | Acrescenta estoque |
+| `POST` | `/part/{id}/stock/debit?quantityToDebit=...` | Debita estoque |
+| `POST` | `/part/{id}/stock/add?quantityToAdd=...` | Acrescenta estoque |
 | `GET` | `/part/{id}` | Busca peça por ID |
 | `GET` | `/part/code/{code}` | Busca peça por código |
 | `GET` | `/part` | Lista peças |
@@ -304,8 +304,8 @@ Notas importantes:
 
 Com a aplicação em execução:
 
-- **Swagger UI**: http://localhost:8080/swagger-ui/index.html
-- **Especificação OpenAPI**: http://localhost:8080/v3/api-docs
+- **Swagger UI**: http://localhost:8080/api/v3/api-docs
+- **Especificação OpenAPI**: http://localhost:8080/api/openapi
 
 ## 🗄️ MongoDB com Docker
 
