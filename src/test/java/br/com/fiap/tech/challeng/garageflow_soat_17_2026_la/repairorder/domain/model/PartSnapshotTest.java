@@ -117,14 +117,14 @@ class PartSnapshotTest {
                 new BigDecimal("50.00")
         );
 
-        IllegalArgumentException exception =
+        InvalidFieldValueException exception =
                 assertThrows(
-                        IllegalArgumentException.class,
+                        InvalidFieldValueException.class,
                         () -> PartSnapshot.from(part, 0)
                 );
 
         assertEquals(
-                "Part quantity must be greater than zero",
+                "Field 'quantity' is invalid. Part quantity must be greater than zero",
                 exception.getMessage()
         );
     }
@@ -147,7 +147,7 @@ class PartSnapshotTest {
                 );
 
         assertEquals(
-                "Part quantity must be greater than zero",
+                "Field 'quantity' is invalid. Part quantity must be greater than zero",
                 exception.getMessage()
         );
     }
