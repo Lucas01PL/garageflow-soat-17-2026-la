@@ -1,6 +1,7 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.presentation.controller;
 
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.config.security.AuthenticatedUser;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -9,7 +10,7 @@ public class BaseController {
     protected String resolveCurrentUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || authentication.getPrincipal() == null) {
-            throw new IllegalArgumentException("User not authenticated");
+            throw new AuthenticationCredentialsNotFoundException("User not authenticated");
         }
 
         Object principal = authentication.getPrincipal();
@@ -20,6 +21,6 @@ public class BaseController {
             return authenticatedUser.userId();
         }
 
-        throw new IllegalArgumentException("User not authenticated");
+        throw new AuthenticationCredentialsNotFoundException("User not authenticated");
     }
 }
