@@ -182,7 +182,7 @@ public class RepairOrderController extends BaseController {
             summary = "Start Workshop Service in Repair Order",
             description = "Starts a workshop service in an existing repair order."
     )
-    @PatchMapping("/{repairOrderId}/workshop-services/{workshopServiceId}/status/started")
+    @PatchMapping("/{repairOrderId}/workshop-services/{workshopServiceId}/status/in-execution")
     public ResponseEntity<RepairOrderResponseDTO> startWorkshopService(
             @PathVariable String repairOrderId,
             @PathVariable String workshopServiceId) {

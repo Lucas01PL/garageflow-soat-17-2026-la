@@ -342,7 +342,7 @@ class RepairOrderIntegrationTest {
          */
         mockMvc.perform(
                         patch(
-                                "/repair-order/{id}/workshop-services/{serviceId}/status/started",
+                                "/repair-order/{id}/workshop-services/{serviceId}/status/in-execution",
                                 repairOrderId,
                                 service.getId()
                         )
