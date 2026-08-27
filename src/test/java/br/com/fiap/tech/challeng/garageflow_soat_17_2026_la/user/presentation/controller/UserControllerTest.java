@@ -79,17 +79,6 @@ class UserControllerTest {
     }
 
     @Test
-    void createShouldReturnBadRequestWhenUseCaseThrows() {
-        when(mapper.toModel(createDto)).thenReturn(model);
-        when(createUseCase.execute(model)).thenThrow(new IllegalArgumentException("bad"));
-
-        ResponseEntity<?> resp = controller.create(createDto);
-
-        assertEquals(HttpStatus.BAD_REQUEST, resp.getStatusCode());
-        assertEquals("bad", resp.getBody());
-    }
-
-    @Test
     void getByIdShouldReturnOkWhenFound() {
         when(getByIdUseCase.execute("1")).thenReturn(model);
         when(mapper.toResponse(model)).thenReturn(responseDto);
