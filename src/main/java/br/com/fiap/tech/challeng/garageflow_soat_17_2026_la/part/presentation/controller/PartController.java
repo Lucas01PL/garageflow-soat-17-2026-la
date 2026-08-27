@@ -100,30 +100,20 @@ public class PartController {
     }
 
     @Operation(
-            summary = "Get Auto Parts or Maintenance Supplies by code.",
-            description = "Retrieves an auto part or maintenance supply by its code."
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Auto Part/Maintenance Supplies found"),
-            @ApiResponse(responseCode = "404", description = "Auto Part/Maintenance Supplies not found")
-    })
-    @GetMapping("/code/{code}")
-    public ResponseEntity<PartResponse> getPartByCode(@PathVariable String code){
-        Optional<Part> partByCode = getPartUseCase.getPartbyCode(code);
-        PartResponse partResponse = partMapper.partToResponse(partByCode.get());
-        return ResponseEntity.status(HttpStatus.OK).body(partResponse);
-    }
-
-    @Operation(
             summary = "List Auto Parts or Maintenance Supplies.",
-            description = "Retrieves all auto parts and maintenance supplies."
+            description = "List auto parts and maintenance supplies optionally filtered by code. If no code is provided, all parts are returned."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Auto Parts/Maintenance Supplies listed")
     })
     @GetMapping
-    public ResponseEntity<List<PartResponse>> getAllParts(){
-        List<Part> allParts = listAllPartsUseCase.findAll();
+    public ResponseEntity<List<PartResponse>> listParts(@RequestParam String code){
+        List<Part> allParts;
+        if (code == null || code.isBlank()) {
+            allParts = listAllPartsUseCase.findAll();
+        } else {
+            allParts = getPartUseCase.getPartbyCode(code).stream().toList();
+        }
         List<PartResponse> partResponseList = allParts.stream().map(partMapper::partToResponse).toList();
         return ResponseEntity.status(HttpStatus.OK).body(partResponseList);
     }
