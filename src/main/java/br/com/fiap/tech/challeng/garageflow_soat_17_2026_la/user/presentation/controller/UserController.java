@@ -89,13 +89,9 @@ public class UserController {
     })
     @GetMapping("/search")
     public ResponseEntity<?> search(@RequestParam String fullName) {
-        try {
             List<User> list = searchUseCase.execute(fullName);
             List<UserResponseDTO> dtos = list.stream().map(mapper::toResponse).collect(Collectors.toList());
             return ResponseEntity.ok(dtos);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
     }
 
     @Operation(
@@ -108,13 +104,9 @@ public class UserController {
     })
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable String id, @Valid @RequestBody CreateUserRequestDTO dto) {
-        try {
-            User update = mapper.toModel(dto);
-            User updated = updateUseCase.execute(id, update);
-            return ResponseEntity.ok(mapper.toResponse(updated));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        User update = mapper.toModel(dto);
+        User updated = updateUseCase.execute(id, update);
+        return ResponseEntity.ok(mapper.toResponse(updated));
     }
 
     @Operation(
