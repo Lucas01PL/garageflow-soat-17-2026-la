@@ -46,13 +46,9 @@ public class UserController {
     })
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody CreateUserRequestDTO dto) {
-        try {
-            User user = mapper.toModel(dto);
-            User created = createUseCase.execute(user);
-            return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toResponse(created));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        User user = mapper.toModel(dto);
+        User created = createUseCase.execute(user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toResponse(created));
     }
 
     @Operation(
