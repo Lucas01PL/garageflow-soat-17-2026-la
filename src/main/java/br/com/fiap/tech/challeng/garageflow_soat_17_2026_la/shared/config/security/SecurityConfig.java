@@ -64,9 +64,8 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.DELETE, "/clients/**", "/vehicles/**", "/parts/**").hasRole("ADMIN")
 
-                        .requestMatchers(HttpMethod.GET, "/repairorder/customer/*").hasAnyRole("CUSTOMER", "OPERATOR", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/repair-orders/customer/*").hasAnyRole("CUSTOMER", "OPERATOR", "ADMIN")
 
-                        .requestMatchers("/client/**", "/vehicle/**", "/repairorder/**", "/part/**", "/purchase-list/**")
                         .requestMatchers("/clients/**", "/vehicles/**", "/repair-orders/**", "/parts/**", "/purchase-lists/**")
                         .hasAnyRole("OPERATOR", "ADMIN")
 
