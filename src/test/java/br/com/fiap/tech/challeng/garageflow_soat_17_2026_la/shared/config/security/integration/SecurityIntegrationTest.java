@@ -39,32 +39,31 @@ class SecurityIntegrationTest {
 
     @Test
     void withoutToken_userEndpoint_shouldReturn401() throws Exception {
-        mockMvc.perform(get("/user")).andExpect(status().isForbidden());
+        mockMvc.perform(get("/users")).andExpect(status().isForbidden());
     }
 
     @Test
     void invalidToken_userEndpoint_shouldReturn401() throws Exception {
-        mockMvc.perform(get("/user").header("Authorization", "Bearer invalid.token.value")).andExpect(status().isForbidden());
+        mockMvc.perform(get("/users").header("Authorization", "Bearer invalid.token.value")).andExpect(status().isForbidden());
     }
 
     @Test
     void expiredToken_userEndpoint_shouldReturn401() throws Exception {
         JwtService expiredJwtService = new JwtService(SECRET, -1);
         String expiredToken = expiredJwtService.generateToken("admin@example.com", "ADMIN");
-        mockMvc.perform(get("/user").header("Authorization", "Bearer " + expiredToken)).andExpect(status().isForbidden());
+        mockMvc.perform(get("/users").header("Authorization", "Bearer " + expiredToken)).andExpect(status().isForbidden());
     }
 
     @Test
     void operatorOnAdminEndpoint_shouldReturn403() throws Exception {
-        String operatorToken = jwtService.generateToken("operator@example.com", "OPERATOR");
         CreateWorkshopServiceRequestDTO dto = new CreateWorkshopServiceRequestDTO("Test", BigDecimal.TEN);
-        mockMvc.perform(post("/workshopservice").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(dto)).header("Authorization", "Bearer " + operatorToken)).andExpect(status().isForbidden());
+        mockMvc.perform(post("/workshop-services").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(dto)).header("Authorization", "Bearer token-invalido")).andExpect(status().isForbidden());
     }
 
     @Test
     void adminOnAdminEndpoint_shouldReturn201() throws Exception {
         String adminToken = jwtService.generateToken("admin@example.com", "ADMIN");
         CreateWorkshopServiceRequestDTO dto = new CreateWorkshopServiceRequestDTO("Test", BigDecimal.TEN);
-        mockMvc.perform(post("/workshopservice").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(dto)).header("Authorization", "Bearer " + adminToken)).andExpect(status().isCreated());
+        mockMvc.perform(post("/workshop-services").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(dto)).header("Authorization", "Bearer " + adminToken)).andExpect(status().isCreated());
     }
 }

@@ -3,10 +3,7 @@ package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.present
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.client.application.usecase.GetClientUseCase;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase.*;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.RepairOrder;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.AddRemovePartRequest;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.AddRemoveWorkshopServiceRequest;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.CreateRepairOrderRequest;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.FinishWorkshopServiceRequest;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.*;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.response.AverageWorkshopServiceExecutionTimeResponse;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.response.RepairOrderResponseDTO;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.mapper.RepairOrderMapper;
@@ -24,7 +21,7 @@ import java.util.Optional;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/repairorder")
+@RequestMapping("/repair-orders")
 public class RepairOrderController extends BaseController {
 
     private CreateRepairOrderUseCase createUseCase;
@@ -75,14 +72,10 @@ public class RepairOrderController extends BaseController {
     )
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody CreateRepairOrderRequest dto) {
-        try {
-            String userId = resolveCurrentUserId();
-            RepairOrder ro = mapper.toModel(dto, userId);
-            RepairOrder created = createUseCase.execute(ro);
-            return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toResponse(created));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        String userId = resolveCurrentUserId();
+        RepairOrder ro = mapper.toModel(dto, userId);
+        RepairOrder created = createUseCase.execute(ro);
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toResponse(created));
     }
 
     @Operation(
@@ -91,13 +84,9 @@ public class RepairOrderController extends BaseController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable String id) {
-        try {
-            Optional<RepairOrder> ro = getByIdUseCase.execute(id);
-            return ro.map(repairOrder -> ResponseEntity.ok(mapper.toResponse(repairOrder)))
-                    .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        Optional<RepairOrder> ro = getByIdUseCase.execute(id);
+        return ro.map(repairOrder -> ResponseEntity.ok(mapper.toResponse(repairOrder)))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @Operation(
@@ -115,10 +104,10 @@ public class RepairOrderController extends BaseController {
             summary = "Add Workshop Service to Repair Order",
             description = "Adds a workshop service to an existing repair order."
     )
-    @PostMapping("/{repairOrderId}/services")
+    @PostMapping("/{repairOrderId}/workshop-services")
     public ResponseEntity<RepairOrderResponseDTO> addWorkshopService(
             @PathVariable String repairOrderId,
-            @Valid @RequestBody AddRemoveWorkshopServiceRequest request) {
+            @Valid @RequestBody AddWorkshopServiceRequest request) {
 
         RepairOrder repairOrder =
                 addWorkshopServiceUseCase.execute(repairOrderId, request);
@@ -134,7 +123,7 @@ public class RepairOrderController extends BaseController {
     @PostMapping("/{repairOrderId}/parts")
     public ResponseEntity<RepairOrderResponseDTO> addPart(
             @PathVariable String repairOrderId,
-            @Valid @RequestBody AddRemovePartRequest request) {
+            @Valid @RequestBody AddPartRequest request) {
 
         RepairOrder repairOrder =
                 addPartUseCase.execute(repairOrderId, request);
@@ -147,13 +136,14 @@ public class RepairOrderController extends BaseController {
             summary = "Remove Workshop Service from Repair Order",
             description = "Removes a workshop service from an existing repair order."
     )
-    @DeleteMapping("/{repairOrderId}/services")
+    @DeleteMapping("/{repairOrderId}/workshop-services/{workshopServiceId}")
     public ResponseEntity<RepairOrderResponseDTO> removeWorkshopService(
             @PathVariable String repairOrderId,
-            @Valid @RequestBody AddRemoveWorkshopServiceRequest request) {
+            @PathVariable String workshopServiceId,
+            @Valid @RequestBody RemoveWorkshopServiceRequest request) {
 
         RepairOrder repairOrder =
-                removeWorkshopServiceUseCase.execute(repairOrderId, request);
+                removeWorkshopServiceUseCase.execute(repairOrderId, workshopServiceId, request);
 
         return ResponseEntity.ok(
                 mapper.toResponse(repairOrder));
@@ -163,13 +153,14 @@ public class RepairOrderController extends BaseController {
             summary = "Remove Part from Repair Order",
             description = "Removes a part from an existing repair order."
     )
-    @DeleteMapping("/{repairOrderId}/parts")
+    @DeleteMapping("/{repairOrderId}/parts/{partId}")
     public ResponseEntity<RepairOrderResponseDTO> removePart(
             @PathVariable String repairOrderId,
-            @Valid @RequestBody AddRemovePartRequest request) {
+            @PathVariable String partId,
+            @Valid @RequestBody RemovePartRequest request) {
 
         RepairOrder repairOrder =
-                removePartUseCase.execute(repairOrderId, request);
+                removePartUseCase.execute(repairOrderId, partId, request);
 
         return ResponseEntity.ok(
                 mapper.toResponse(repairOrder));
@@ -194,7 +185,7 @@ public class RepairOrderController extends BaseController {
             summary = "Start Workshop Service in Repair Order",
             description = "Starts a workshop service in an existing repair order."
     )
-    @PatchMapping("/{repairOrderId}/services/{workshopServiceId}/status/start")
+    @PatchMapping("/{repairOrderId}/workshop-services/{workshopServiceId}/status/in-execution")
     public ResponseEntity<RepairOrderResponseDTO> startWorkshopService(
             @PathVariable String repairOrderId,
             @PathVariable String workshopServiceId) {
@@ -209,7 +200,7 @@ public class RepairOrderController extends BaseController {
             summary = "Finish Workshop Service in Repair Order",
             description = "Finishes a workshop service in an existing repair order."
     )
-    @PatchMapping("/{repairOrderId}/services/{workshopServiceId}/status/finished")
+    @PatchMapping("/{repairOrderId}/workshop-services/{workshopServiceId}/status/finished")
     public ResponseEntity<RepairOrderResponseDTO> finishWorkshopService(
             @PathVariable String repairOrderId,
             @PathVariable String workshopServiceId,
@@ -255,7 +246,7 @@ public class RepairOrderController extends BaseController {
             summary = "Set Repair Order to Delivered",
             description = "Sets the status of an existing repair order to Delivered."
     )
-    @PatchMapping("/{repairOrderId}/status/deliver")
+    @PatchMapping("/{repairOrderId}/status/delivered")
     public ResponseEntity<RepairOrderResponseDTO> deliver(
             @PathVariable String repairOrderId) {
 
@@ -327,7 +318,7 @@ public class RepairOrderController extends BaseController {
             summary = "Get Average Workshop Service Execution Time",
             description = "Returns average execution time metrics for completed workshop services."
     )
-    @GetMapping("/monitoring/services/average-execution-time")
+    @GetMapping("/monitoring/workshop-services/average-execution-time")
     public ResponseEntity<List<AverageWorkshopServiceExecutionTimeResponse>>
     getAverageWorkshopServiceExecutionTime() {
 

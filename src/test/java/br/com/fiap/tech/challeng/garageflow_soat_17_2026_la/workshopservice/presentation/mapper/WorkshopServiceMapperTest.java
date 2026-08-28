@@ -39,7 +39,7 @@ class WorkshopServiceMapperTest {
         assertNotNull(dto);
         assertEquals("i1", dto.getId());
         assertEquals("Desc", dto.getDescription());
-        assertEquals(new BigDecimal("5"), dto.getValue());
+        assertEquals(new BigDecimal("5"), dto.getPrice());
     }
 
     @Test

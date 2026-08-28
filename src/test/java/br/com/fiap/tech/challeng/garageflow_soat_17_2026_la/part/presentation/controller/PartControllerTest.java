@@ -115,10 +115,10 @@ class PartControllerTest {
         when(getPartUseCase.getPartbyCode("P001")).thenReturn(Optional.of(part));
         when(partMapper.partToResponse(part)).thenReturn(response);
 
-        ResponseEntity<PartResponse> result = partController.getPartByCode("P001");
+        ResponseEntity<List<PartResponse>> result = partController.listParts("P001");
 
         assertEquals(200, result.getStatusCode().value());
-        assertEquals(response, result.getBody());
+        assertEquals(response, result.getBody().getFirst());
     }
 
     @Test
@@ -132,7 +132,7 @@ class PartControllerTest {
         when(partMapper.partToResponse(part1)).thenReturn(response1);
         when(partMapper.partToResponse(part2)).thenReturn(response2);
 
-        ResponseEntity<List<PartResponse>> result = partController.getAllParts();
+        ResponseEntity<List<PartResponse>> result = partController.listParts("");
 
         assertEquals(200, result.getStatusCode().value());
         assertNotNull(result.getBody());

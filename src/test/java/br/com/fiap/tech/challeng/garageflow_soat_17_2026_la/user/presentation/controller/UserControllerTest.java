@@ -79,17 +79,6 @@ class UserControllerTest {
     }
 
     @Test
-    void createShouldReturnBadRequestWhenUseCaseThrows() {
-        when(mapper.toModel(createDto)).thenReturn(model);
-        when(createUseCase.execute(model)).thenThrow(new IllegalArgumentException("bad"));
-
-        ResponseEntity<?> resp = controller.create(createDto);
-
-        assertEquals(HttpStatus.BAD_REQUEST, resp.getStatusCode());
-        assertEquals("bad", resp.getBody());
-    }
-
-    @Test
     void getByIdShouldReturnOkWhenFound() {
         when(getByIdUseCase.execute("1")).thenReturn(model);
         when(mapper.toResponse(model)).thenReturn(responseDto);
@@ -112,7 +101,7 @@ class UserControllerTest {
         when(listAllUseCase.execute()).thenReturn(List.of(model));
         when(mapper.toResponse(model)).thenReturn(responseDto);
 
-        ResponseEntity<List<UserResponseDTO>> resp = controller.listAll();
+        ResponseEntity<List<UserResponseDTO>> resp = controller.list("");
 
         assertEquals(HttpStatus.OK, resp.getStatusCode());
         assertNotNull(resp.getBody());
@@ -124,7 +113,7 @@ class UserControllerTest {
         when(searchUseCase.execute("Name")).thenReturn(List.of(model));
         when(mapper.toResponse(model)).thenReturn(responseDto);
 
-        ResponseEntity<?> resp = controller.search("Name");
+        ResponseEntity<?> resp = controller.list("Name");
 
         assertEquals(HttpStatus.OK, resp.getStatusCode());
     }

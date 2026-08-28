@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/users")
 public class UserController {
 
     private CreateUserUseCase createUseCase;
@@ -46,9 +46,9 @@ public class UserController {
     })
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody CreateUserRequestDTO dto) {
-            User user = mapper.toModel(dto);
-            User created = createUseCase.execute(user);
-            return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toResponse(created));
+        User user = mapper.toModel(dto);
+        User created = createUseCase.execute(user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toResponse(created));
     }
 
     @Operation(
@@ -66,31 +66,23 @@ public class UserController {
     }
 
     @Operation(
-            summary = "List All Users",
-            description = "Retrieves a list of all users."
+            summary = "List Users",
+            description = "Lists users optionally filtered by full name. If no full name is provided, all users will be listed."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Users found")
     })
     @GetMapping
-    public ResponseEntity<List<UserResponseDTO>> listAll() {
-        List<User> list = listAllUseCase.execute();
-        List<UserResponseDTO> dtos = list.stream().map(mapper::toResponse).collect(Collectors.toList());
-        return ResponseEntity.ok(dtos);
-    }
+    public ResponseEntity<List<UserResponseDTO>> list(@RequestParam(required = false) String fullName) {
 
-    @Operation(
-            summary = "Search Users by Full Name",
-            description = "Searches for users by their full name."
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Users found"),
-            @ApiResponse(responseCode = "404", description = "Users not found")
-    })
-    @GetMapping("/search")
-    public ResponseEntity<?> search(@RequestParam String fullName) {
-            List<User> list = searchUseCase.execute(fullName);
-            List<UserResponseDTO> dtos = list.stream().map(mapper::toResponse).collect(Collectors.toList());
+            List<User> users;
+
+            if (fullName == null || fullName.isBlank()) {
+                users = listAllUseCase.execute();
+            } else {
+                users = searchUseCase.execute(fullName);
+            }
+            List<UserResponseDTO> dtos = users.stream().map(mapper::toResponse).collect(Collectors.toList());
             return ResponseEntity.ok(dtos);
     }
 
@@ -104,9 +96,9 @@ public class UserController {
     })
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable String id, @Valid @RequestBody CreateUserRequestDTO dto) {
-            User update = mapper.toModel(dto);
-            User updated = updateUseCase.execute(id, update);
-            return ResponseEntity.ok(mapper.toResponse(updated));
+        User update = mapper.toModel(dto);
+        User updated = updateUseCase.execute(id, update);
+        return ResponseEntity.ok(mapper.toResponse(updated));
     }
 
     @Operation(

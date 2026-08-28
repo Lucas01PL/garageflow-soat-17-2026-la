@@ -1,5 +1,6 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.application.usecase;
 
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.RequiredFieldException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.model.User;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -31,13 +32,13 @@ class SearchUserByFullNameUseCaseTest {
 
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals("Alice Smith", result.get(0).getFullName());
+        assertEquals("Alice Smith", result.getFirst().getFullName());
     }
 
     @Test
     void shouldThrowWhenFullNameEmpty() {
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> useCase.execute(""));
-        assertEquals("Full name cannot be empty", ex.getMessage());
+        RequiredFieldException ex = assertThrows(RequiredFieldException.class, () -> useCase.execute(""));
+        assertEquals("Field 'fullName' is required.", ex.getMessage());
     }
 }
 

@@ -25,7 +25,9 @@ public class DeletePartUseCase {
     }
 
     public void deletePart(String id){
-        Optional<Part> byId = partRepository.findById(id);
+         Part byId = partRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Part", "id", id));
 
         boolean usedInBlockingRepairOrder =
                 repairOrderRepository.existsByPartIdAndStatusIn(
@@ -39,12 +41,7 @@ public class DeletePartUseCase {
             );
         }
 
-        if(byId.isPresent()){
-            log.debug("[DEBUG] - DELETED PART: {}", byId.get());
-            partRepository.delete(id);
-            return;
-        }
-        log.debug("[DEBUG] - Trying to delete non-existant part with id: {}", id);
-        throw new ResourceNotFoundException("Part", "id", id);
+        log.debug("[DEBUG] - DELETED PART: {}", byId);
+        partRepository.delete(id);
     }
 }

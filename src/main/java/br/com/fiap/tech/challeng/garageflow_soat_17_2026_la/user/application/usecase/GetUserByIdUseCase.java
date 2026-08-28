@@ -1,5 +1,6 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.application.usecase;
 
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.RequiredFieldException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.ResourceNotFoundException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.model.User;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.repository.UserRepository;
@@ -14,7 +15,7 @@ public class GetUserByIdUseCase {
 
     public User execute(String id) {
         if (id == null || id.isBlank()) {
-            throw new IllegalArgumentException("User ID cannot be empty");
+            throw new RequiredFieldException("id");
         }
         return repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));

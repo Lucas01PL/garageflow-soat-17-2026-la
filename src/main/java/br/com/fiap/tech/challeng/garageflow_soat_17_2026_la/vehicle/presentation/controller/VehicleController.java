@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/vehicle")
+@RequestMapping("/vehicles")
 public class VehicleController {
 
     private final CreateVehicleUseCase createVehicleUseCase;
@@ -67,32 +67,22 @@ public class VehicleController {
     }
 
     @Operation(
-            summary = "Get Vehicle by plate.",
-            description = "Retrieves a vehicle by its plate."
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Vehicle found"),
-            @ApiResponse(responseCode = "404", description = "Vehicle not found")
-    })
-    @GetMapping("/plate/{plate}")
-    public ResponseEntity<VehicleResponse> getVehicleByPlate(@PathVariable String plate){
-        Optional<Vehicle> vehicleByPlate = getVehicleUseCase.getVehicleByPlate(plate);
-        VehicleResponse vehicleResponse = vehicleMapper.vehicleToResponse(vehicleByPlate.get());
-        return ResponseEntity.status(HttpStatus.OK).body(vehicleResponse);
-    }
-
-    @Operation(
             summary = "List Vehicles.",
-            description = "Retrieves all vehicles."
+            description = "List vehicles optionally filtered by plate. If no plate is provided, all vehicles are returned."
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Vehicles listed")
+            @ApiResponse(responseCode = "200", description = "Vehicle found")
     })
     @GetMapping
-    public ResponseEntity<List<VehicleResponse>> getAllVehicles(){
-        List<Vehicle> allVehicles = listAllVehiclesUseCase.findAll();
-        List<VehicleResponse> vehicleResponseList = allVehicles.stream().map(vehicleMapper::vehicleToResponse).toList();
-        return ResponseEntity.status(HttpStatus.OK).body(vehicleResponseList);
+    public ResponseEntity<List<VehicleResponse>> listVehicles(@RequestParam(required = false) String plate){
+        List<Vehicle> vehicles;
+        if (plate == null || plate.isBlank()) {
+            vehicles = listAllVehiclesUseCase.findAll();
+        } else {
+            vehicles = getVehicleUseCase.getVehicleByPlate(plate).stream().toList();
+        }
+        List<VehicleResponse> vehicleResponses = vehicles.stream().map(vehicleMapper::vehicleToResponse).toList();
+        return ResponseEntity.status(HttpStatus.OK).body(vehicleResponses);
     }
 
     @Operation(

@@ -9,7 +9,7 @@ import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.e
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.PartSnapshot;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.RepairOrder;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.repository.RepairOrderRepository;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.AddRemovePartRequest;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.RemovePartRequest;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.ResourceNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,16 +23,16 @@ public class RemovePartUseCase {
     private final RepairOrderFinder repairOrderFinder;
     private final PartStockControlUseCase partStockControlUseCase;
 
-    public RepairOrder execute(String repairOrderId, AddRemovePartRequest request) {
+    public RepairOrder execute(String repairOrderId, String partId, RemovePartRequest request) {
 
         RepairOrder repairOrder = repairOrderFinder.findById(repairOrderId);
 
-        Part part = getPart(request.getPartId());
+        Part part = getPart(partId);
 
         PartSnapshot partSnapshot = PartSnapshot.from(part, request.getQuantity());
 
         try {
-            partStockControlUseCase.addPartStock(request.getPartId(), request.getQuantity());
+            partStockControlUseCase.addPartStock(partId, request.getQuantity());
         } catch (Exception e) {
             throw new PartStockOperationException("add", e.getMessage());
         }
@@ -41,7 +41,7 @@ public class RemovePartUseCase {
             repairOrder.removePart(partSnapshot);
         } catch (Exception e) {
             try {
-                partStockControlUseCase.debitPartStock(request.getPartId(), request.getQuantity());
+                partStockControlUseCase.debitPartStock(partId, request.getQuantity());
             } catch (Exception rollbackException) {
                 throw new PartStockOperationException("remove", "Failed to rollback stock after remove part failure: " + rollbackException.getMessage());
             }

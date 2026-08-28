@@ -2,6 +2,7 @@ package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.
 
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.exception.InvalidRepairOrderStateException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.type.WorkshopServiceStatus;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.InvalidFieldValueException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.domain.model.WorkshopService;
 import org.junit.jupiter.api.Test;
 
@@ -138,9 +139,9 @@ class WorkshopServiceSnapshotTest {
 
         workshopService.setId("workshop-service-1");
 
-        IllegalArgumentException exception =
+        InvalidFieldValueException exception =
                 assertThrows(
-                        IllegalArgumentException.class,
+                        InvalidFieldValueException.class,
                         () -> WorkshopServiceSnapshot.from(
                                 workshopService,
                                 0
@@ -148,7 +149,7 @@ class WorkshopServiceSnapshotTest {
                 );
 
         assertEquals(
-                "Workshop service quantity must be greater than zero.",
+                "Field 'quantity' is invalid. Workshop service quantity must be greater than zero.",
                 exception.getMessage()
         );
     }
@@ -164,9 +165,9 @@ class WorkshopServiceSnapshotTest {
 
         workshopService.setId("workshop-service-1");
 
-        IllegalArgumentException exception =
+        InvalidFieldValueException exception =
                 assertThrows(
-                        IllegalArgumentException.class,
+                        InvalidFieldValueException.class,
                         () -> WorkshopServiceSnapshot.from(
                                 workshopService,
                                 -1
@@ -174,7 +175,7 @@ class WorkshopServiceSnapshotTest {
                 );
 
         assertEquals(
-                "Workshop service quantity must be greater than zero.",
+                "Field 'quantity' is invalid. Workshop service quantity must be greater than zero.",
                 exception.getMessage()
         );
     }

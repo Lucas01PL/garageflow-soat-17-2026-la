@@ -1,5 +1,7 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.application.usecase;
 
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.InvalidFieldValueException;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.RequiredFieldException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.ResourceNotFoundException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.model.User;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.repository.UserRepository;
@@ -17,7 +19,7 @@ public class UpdateUserUseCase {
 
     public User execute(String id, User update) {
         if (id == null || id.isBlank()) {
-            throw new IllegalArgumentException("User ID cannot be empty");
+            throw new RequiredFieldException("id");
         }
         User existing = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
@@ -27,13 +29,13 @@ public class UpdateUserUseCase {
         }
         if (update.getEmail() != null && !update.getEmail().isBlank()) {
             if (!isValidEmail(update.getEmail())) {
-                throw new IllegalArgumentException("Email format is invalid");
+                throw new InvalidFieldValueException("email", "Email format is invalid");
             }
             existing.setEmail(update.getEmail());
         }
         if (update.getPassword() != null && !update.getPassword().isBlank()) {
             if (update.getPassword().length() < 6) {
-                throw new IllegalArgumentException("Password must be at least 6 characters");
+                throw new InvalidFieldValueException("password", "Password must be at least 6 characters");
             }
             existing.setPassword(passwordEncoder.encode(update.getPassword()));
         }

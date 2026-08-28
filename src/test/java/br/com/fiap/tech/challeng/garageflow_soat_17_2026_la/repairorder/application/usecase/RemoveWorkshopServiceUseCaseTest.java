@@ -7,7 +7,8 @@ import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.m
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.WorkshopServiceSnapshot;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.repository.RepairOrderRepository;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.type.RepairOrderStatus;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.AddRemoveWorkshopServiceRequest;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.RemoveWorkshopServiceRequest;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.InvalidFieldValueException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.RequiredFieldException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.ResourceNotFoundException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.domain.model.WorkshopService;
@@ -52,7 +53,7 @@ class RemoveWorkshopServiceUseCaseTest {
 
     private RepairOrder repairOrder;
     private WorkshopService workshopService;
-    private AddRemoveWorkshopServiceRequest request;
+    private RemoveWorkshopServiceRequest request;
 
     @BeforeEach
     void setUp() {
@@ -79,8 +80,7 @@ class RemoveWorkshopServiceUseCaseTest {
                 )
                 .build();
 
-        request = new AddRemoveWorkshopServiceRequest();
-        request.setWorkshopServiceId("workshop-service-1");
+        request = new RemoveWorkshopServiceRequest();
         request.setQuantity(2);
     }
 
@@ -99,6 +99,7 @@ class RemoveWorkshopServiceUseCaseTest {
         RepairOrder result =
                 useCase.execute(
                         "repair-order-1",
+                        "workshop-service-1",
                         request
                 );
 
@@ -150,6 +151,7 @@ class RemoveWorkshopServiceUseCaseTest {
         RepairOrder result =
                 useCase.execute(
                         "repair-order-1",
+                        "workshop-service-1",
                         request
                 );
 
@@ -177,6 +179,7 @@ class RemoveWorkshopServiceUseCaseTest {
                         RequiredFieldException.class,
                         () -> useCase.execute(
                                 null,
+                                "workshop-service-1",
                                 request
                         )
                 );
@@ -212,6 +215,7 @@ class RemoveWorkshopServiceUseCaseTest {
                         ResourceNotFoundException.class,
                         () -> useCase.execute(
                                 "repair-order-1",
+                                "workshop-service-1",
                                 request
                         )
                 );
@@ -230,8 +234,6 @@ class RemoveWorkshopServiceUseCaseTest {
     @Test
     void shouldThrowWhenWorkshopServiceIdIsNull() {
 
-        request.setWorkshopServiceId(null);
-
         when(repairOrderFinder.findById("repair-order-1"))
                 .thenReturn(repairOrder);
 
@@ -240,6 +242,7 @@ class RemoveWorkshopServiceUseCaseTest {
                         RequiredFieldException.class,
                         () -> useCase.execute(
                                 "repair-order-1",
+                                null,
                                 request
                         )
                 );
@@ -261,8 +264,6 @@ class RemoveWorkshopServiceUseCaseTest {
     @Test
     void shouldThrowWhenWorkshopServiceIdIsBlank() {
 
-        request.setWorkshopServiceId(" ");
-
         when(repairOrderFinder.findById("repair-order-1"))
                 .thenReturn(repairOrder);
 
@@ -271,6 +272,7 @@ class RemoveWorkshopServiceUseCaseTest {
                         RequiredFieldException.class,
                         () -> useCase.execute(
                                 "repair-order-1",
+                                "  ",
                                 request
                         )
                 );
@@ -300,6 +302,7 @@ class RemoveWorkshopServiceUseCaseTest {
                         ResourceNotFoundException.class,
                         () -> useCase.execute(
                                 "repair-order-1",
+                                "workshop-service-1",
                                 request
                         )
                 );
@@ -335,6 +338,7 @@ class RemoveWorkshopServiceUseCaseTest {
                         WorkshopServiceNotFoundException.class,
                         () -> useCase.execute(
                                 "repair-order-1",
+                                "workshop-service-1",
                                 request
                         )
                 );
@@ -370,6 +374,7 @@ class RemoveWorkshopServiceUseCaseTest {
                         InsufficientQuantityException.class,
                         () -> useCase.execute(
                                 "repair-order-1",
+                                "workshop-service-1",
                                 request
                         )
                 );
@@ -400,17 +405,18 @@ class RemoveWorkshopServiceUseCaseTest {
         when(workshopServiceRepository.findById("workshop-service-1"))
                 .thenReturn(Optional.of(workshopService));
 
-        IllegalArgumentException exception =
+        InvalidFieldValueException exception =
                 assertThrows(
-                        IllegalArgumentException.class,
+                        InvalidFieldValueException.class,
                         () -> useCase.execute(
                                 "repair-order-1",
+                                "workshop-service-1",
                                 request
                         )
                 );
 
         assertEquals(
-                "Workshop service quantity must be greater than zero.",
+                "Field 'quantity' is invalid. Workshop service quantity must be greater than zero.",
                 exception.getMessage()
         );
 
@@ -429,17 +435,18 @@ class RemoveWorkshopServiceUseCaseTest {
         when(workshopServiceRepository.findById("workshop-service-1"))
                 .thenReturn(Optional.of(workshopService));
 
-        IllegalArgumentException exception =
+        InvalidFieldValueException exception =
                 assertThrows(
-                        IllegalArgumentException.class,
+                        InvalidFieldValueException.class,
                         () -> useCase.execute(
                                 "repair-order-1",
+                                "workshop-service-1",
                                 request
                         )
                 );
 
         assertEquals(
-                "Workshop service quantity must be greater than zero.",
+                "Field 'quantity' is invalid. Workshop service quantity must be greater than zero.",
                 exception.getMessage()
         );
 
@@ -462,6 +469,7 @@ class RemoveWorkshopServiceUseCaseTest {
                 InsufficientQuantityException.class,
                 () -> useCase.execute(
                         "repair-order-1",
+                        "workshop-service-1",
                         request
                 )
         );
@@ -484,6 +492,7 @@ class RemoveWorkshopServiceUseCaseTest {
 
         useCase.execute(
                 "repair-order-1",
+                "workshop-service-1",
                 request
         );
 

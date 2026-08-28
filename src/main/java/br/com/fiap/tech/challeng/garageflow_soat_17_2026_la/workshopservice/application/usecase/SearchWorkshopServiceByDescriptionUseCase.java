@@ -1,5 +1,6 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.application.usecase;
 
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.RequiredFieldException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.domain.model.WorkshopService;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.domain.repository.WorkshopServiceRepository;
 import lombok.AllArgsConstructor;
@@ -15,7 +16,7 @@ public class SearchWorkshopServiceByDescriptionUseCase {
 
     public List<WorkshopService> execute(String description) {
         if (description == null || description.isBlank()) {
-            throw new IllegalArgumentException("Description cannot be empty");
+            throw new RequiredFieldException("description");
         }
         return repository.findByDescriptionContainingIgnoreCase(description);
     }

@@ -66,9 +66,9 @@ class GlobalExceptionHandlerTest {
 
         ResponseEntity<ApiErrorResponse> response = handler.handleNotEnoughResource(exception, request);
 
-        assertEquals(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE, response.getStatusCode());
+        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE.value(), response.getBody().status());
+        assertEquals(HttpStatus.CONFLICT.value(), response.getBody().status());
     }
 
     @Test
