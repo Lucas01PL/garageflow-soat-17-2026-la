@@ -1,5 +1,6 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.controller;
 
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.client.application.usecase.GetClientUseCase;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase.*;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.RepairOrder;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.AddRemovePartRequest;
@@ -65,6 +66,8 @@ public class RepairOrderController extends BaseController {
     private WorkshopServiceMonitoringResponseMapper workshopServiceMonitoringResponseMapper;
 
     private CancelRepairOrderUseCase cancelRepairOrderUseCase;
+
+    private GetClientUseCase getClientUseCase;
 
     @Operation(
             summary = "Create Repair Order",
@@ -294,8 +297,20 @@ public class RepairOrderController extends BaseController {
     }
 
     @GetMapping("/customer/{customerId}")
-    public ResponseEntity<List<RepairOrderResponseDTO>> listByCustomer(
+    public ResponseEntity<?> listByCustomer(
             @PathVariable String customerId) {
+
+        if (!isStaff()) {
+            String currentEmail = resolveCurrentEmail();
+
+            boolean isOwner = getClientUseCase.getClientByEmail(currentEmail)
+                    .map(client -> client.getId().equals(customerId))
+                    .orElse(false);
+
+            if (!isOwner) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+        }
 
         List<RepairOrder> repairOrders =
                 listRepairOrdersByCustomerUseCase.execute(customerId);

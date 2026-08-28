@@ -33,6 +33,11 @@ public class ClientRepositoryImpl implements ClientRepository {
     }
 
     @Override
+    public Optional<Client> findByEmail(String email) {
+        return clientMongoRepository.findByEmail(email).map(this::toClientDomain);
+    }
+
+    @Override
     public List<Client> findAll() {
         return clientMongoRepository.findAll()
                 .stream()
@@ -48,6 +53,11 @@ public class ClientRepositoryImpl implements ClientRepository {
     @Override
     public boolean existsByDocument(String document) {
         return clientMongoRepository.existsByDocument(document);
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return clientMongoRepository.existsByEmail(email);
     }
 
     private Client toClientDomain(ClientDocument clientDocument) {
