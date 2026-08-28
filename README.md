@@ -1,8 +1,8 @@
 # 🔧 GarageFlow — SOAT 17
 
-> API para gerenciamento de Ordens de Serviço (OS) de uma oficina mecânica
+> API para gerenciamento de Ordens de Serviço (OS) de uma oficina mecânica, que permitirá aos clientes acompanhar em tempo real o andamento do serviço, autorizar reparos adicionais via aplicativo e garantir uma gestão interna eficiente e segura.
 
-Desenvolvida no contexto do **Tech Challenge da Pós-Tech FIAP**, utilizando **Java 25**, **Spring Boot 4**, **MongoDB** e uma organização baseada em **Clean Architecture + DDD**, com foco na **RepairOrder** como Aggregate Root.
+O projeto trata-se de um MVP do sistema de gestão para uma oficina mecânica. Desenvolvida utilizando **Java 25**, **Spring Boot 4**, **MongoDB** e uma organização baseada em **Clean Architecture + DDD**, com foco na **RepairOrder** como Aggregate Root.
 
 ![Java](https://img.shields.io/badge/Java-25-blue?logo=java)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0.7-green?logo=spring-boot)
