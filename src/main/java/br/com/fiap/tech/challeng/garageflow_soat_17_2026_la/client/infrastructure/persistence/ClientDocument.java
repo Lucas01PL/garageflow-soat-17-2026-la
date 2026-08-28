@@ -21,6 +21,8 @@ public class ClientDocument {
 
     private String name;
     private String phone;
+
+    @Indexed(unique = true)
     private String email;
     private String address;
 

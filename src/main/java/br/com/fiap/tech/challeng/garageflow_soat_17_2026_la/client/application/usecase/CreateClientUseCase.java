@@ -20,8 +20,15 @@ public class CreateClientUseCase {
     public Client createClient(Client client) {
         String normalizedDocument = CpfCnpjValidator.validateAndNormalize(client.getDocument());
 
-        boolean isPresent = clientRepository.existsByDocument(normalizedDocument);
-        if (isPresent) {
+        boolean isPresentWithDocument = clientRepository.existsByDocument(normalizedDocument);
+        boolean isPresentWithEmail = clientRepository.existsByEmail(client.getEmail());
+
+        if (isPresentWithEmail) {
+            log.debug("[DEBUG] - Trying to register duplicated client with e-mail: {}", client.getEmail());
+            throw new DuplicateResourceException("Client", "e-mail", client.getEmail());
+        }
+
+        if (isPresentWithDocument) {
             log.debug("[DEBUG] - Trying to register duplicated client with document: {}", normalizedDocument);
             throw new DuplicateResourceException("Client", "document", normalizedDocument);
         }

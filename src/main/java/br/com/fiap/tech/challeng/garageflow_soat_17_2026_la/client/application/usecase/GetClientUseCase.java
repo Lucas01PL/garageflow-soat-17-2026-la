@@ -37,4 +37,8 @@ public class GetClientUseCase {
         }
         throw new ResourceNotFoundException("Client", "id", id);
     }
+
+    public Optional<Client> getClientByEmail(String email) {
+        return clientRepository.findByEmail(email);
+    }
 }

@@ -13,9 +13,13 @@ public interface ClientRepository {
 
     Optional<Client> findByDocument(String document);
 
+    Optional<Client> findByEmail(String email);
+
     List<Client> findAll();
 
     void delete(String id);
 
     boolean existsByDocument(String document);
+
+    boolean existsByEmail(String email);
 }
