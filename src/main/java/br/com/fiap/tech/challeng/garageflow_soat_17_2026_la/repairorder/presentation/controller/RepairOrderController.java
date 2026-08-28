@@ -1,6 +1,7 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.controller;
 
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.client.application.usecase.GetClientUseCase;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.client.domain.model.Client;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase.*;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.RepairOrder;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.*;
@@ -8,6 +9,7 @@ import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presenta
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.response.RepairOrderResponseDTO;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.mapper.RepairOrderMapper;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.mapper.WorkshopServiceMonitoringResponseMapper;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.ResourceNotFoundException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.presentation.controller.BaseController;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -58,6 +60,8 @@ public class RepairOrderController extends BaseController {
 
     private ListRepairOrdersByCustomerUseCase listRepairOrdersByCustomerUseCase;
 
+    private ListRepairOrdersByStatusUseCase listRepairOrdersByStatusUseCase;
+
     private GetAverageWorkshopServiceExecutionTimeUseCase averageWorkshopServiceExecutionTimeUseCase;
 
     private WorkshopServiceMonitoringResponseMapper workshopServiceMonitoringResponseMapper;
@@ -90,12 +94,20 @@ public class RepairOrderController extends BaseController {
     }
 
     @Operation(
-            summary = "List All Repair Orders",
-            description = "Retrieves a list of all repair orders."
+            summary = "List Repair Orders",
+            description = "Lists repair orders optionally filtered by status. If no status is provided, all repair orders will be listed."
     )
     @GetMapping
-    public ResponseEntity<List<RepairOrderResponseDTO>> listAll() {
-        List<RepairOrder> list = listAllUseCase.execute();
+    public ResponseEntity<List<RepairOrderResponseDTO>> list(@RequestParam(required = false) String status) {
+
+        List<RepairOrder> list;
+
+        if (status == null || status.isBlank()) {
+            list = listAllUseCase.execute();
+        } else {
+            list = listRepairOrdersByStatusUseCase.execute(status);
+        }
+
         List<RepairOrderResponseDTO> dtos = list.stream().map(mapper::toResponse).toList();
         return ResponseEntity.ok(dtos);
     }
@@ -220,8 +232,10 @@ public class RepairOrderController extends BaseController {
     public ResponseEntity<RepairOrderResponseDTO> approve(
             @PathVariable String repairOrderId) {
 
+        String userId = resolveCurrentUserId();
+
         RepairOrder repairOrder =
-                approveRepairOrderUseCase.execute(repairOrderId);
+                approveRepairOrderUseCase.execute(repairOrderId, userId);
 
         return ResponseEntity.ok(
                 mapper.toResponse(repairOrder));
@@ -287,21 +301,18 @@ public class RepairOrderController extends BaseController {
                 mapper.toResponse(repairOrder));
     }
 
-    @GetMapping("/customer/{customerId}")
-    public ResponseEntity<?> listByCustomer(
-            @PathVariable String customerId) {
+    @Operation(
+            summary = "List Repair Orders of the Authenticated Customer",
+            description = "Retrieves the repair orders belonging to the client linked to the authenticated user's email."
+    )
+    @GetMapping("/customer")
+    public ResponseEntity<?> listByCustomer() {
 
-        if (!isStaff()) {
-            String currentEmail = resolveCurrentEmail();
+        String currentEmail = resolveCurrentEmail();
 
-            boolean isOwner = getClientUseCase.getClientByEmail(currentEmail)
-                    .map(client -> client.getId().equals(customerId))
-                    .orElse(false);
-
-            if (!isOwner) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-            }
-        }
+        String customerId = getClientUseCase.getClientByEmail(currentEmail)
+                .map(Client::getId)
+                .orElseThrow(() -> new ResourceNotFoundException("Client", "email", currentEmail));
 
         List<RepairOrder> repairOrders =
                 listRepairOrdersByCustomerUseCase.execute(customerId);

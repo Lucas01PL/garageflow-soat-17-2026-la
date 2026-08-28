@@ -14,6 +14,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.access.AccessDeniedException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -44,6 +45,7 @@ class ApproveRepairOrderUseCaseTest {
         repairOrder = RepairOrder.builder()
                 .id("repair-order-1")
                 .status(RepairOrderStatus.AWAITING_APPROVAL)
+                .userId("user-1")
                 .build();
     }
 
@@ -57,7 +59,7 @@ class ApproveRepairOrderUseCaseTest {
                 .thenReturn(repairOrder);
 
         RepairOrder result =
-                useCase.execute("repair-order-1");
+                useCase.execute("repair-order-1", "user-1");
 
         assertNotNull(result);
         assertSame(repairOrder, result);
@@ -85,7 +87,7 @@ class ApproveRepairOrderUseCaseTest {
         RequiredFieldException exception =
                 assertThrows(
                         RequiredFieldException.class,
-                        () -> useCase.execute(null)
+                        () -> useCase.execute(null, "user-1")
                 );
 
         assertEquals(
@@ -97,6 +99,39 @@ class ApproveRepairOrderUseCaseTest {
                 .findById(null);
 
         verifyNoInteractions(repairOrderRepository);
+    }
+
+    @Test
+    void shouldThrowAccessDeniedWhenUserIsNotTheOwner() {
+
+        when(repairOrderFinder.findById("repair-order-1"))
+                .thenReturn(repairOrder);
+
+        assertThrows(
+                AccessDeniedException.class,
+                () -> useCase.execute("repair-order-1", "another-user")
+        );
+
+        verify(repairOrderFinder)
+                .findById("repair-order-1");
+
+        verify(repairOrderRepository, never())
+                .save(any(RepairOrder.class));
+    }
+
+    @Test
+    void shouldThrowAccessDeniedWhenUserIdIsNull() {
+
+        when(repairOrderFinder.findById("repair-order-1"))
+                .thenReturn(repairOrder);
+
+        assertThrows(
+                AccessDeniedException.class,
+                () -> useCase.execute("repair-order-1", null)
+        );
+
+        verify(repairOrderRepository, never())
+                .save(any(RepairOrder.class));
     }
 
     @Test
@@ -114,7 +149,7 @@ class ApproveRepairOrderUseCaseTest {
         ResourceNotFoundException exception =
                 assertThrows(
                         ResourceNotFoundException.class,
-                        () -> useCase.execute("repair-order-1")
+                        () -> useCase.execute("repair-order-1", "user-1")
                 );
 
         assertNotNull(exception);
@@ -131,6 +166,7 @@ class ApproveRepairOrderUseCaseTest {
         repairOrder = RepairOrder.builder()
                 .id("repair-order-1")
                 .status(RepairOrderStatus.RECEIVED)
+                .userId("user-1")
                 .build();
 
         when(repairOrderFinder.findById("repair-order-1"))
@@ -139,7 +175,7 @@ class ApproveRepairOrderUseCaseTest {
         InvalidRepairOrderStateException exception =
                 assertThrows(
                         InvalidRepairOrderStateException.class,
-                        () -> useCase.execute("repair-order-1")
+                        () -> useCase.execute("repair-order-1", "user-1")
                 );
 
         assertEquals(
@@ -160,6 +196,7 @@ class ApproveRepairOrderUseCaseTest {
         repairOrder = RepairOrder.builder()
                 .id("repair-order-1")
                 .status(RepairOrderStatus.IN_EXECUTION)
+                .userId("user-1")
                 .build();
 
         when(repairOrderFinder.findById("repair-order-1"))
@@ -167,7 +204,7 @@ class ApproveRepairOrderUseCaseTest {
 
         assertThrows(
                 InvalidRepairOrderStateException.class,
-                () -> useCase.execute("repair-order-1")
+                () -> useCase.execute("repair-order-1", "user-1")
         );
 
         verify(repairOrderRepository, never())
@@ -183,7 +220,7 @@ class ApproveRepairOrderUseCaseTest {
         when(repairOrderRepository.save(any(RepairOrder.class)))
                 .thenReturn(repairOrder);
 
-        useCase.execute("repair-order-1");
+        useCase.execute("repair-order-1", "user-1");
 
         ArgumentCaptor<RepairOrder> captor =
                 ArgumentCaptor.forClass(RepairOrder.class);

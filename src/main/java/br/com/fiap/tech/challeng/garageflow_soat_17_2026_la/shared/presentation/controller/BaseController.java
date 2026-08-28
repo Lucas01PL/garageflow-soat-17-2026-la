@@ -28,24 +28,17 @@ public class BaseController {
     protected String resolveCurrentEmail() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || authentication.getPrincipal() == null) {
-            throw new IllegalArgumentException("User not authenticated");
+            throw new AuthenticationCredentialsNotFoundException("User not authenticated");
         }
 
         Object principal = authentication.getPrincipal();
         if (principal instanceof AuthenticatedUser authenticatedUser) {
+            if (authenticatedUser.email() == null || authenticatedUser.email().isBlank()) {
+                throw new MalformedJwtException("Email not present in token");
+            }
             return authenticatedUser.email();
         }
 
-        throw new IllegalArgumentException("User not authenticated");
-    }
-
-    protected boolean isStaff() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null) {
-            return false;
-        }
-        return authentication.getAuthorities().stream()
-                .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN")
-                        || authority.getAuthority().equals("ROLE_OPERATOR"));
+        throw new AuthenticationCredentialsNotFoundException("User not authenticated");
     }
 }
