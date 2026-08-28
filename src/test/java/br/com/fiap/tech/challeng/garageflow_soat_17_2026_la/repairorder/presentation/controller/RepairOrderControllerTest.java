@@ -264,7 +264,7 @@ class RepairOrderControllerTest {
                 .thenReturn(secondResponse);
 
         ResponseEntity<List<RepairOrderResponseDTO>> result =
-                controller.listAll();
+                controller.list(null);
 
         assertEquals(
                 HttpStatus.OK,
@@ -550,7 +550,7 @@ class RepairOrderControllerTest {
     void shouldApproveRepairOrderSuccessfully() {
 
         when(approveRepairOrderUseCase.execute(
-                "repair-order-1"
+                "repair-order-1", "user-123"
         )).thenReturn(repairOrder);
 
         when(mapper.toResponse(repairOrder))
@@ -572,7 +572,7 @@ class RepairOrderControllerTest {
         );
 
         verify(approveRepairOrderUseCase)
-                .execute("repair-order-1");
+                .execute("repair-order-1", "user-123");
     }
 
     @Test
