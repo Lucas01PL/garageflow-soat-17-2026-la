@@ -115,7 +115,7 @@ class RepairOrderIntegrationTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
                 .andExpect(jsonPath("$.number", notNullValue()))
-                .andExpect(jsonPath("$.status", is("Recebida")))
+                .andExpect(jsonPath("$.status", is("RECEIVED")))
                 .andExpect(jsonPath("$.customer.customerId", is(customer.getId())))
                 .andExpect(jsonPath("$.vehicle.vehicleId", is(vehicle.getId())))
                 .andReturn()
@@ -157,7 +157,7 @@ class RepairOrderIntegrationTest {
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(repairOrderId)))
-                .andExpect(jsonPath("$.status", is("Recebida")));
+                .andExpect(jsonPath("$.status", is("RECEIVED")));
     }
 
     @Test
@@ -213,7 +213,7 @@ class RepairOrderIntegrationTest {
                                         )
                         )
                         .andExpect(status().isCreated())
-                        .andExpect(jsonPath("$.status", is("Recebida")))
+                        .andExpect(jsonPath("$.status", is("RECEIVED")))
                         .andReturn()
                         .getResponse()
                         .getContentAsString();
@@ -238,7 +238,7 @@ class RepairOrderIntegrationTest {
                                 )
                 )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status", is("Em Diagnóstico")));
+                .andExpect(jsonPath("$.status", is("IN_DIAGNOSIS")));
 
         /*
          * 3. Adicionar serviço
@@ -262,7 +262,7 @@ class RepairOrderIntegrationTest {
                                 )
                 )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status", is("Em Diagnóstico")))
+                .andExpect(jsonPath("$.status", is("IN_DIAGNOSIS")))
                 .andExpect(jsonPath(
                         "$.workshopServices[0].workshopServiceId",
                         is(service.getId())
@@ -296,7 +296,7 @@ class RepairOrderIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath(
                         "$.status",
-                        is("Aguardando aprovação")
+                        is("AWAITING_APPROVAL")
                 ));
 
         /*
@@ -315,7 +315,7 @@ class RepairOrderIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath(
                         "$.status",
-                        is("Aprovado")
+                        is("APPROVED")
                 ));
 
         /*
@@ -334,7 +334,7 @@ class RepairOrderIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath(
                         "$.status",
-                        is("Em Execução")
+                        is("IN_EXECUTION")
                 ));
 
         /*
@@ -354,11 +354,11 @@ class RepairOrderIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath(
                         "$.status",
-                        is("Em Execução")
+                        is("IN_EXECUTION")
                 ))
                 .andExpect(jsonPath(
                         "$.workshopServices[0].status",
-                        is("Em Execução")
+                        is("IN_EXECUTION")
                 ));
 
         /*
@@ -384,11 +384,11 @@ class RepairOrderIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath(
                         "$.status",
-                        is("Finalizada")
+                        is("FINISHED")
                 ))
                 .andExpect(jsonPath(
                         "$.workshopServices[0].status",
-                        is("Finalizado")
+                        is("FINISHED")
                 ))
                 .andExpect(jsonPath(
                         "$.workshopServices[0].durationInMinutes",
@@ -411,7 +411,7 @@ class RepairOrderIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath(
                         "$.status",
-                        is("Entregue")
+                        is("DELIVERED")
                 ))
                 .andExpect(jsonPath(
                         "$.finishDate",
@@ -566,7 +566,7 @@ class RepairOrderIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath(
                         "$.status",
-                        is("Rejeitado")
+                        is("REJECTED")
                 ));
 
         /*

@@ -69,7 +69,7 @@ class WorkshopServiceResponseMapperTest {
         );
 
         assertEquals(
-                WorkshopServiceStatus.FINISHED.getDescription(),
+                WorkshopServiceStatus.FINISHED.name(),
                 response.getStatus()
         );
 
@@ -107,7 +107,7 @@ class WorkshopServiceResponseMapperTest {
                 mapper.toResponse(snapshot);
 
         assertEquals(
-                WorkshopServiceStatus.WAITING_ATTENDING.getDescription(),
+                WorkshopServiceStatus.WAITING_ATTENDING.name(),
                 response.getStatus()
         );
     }
@@ -126,7 +126,7 @@ class WorkshopServiceResponseMapperTest {
                 mapper.toResponse(snapshot);
 
         assertEquals(
-                WorkshopServiceStatus.IN_EXECUTION.getDescription(),
+                WorkshopServiceStatus.IN_EXECUTION.name(),
                 response.getStatus()
         );
     }
@@ -145,7 +145,7 @@ class WorkshopServiceResponseMapperTest {
                 mapper.toResponse(snapshot);
 
         assertEquals(
-                WorkshopServiceStatus.FINISHED.getDescription(),
+                WorkshopServiceStatus.FINISHED.name(),
                 response.getStatus()
         );
     }
