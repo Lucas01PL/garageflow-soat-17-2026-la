@@ -7,6 +7,8 @@ import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.r
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.RequiredFieldException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.RequiredObjectException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.ResourceNotFoundException;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.model.User;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.repository.UserRepository;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.vehicle.domain.model.Vehicle;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.vehicle.domain.repository.VehicleRepository;
 import lombok.AllArgsConstructor;
@@ -19,6 +21,7 @@ public class CreateRepairOrderUseCase {
     private RepairOrderRepository repository;
     private ClientRepository customerRepository;
     private VehicleRepository vehicleRepository;
+    private UserRepository userRepository;
 
     public RepairOrder execute(RepairOrder request) {
         if (request == null) {
@@ -33,9 +36,12 @@ public class CreateRepairOrderUseCase {
 
         VehicleSnapshot vehicleSnapshot = VehicleSnapshot.from(vehicle);
 
+        User user = getUser(request.getUserId());
+
         RepairOrder repairOrder = RepairOrder.builder()
                                     .customer(customerSnapshot)
                                     .vehicle(vehicleSnapshot)
+                                    .userId(user.getId())
                                     .build();
         repairOrder.number();
         repairOrder.received();
@@ -62,6 +68,14 @@ public class CreateRepairOrderUseCase {
             throw new RequiredFieldException("vehicleId");
         }
         return vehicleRepository.findById(vehicleSnapshot.getVehicleId()).orElseThrow(() -> new ResourceNotFoundException("Vehicle", "vehicleId", vehicleSnapshot.getVehicleId()));
+    }
+
+    private User getUser(String userId) {
+        if(userId == null || userId.isBlank()) {
+            throw new RequiredFieldException("userId");
+        }
+
+        return userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User", "userId", userId));
     }
 
 }

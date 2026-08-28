@@ -46,28 +46,28 @@ WAITING_ATTENDING  ──▶  IN_EXECUTION  ──▶  FINISHED
 | **Entrega** | Uma OS só pode ser entregue quando estiver em `FINISHED` |
 | **Controle de Estoque** | Alterações de peças consultam o estoque e utilizam operações compensatórias em caso de falha |
 | **Snapshots** | Peças e serviços adicionados à OS preservam dados relevantes do momento da inclusão |
+| **Aprovação de Compra** | Listas de compra só podem ser aprovadas/rejeitadas quando estiverem `PENDING` |
+| **Compra de Insumos** | Ao comprar a lista aprovada, o estoque de cada peça é incrementado automaticamente |
+
 ## 🏗️ Arquitetura
 
 A estrutura segue a separação de responsabilidades da **Clean Architecture**:
 
 ```
-src/main/java/br/com/fiap/tech/challenge/garageflow_soat_17_2026_la/
-├── repairorder/
-│   ├── application/           # Casos de uso e orquestração
-│   │   ├── service/
-│   │   └── usecase/
-│   ├── domain/                # Regras de negócio
-│   │   ├── exception/
-│   │   ├── model/
-│   │   ├── repository/
-│   │   └── type/
-│   └── presentation/          # HTTP e conversão de dados
-│       ├── controller/
-│       ├── dto/
-│       └── mapper/
-├── part/                      # Domínio de Peças
-├── workshopservice/           # Domínio de Serviços
-└── shared/                    # Código compartilhado
+src/main/java/br/com/fiap/tech/challeng/garageflow_soat_17_2026_la/
+├── auth/                     # Segurança e autenticação
+├── client/                   # Clientes da oficina
+├── vehicle/                  # Veículos e placas
+├── user/                     # Usuários do sistema
+├── part/                     # Peças e estoque
+├── workshopservice/          # Serviços de oficina
+├── purchasing/               # Lista de compras e aprovação
+├── repairorder/              # Aggregate Root principal
+│   ├── application/
+│   ├── domain/
+│   └── presentation/
+├── shared/                   # Código compartilhado
+└── config/                   # Segurança e config gerais
 ```
 
 ### Componentes Principais
@@ -154,6 +154,9 @@ A aplicação iniciará em `http://localhost:8080`
 mvn test
 ```
 
+Nota rápida: a suíte de testes exige JDK 25 (projeto target=25). Se o ambiente local tiver JDK diferente, ajuste a instalação ou toolchain antes de executar os testes. Alguns testes unitários dependem do SecurityContext contendo um `AuthenticatedUser` (os testes do repositório já populam esse contexto automaticamente). Para testes manuais que exercitam endpoints protegidos, gere um token via `/auth/login` e envie em `Authorization: Bearer <token>` (o token agora inclui `userId`).
+
+
 ### Cobertura de Testes
 
 A suíte contém cobertura completa:
@@ -180,49 +183,130 @@ A suíte contém cobertura completa:
 
 ## 📡 API REST
 
-Recurso principal: `/repairorder`
+Os módulos da aplicação seguem uma API REST organizada por domínio. Além da RepairOrder, o projeto agora inclui autenticação, usuários, clientes, veículos, peças, serviços e compras.
+
+### Autenticação e Usuários
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `POST` | `/auth/login` | Autentica um usuário e retorna JWT |
+| `POST` | `/user` | Cria um usuário |
+| `GET` | `/user/{id}` | Busca usuário por ID |
+| `GET` | `/user` | Lista todos os usuários |
+| `GET` | `/user/search?fullName=...` | Busca usuários por nome |
+| `PUT` | `/user/{id}` | Atualiza usuário |
+| `DELETE` | `/user/{id}` | Remove usuário |
+
+**Nota sobre autenticação:** os tokens JWT incluem agora o claim `userId`. Os controllers extraem o usuário autenticado via resolveCurrentUserId() (em `shared.presentation.controller.BaseController`) e esperam o principal como `AuthenticatedUser` com `userId` e `email`. Ao testar endpoints protegidos manualmente, inclua o header `Authorization: Bearer <token>` retornado por `/auth/login`. Nos testes unitários, o SecurityContext é populado com `AuthenticatedUser` para simular autenticação.
+
+### Clientes e Veículos
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `POST` | `/client` | Cria cliente |
+| `GET` | `/client/{id}` | Busca cliente por ID |
+| `GET` | `/client/document/{document}` | Busca cliente por documento |
+| `GET` | `/client` | Lista clientes |
+| `PUT` | `/client/{id}` | Atualiza cliente |
+| `DELETE` | `/client/{id}` | Remove cliente |
+| `POST` | `/vehicle` | Cria veículo |
+| `GET` | `/vehicle/{id}` | Busca veículo por ID |
+| `GET` | `/vehicle/plate/{plate}` | Busca veículo por placa |
+| `GET` | `/vehicle` | Lista veículos |
+| `PUT` | `/vehicle/{id}` | Atualiza veículo |
+| `DELETE` | `/vehicle/{id}` | Remove veículo |
+
+### Peças e Estoque
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `POST` | `/part` | Cria peça |
+| `POST` | `/part/{id}/stock/debit?quantityToDebit=...` | Debita estoque |
+| `POST` | `/part/{id}/stock/add?quantityToAdd=...` | Acrescenta estoque |
+| `GET` | `/part/{id}` | Busca peça por ID |
+| `GET` | `/part/code/{code}` | Busca peça por código |
+| `GET` | `/part` | Lista peças |
+| `GET` | `/part/low-stock?threshold=...` | Lista peças em estoque baixo |
+| `PUT` | `/part/{id}` | Atualiza peça |
+| `DELETE` | `/part/{id}` | Remove peça |
+
+### Serviços da Oficina
+
+| Método | Endpoint                                   | Descrição |
+|--------|--------------------------------------------|-----------|
+| `POST` | `/workshop-service`                        | Cria serviço |
+| `GET` | `/workshop-service/{id}`                   | Busca serviço por ID |
+| `GET` | `/workshop-service`                        | Lista serviços |
+| `GET` | `/workshop-service/search?description=...` | Busca por descrição |
+| `PUT` | `/workshop-service/{id}`                   | Atualiza serviço |
+| `DELETE` | `/workshop-service/{id}`                   | Remove serviço |
+
+### Compras e Estoque
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `POST` | `/purchase-list` | Gera lista de compra |
+| `GET` | `/purchase-list` | Lista listas de compra |
+| `GET` | `/purchase-list/{id}` | Busca lista por ID |
+| `PATCH` | `/purchase-list/{id}/approve` | Aprova lista |
+| `PATCH` | `/purchase-list/{id}/reject` | Rejeita lista |
+| `POST` | `/purchase-list/{id}/purchase` | Confirma compra e repõe estoque |
 
 ### Ordens de Serviço
 
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| `POST` | `/repairorder` | Cria uma nova OS |
-| `GET` | `/repairorder/{id}` | Obtém OS por ID |
-| `GET` | `/repairorder` | Lista todas as OS |
+| Método | Endpoint                                                                     | Descrição |
+|--------|------------------------------------------------------------------------------|-----------|
+| `POST` | `/repair-order`                                                              | Cria uma nova OS (requer autenticação) |
+| `GET` | `/repair-order/{id}`                                                         | Obtém OS por ID |
+| `GET` | `/repair-order`                                                              | Lista todas as OS |
+| `GET` | `/repair-order/customer/{customerId}`                                        | Busca OS por cliente |
+| `POST` | `/repair-order/{repairOrderId}/workshop-services`                                     | Adiciona um serviço |
+| `DELETE` | `/repair-order/{repairOrderId}/workshop-services`                                     | Remove um serviço |
+| `POST` | `/repair-order/{repairOrderId}/parts`                                        | Adiciona uma peça |
+| `DELETE` | `/repair-order/{repairOrderId}/parts`                                        | Remove uma peça |
+| `PATCH` | `/repair-order/{repairOrderId}/status/in-diagnosis`                          | Inicia diagnóstico |
+| `PATCH` | `/repair-order/{repairOrderId}/status/awaiting-approval`                     | Solicita aprovação |
+| `PATCH` | `/repair-order/{repairOrderId}/status/approved`                              | Aprova a OS |
+| `PATCH` | `/repair-order/{repairOrderId}/status/rejected`                              | Rejeita a OS |
+| `PATCH` | `/repair-order/{repairOrderId}/status/in-execution`                          | Inicia execução |
+| `PATCH` | `/repair-order/{repairOrderId}/status/delivered`                             | Entrega a OS |
+| `PATCH` | `/repair-order/{repairOrderId}/workshop-services/{workshopServiceId}/status/start`    | Inicia serviço |
+| `PATCH` | `/repair-order/{repairOrderId}/workshop-services/{workshopServiceId}/status/finished` | Finaliza serviço |
+| `PATCH` | `/repair-order/{repairOrderId}/status/cancelled`                             | Cancela OS |
+| `GET` | `/repair-order/monitoring/workshop-services/average-execution-time`                   | Calcula tempo médio de execução |
 
-### Serviços da OS
+Autenticação e criação de OS
 
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| `POST` | `/repairorder/{repairOrderId}/services` | Adiciona um serviço |
-| `DELETE` | `/repairorder/{repairOrderId}/services` | Remove um serviço |
-| `PATCH` | `/repairorder/{repairOrderId}/services/{workshopServiceId}/status/start` | Inicia um serviço |
-| `PATCH` | `/repairorder/{repairOrderId}/services/{workshopServiceId}/status/finished` | Finaliza um serviço |
+- Ao efetuar login via `/auth/login` o JWT agora inclui o claim `userId` (além de email e role). Os controllers leem o usuário autenticado do SecurityContext e persistem o `userId` associado à OS.
 
-### Peças da OS
+Exemplo (gerar token):
 
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| `POST` | `/repairorder/{repairOrderId}/parts` | Adiciona uma peça |
-| `DELETE` | `/repairorder/{repairOrderId}/parts` | Remove uma peça |
+```bash
+curl -s -X POST http://localhost:8080/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@example.com", "password":"admin123"}'
+```
 
-### Transições de Status
+O retorno contém o token JWT. Para criar uma OS usando o usuário autenticado, envie o header Authorization:
 
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| `PATCH` | `/repairorder/{repairOrderId}/status/in-diagnosis` | Inicia diagnóstico |
-| `PATCH` | `/repairorder/{repairOrderId}/status/awaiting-approval` | Solicita aprovação |
-| `PATCH` | `/repairorder/{repairOrderId}/status/approved` | Aprova a OS |
-| `PATCH` | `/repairorder/{repairOrderId}/status/rejected` | Rejeita a OS |
-| `PATCH` | `/repairorder/{repairOrderId}/status/in-execution` | Inicia execução |
-| `PATCH` | `/repairorder/{repairOrderId}/status/deliver` | Entrega a OS |
+```bash
+curl -X POST http://localhost:8080/repair-order \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"vehicleId":"<vehicle-id>", "customerId":"<customer-id>"}'
+```
+
+Notas importantes:
+- Se o token não contiver `userId`, a criação falhará. O fluxo de login (`/auth/login`) já inclui `userId` no token gerado.
+- Nos testes unitários, o SecurityContext é preenchido com um `AuthenticatedUser` (contendo userId e email) para simular autenticação.
 
 ### 📖 Documentação Interativa
 
 Com a aplicação em execução:
 
-- **Swagger UI**: http://localhost:8080/swagger-ui/index.html
-- **Especificação OpenAPI**: http://localhost:8080/v3/api-docs
+- **Swagger UI**: http://localhost:8080/api/v3/api-docs
+- **Especificação OpenAPI**: http://localhost:8080/api/openapi
+
 ## 🗄️ MongoDB com Docker
 
 O `docker-compose.yml` configura um container MongoDB com persistência:
@@ -345,7 +429,7 @@ Cliente não aprova
 REJECTED
 ```
 
-> ℹ️ A aplicação pode continuar a partir de OS rejeitadas para ajustes e nova tentativa de aprovação.
+> ℹ️ Uma OS rejeitada não retorna ao fluxo de diagnóstico. Para um novo atendimento, deve ser criada uma nova OS.
 
 ## ℹ️ Status do Projeto
 

@@ -10,6 +10,9 @@ import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.t
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.RequiredFieldException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.RequiredObjectException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.ResourceNotFoundException;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.model.User;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.model.UserRole;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.repository.UserRepository;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.vehicle.domain.model.Vehicle;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.vehicle.domain.repository.VehicleRepository;
 import org.junit.jupiter.api.Test;
@@ -37,6 +40,9 @@ class CreateRepairOrderUseCaseTest {
     @Mock
     private VehicleRepository vehicleRepository;
 
+    @Mock
+    private UserRepository userRepository;
+
     @InjectMocks
     private CreateRepairOrderUseCase useCase;
 
@@ -53,6 +59,7 @@ class CreateRepairOrderUseCaseTest {
         RepairOrder input = RepairOrder.builder()
                 .customer(new CustomerSnapshot("cust1"))
                 .vehicle(new VehicleSnapshot("vehicle1"))
+                .userId("user1")
                 .build();
 
         Client client = sampleClient();
@@ -63,10 +70,12 @@ class CreateRepairOrderUseCaseTest {
                 .status(RepairOrderStatus.RECEIVED)
                 .customer(CustomerSnapshot.from(client))
                 .vehicle(VehicleSnapshot.from(vehicle))
+                .userId("user1")
                 .build();
 
         when(customerRepository.findById("cust1")).thenReturn(Optional.of(client));
         when(vehicleRepository.findById("vehicle1")).thenReturn(Optional.of(vehicle));
+        when(userRepository.findById("user1")).thenReturn(Optional.of(new User("user1", "John Doe", "john@example.com", "ATIVO", UserRole.ADMIN)));
         when(repository.save(any())).thenReturn(saved);
 
         RepairOrder result = useCase.execute(input);

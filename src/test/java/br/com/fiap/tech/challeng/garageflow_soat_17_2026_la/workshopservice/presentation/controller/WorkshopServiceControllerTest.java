@@ -1,5 +1,8 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.presentation.controller;
 
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.InvalidFieldValueException;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.RequiredFieldException;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.ResourceNotFoundException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.application.usecase.*;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.domain.model.WorkshopService;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.presentation.dto.CreateWorkshopServiceRequestDTO;
@@ -69,12 +72,9 @@ class WorkshopServiceControllerTest {
         WorkshopService model = new WorkshopService("Desc", new BigDecimal("10"));
 
         when(mapper.toModel(dto)).thenReturn(model);
-        when(createUseCase.execute(model)).thenThrow(new IllegalArgumentException("Invalid"));
+        when(createUseCase.execute(model)).thenThrow(new InvalidFieldValueException("price", "Price must be greater than zero."));
 
-        var response = controller.create(dto);
-
-        assertEquals(400, response.getStatusCode().value());
-        assertEquals("Invalid", response.getBody());
+        assertThrows(InvalidFieldValueException.class, () -> controller.create(dto));
     }
 
     @Test
@@ -103,12 +103,9 @@ class WorkshopServiceControllerTest {
 
     @Test
     void getByIdShouldReturnBadRequestWhenUseCaseThrows() {
-        when(getByIdUseCase.execute(null)).thenThrow(new IllegalArgumentException("bad id"));
+        when(getByIdUseCase.execute(null)).thenThrow(new RequiredFieldException("id"));
 
-        var response = controller.getById(null);
-
-        assertEquals(400, response.getStatusCode().value());
-        assertEquals("bad id", response.getBody());
+        assertThrows(RequiredFieldException.class, () -> controller.getById(null));
     }
 
     @Test
@@ -120,13 +117,13 @@ class WorkshopServiceControllerTest {
         when(listAllUseCase.execute()).thenReturn(List.of(s1));
         when(mapper.toResponse(s1)).thenReturn(d1);
 
-        var response = controller.listAll();
+        var response = controller.list("");
 
         assertEquals(200, response.getStatusCode().value());
         var body = response.getBody();
         assertNotNull(body);
         assertEquals(1, body.size());
-        assertEquals(d1, body.get(0));
+        assertEquals(d1, body.getFirst());
     }
 
     @Test
@@ -138,20 +135,10 @@ class WorkshopServiceControllerTest {
         when(searchUseCase.execute("oil")).thenReturn(List.of(s));
         when(mapper.toResponse(s)).thenReturn(dto);
 
-        var response = controller.search("oil");
+        var response = controller.list("oil");
 
         assertEquals(200, response.getStatusCode().value());
         assertEquals(List.of(dto), response.getBody());
-    }
-
-    @Test
-    void searchShouldReturnBadRequestWhenUseCaseThrows() {
-        when(searchUseCase.execute("")).thenThrow(new IllegalArgumentException("empty"));
-
-        var response = controller.search("");
-
-        assertEquals(400, response.getStatusCode().value());
-        assertEquals("empty", response.getBody());
     }
 
     @Test
@@ -194,22 +181,16 @@ class WorkshopServiceControllerTest {
 
     @Test
     void deleteShouldReturnNotFoundWhenMissing() {
-        when(deleteUseCase.execute("x")).thenReturn(false);
+        when(deleteUseCase.execute("x")).thenThrow(ResourceNotFoundException.class);
 
-        var response = controller.delete("x");
-
-        assertEquals(404, response.getStatusCode().value());
-        assertEquals("Service not found", response.getBody());
+        assertThrows(ResourceNotFoundException.class, () -> controller.delete("x"));
     }
 
     @Test
     void deleteShouldReturnBadRequestWhenUseCaseThrows() {
-        when(deleteUseCase.execute(null)).thenThrow(new IllegalArgumentException("bad"));
+        when(deleteUseCase.execute(null)).thenThrow(new RequiredFieldException("id"));
 
-        var response = controller.delete(null);
-
-        assertEquals(400, response.getStatusCode().value());
-        assertEquals("bad", response.getBody());
+        assertThrows(RequiredFieldException.class, () -> controller.delete(null));
     }
 }
 

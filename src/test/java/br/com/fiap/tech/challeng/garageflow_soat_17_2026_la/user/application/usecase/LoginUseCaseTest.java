@@ -1,6 +1,6 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.application.usecase;
 
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.configuration.security.JwtService;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.config.security.JwtService;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.ResourceNotFoundException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.model.User;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.model.UserRole;
@@ -40,11 +40,12 @@ class LoginUseCaseTest {
     @Test
     void shouldReturnTokenWhenCredentialsAreValid() {
         User user = new User();
+        user.setId("id");
         user.setEmail("admin@garageflow.com");
         user.setRole(UserRole.ADMIN);
 
         when(userRepository.findByEmail("admin@garageflow.com")).thenReturn(Optional.of(user));
-        when(jwtService.generateToken("admin@garageflow.com", "ADMIN")).thenReturn("jwt-token");
+        when(jwtService.generateToken("id", "admin@garageflow.com", "ADMIN")).thenReturn("jwt-token");
 
         String token = useCase.execute("admin@garageflow.com", "admin123");
 

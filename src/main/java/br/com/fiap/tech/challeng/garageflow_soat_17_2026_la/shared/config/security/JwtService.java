@@ -1,4 +1,4 @@
-package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.configuration.security;
+package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.config.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -25,18 +25,31 @@ public class JwtService {
     }
 
     public String generateToken(String email, String role) {
+        return generateToken(null, email, role);
+    }
+
+    public String generateToken(String userId, String email, String role) {
         Instant now = Instant.now();
-        return Jwts.builder()
+        var builder = Jwts.builder()
                 .subject(email)
                 .claim("role", role)
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plus(expirationMinutes, ChronoUnit.MINUTES)))
-                .signWith(key)
-                .compact();
+                .signWith(key);
+
+        if (userId != null && !userId.isBlank()) {
+            builder.claim("userId", userId);
+        }
+
+        return builder.compact();
     }
 
     public String extractEmail(String token) {
         return extractClaims(token).getSubject();
+    }
+
+    public String extractUserId(String token) {
+        return extractClaims(token).get("userId", String.class);
     }
 
     public String extractRole(String token) {

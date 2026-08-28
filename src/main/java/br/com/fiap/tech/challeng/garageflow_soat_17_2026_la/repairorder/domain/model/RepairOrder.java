@@ -330,6 +330,31 @@ public class RepairOrder {
         updatedDate = LocalDateTime.now(ZoneId.systemDefault());
     }
 
+    public void cancel() {
+
+        validateCanBeCancelled();
+
+        status = RepairOrderStatus.CANCELLED;
+        updatedDate = LocalDateTime.now(ZoneId.systemDefault());
+    }
+
+    public void validateCanBeCancelled() {
+
+        if (!canBeCancelled()) {
+            throw new InvalidRepairOrderStateException(
+                    "Repair Order cannot be cancelled in the current state."
+            );
+        }
+    }
+
+    private boolean canBeCancelled() {
+
+        return status == RepairOrderStatus.RECEIVED
+                || status == RepairOrderStatus.IN_DIAGNOSIS
+                || status == RepairOrderStatus.AWAITING_APPROVAL
+                || status == RepairOrderStatus.APPROVED;
+    }
+
     private boolean allWorkshopServicesFinished() {
         return !workshopServices.isEmpty()
                 && workshopServices.stream()

@@ -10,7 +10,7 @@ import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.m
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.RepairOrder;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.repository.RepairOrderRepository;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.type.RepairOrderStatus;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.AddRemovePartRequest;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.AddPartRequest;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.NotEnoughResourceException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.RequiredFieldException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.ResourceNotFoundException;
@@ -49,7 +49,7 @@ class AddPartUseCaseTest {
 
     private RepairOrder repairOrder;
     private Part part;
-    private AddRemovePartRequest request;
+    private AddPartRequest request;
 
     @BeforeEach
     void setUp() {
@@ -66,7 +66,7 @@ class AddPartUseCaseTest {
                 new BigDecimal("50.00")
         );
 
-        request = new AddRemovePartRequest();
+        request = new AddPartRequest();
         request.setPartId("part-1");
         request.setQuantity(2);
     }
@@ -121,7 +121,7 @@ class AddPartUseCaseTest {
     @Test
     void shouldThrowWhenRepairOrderIdIsNull() {
 
-        AddRemovePartRequest partRequest = new AddRemovePartRequest();
+        AddPartRequest partRequest = new AddPartRequest();
         partRequest.setPartId("part-1");
         partRequest.setQuantity(1);
 

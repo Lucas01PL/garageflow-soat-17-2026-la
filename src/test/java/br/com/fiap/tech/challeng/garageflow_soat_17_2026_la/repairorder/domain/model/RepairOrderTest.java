@@ -15,6 +15,8 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class RepairOrderTest {
 
@@ -530,6 +532,46 @@ class RepairOrderTest {
         assertThatThrownBy(() ->
                 repairOrder.deliver())
                 .isInstanceOf(InvalidRepairOrderStateException.class);
+    }
+
+    // ============================================================
+    // STATUS - CANCELLED
+    // ============================================================
+
+    @Test
+    void shouldCancelRepairOrderWhenReceived() {
+
+        RepairOrder repairOrder =
+                RepairOrder.builder()
+                        .status(RepairOrderStatus.RECEIVED)
+                        .build();
+
+        repairOrder.cancel();
+
+        assertEquals(
+                RepairOrderStatus.CANCELLED,
+                repairOrder.getStatus()
+        );
+    }
+
+    @Test
+    void shouldThrowWhenCancellingRepairOrderInExecution() {
+
+        RepairOrder repairOrder =
+                RepairOrder.builder()
+                        .status(RepairOrderStatus.IN_EXECUTION)
+                        .build();
+
+        InvalidRepairOrderStateException exception =
+                assertThrows(
+                        InvalidRepairOrderStateException.class,
+                        repairOrder::cancel
+                );
+
+        assertEquals(
+                "Invalid Repair Order State: Repair Order cannot be cancelled in the current state.",
+                exception.getMessage()
+        );
     }
 
     // ============================================================

@@ -4,6 +4,7 @@ import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.m
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.CreateRepairOrderRequest;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.response.RepairOrderResponseDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
@@ -13,11 +14,20 @@ public class RepairOrderMapper {
     private final WorkshopServiceResponseMapper workshopServiceMapper;
 
     public RepairOrder toModel(CreateRepairOrderRequest dto) {
+        return toModel(dto, null);
+    }
+
+    public RepairOrder toModel(CreateRepairOrderRequest dto, String userId) {
         if (dto == null) return null;
+
+        if (userId == null || userId.isBlank()) {
+            throw new AuthenticationCredentialsNotFoundException("User not authenticated");
+        }
+
         return RepairOrder.builder()
                 .vehicle(new VehicleSnapshot(dto.getVehicleId()))
                 .customer(new CustomerSnapshot(dto.getCustomerId()))
-                .userId("6a60020e609a66a053aea2f0") // TODO: Remove hardcoded userId and get it from the request or security context
+                .userId(userId)
                 .build();
     }
 

@@ -3,15 +3,17 @@ package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.purchasing.presenta
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.purchasing.application.usecase.*;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.purchasing.domain.model.PurchaseList;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.purchasing.domain.model.PurchaseListStatus;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.purchasing.presentation.dto.PurchaseListDecisionRequest;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.purchasing.presentation.dto.PurchaseListResponse;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.purchasing.presentation.mapper.PurchaseListMapper;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.config.security.AuthenticatedUser;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
 
@@ -45,6 +47,17 @@ class PurchaseListControllerTest {
 
     @InjectMocks
     private PurchaseListController controller;
+
+    @org.junit.jupiter.api.BeforeEach
+    void setUpAuth() {
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(
+                        new AuthenticatedUser("admin-1", "admin@example.com"),
+                        null,
+                        List.of()
+                )
+        );
+    }
 
     @Test
     void shouldGeneratePurchaseList() {
@@ -97,7 +110,7 @@ class PurchaseListControllerTest {
         when(approvePurchaseListUseCase.execute("pl-1", "admin-1")).thenReturn(purchaseList);
         when(mapper.toResponse(purchaseList)).thenReturn(response);
 
-        ResponseEntity<PurchaseListResponse> result = controller.approve("pl-1", new PurchaseListDecisionRequest("admin-1"));
+        ResponseEntity<PurchaseListResponse> result = controller.approve("pl-1");
 
         assertEquals(200, result.getStatusCode().value());
         assertEquals(response, result.getBody());
@@ -111,7 +124,7 @@ class PurchaseListControllerTest {
         when(rejectPurchaseListUseCase.execute("pl-1", "admin-1")).thenReturn(purchaseList);
         when(mapper.toResponse(purchaseList)).thenReturn(response);
 
-        ResponseEntity<PurchaseListResponse> result = controller.reject("pl-1", new PurchaseListDecisionRequest("admin-1"));
+        ResponseEntity<PurchaseListResponse> result = controller.reject("pl-1");
 
         assertEquals(200, result.getStatusCode().value());
         assertEquals(response, result.getBody());

@@ -10,9 +10,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.AuthenticationException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -41,9 +41,8 @@ class AuthControllerTest {
         when(loginUseCase.execute("admin@garageflow.com", "wrong-password"))
                 .thenThrow(new BadCredentialsException("Bad credentials"));
 
-        ResponseEntity<?> result = controller.login(new LoginRequestDTO("admin@garageflow.com", "wrong-password"));
-
-        assertEquals(401, result.getStatusCode().value());
-        assertEquals("Invalid credentials", result.getBody());
+        assertThrows(AuthenticationException.class, () -> {
+            controller.login(new LoginRequestDTO("admin@garageflow.com", "wrong-password"));
+        });
     }
 }

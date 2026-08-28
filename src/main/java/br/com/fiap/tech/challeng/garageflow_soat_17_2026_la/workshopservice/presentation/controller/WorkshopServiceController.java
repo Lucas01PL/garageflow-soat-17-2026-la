@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/workshopservice")
+@RequestMapping("/workshop-services")
 public class WorkshopServiceController {
 
     private CreateWorkshopServiceUseCase createUseCase;
@@ -47,13 +47,9 @@ public class WorkshopServiceController {
     })
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody CreateWorkshopServiceRequestDTO dto) {
-        try {
-            WorkshopService svc = mapper.toModel(dto);
-            WorkshopService created = createUseCase.execute(svc);
-            return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toResponse(created));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        WorkshopService svc = mapper.toModel(dto);
+        WorkshopService created = createUseCase.execute(svc);
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toResponse(created));
     }
 
     @Operation(
@@ -66,46 +62,28 @@ public class WorkshopServiceController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable String id) {
-        try {
-            Optional<WorkshopService> svc = getByIdUseCase.execute(id);
-            return svc.map(workshopService -> ResponseEntity.ok(mapper.toResponse(workshopService)))
-                    .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        Optional<WorkshopService> svc = getByIdUseCase.execute(id);
+        return svc.map(workshopService -> ResponseEntity.ok(mapper.toResponse(workshopService)))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @Operation(
             summary = "List All Workshop Services",
-            description = "Retrieves a list of all workshop services."
+            description = "List of all workshop services optionally filtered by description."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Services found")
     })
     @GetMapping
-    public ResponseEntity<List<WorkshopServiceResponseDTO>> listAll() {
-        List<WorkshopService> list = listAllUseCase.execute();
+    public ResponseEntity<List<WorkshopServiceResponseDTO>> list(@RequestParam(required = false) String description) {
+        List<WorkshopService> list;
+        if (description == null || description.isBlank()) {
+            list = listAllUseCase.execute();
+        } else {
+            list = searchUseCase.execute(description);
+        }
         List<WorkshopServiceResponseDTO> dtos = list.stream().map(mapper::toResponse).collect(Collectors.toList());
         return ResponseEntity.ok(dtos);
-    }
-
-    @Operation(
-            summary = "Search Workshop Services",
-            description = "Searches for workshop services by description."
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Services found"),
-            @ApiResponse(responseCode = "400", description = "Invalid request")
-    })
-    @GetMapping("/search")
-    public ResponseEntity<?> search(@RequestParam String description) {
-        try {
-            List<WorkshopService> list = searchUseCase.execute(description);
-            List<WorkshopServiceResponseDTO> dtos = list.stream().map(mapper::toResponse).collect(Collectors.toList());
-            return ResponseEntity.ok(dtos);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
     }
 
     @Operation(
@@ -118,14 +96,10 @@ public class WorkshopServiceController {
     })
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable String id, @Valid @RequestBody CreateWorkshopServiceRequestDTO dto) {
-        try {
-            WorkshopService update = mapper.toModel(dto);
-            Optional<WorkshopService> updated = updateUseCase.execute(id, update);
-            return updated.map(workshopService -> ResponseEntity.ok(mapper.toResponse(workshopService)))
-                    .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        WorkshopService update = mapper.toModel(dto);
+        Optional<WorkshopService> updated = updateUseCase.execute(id, update);
+        return updated.map(workshopService -> ResponseEntity.ok(mapper.toResponse(workshopService)))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @Operation(
@@ -138,13 +112,8 @@ public class WorkshopServiceController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable String id) {
-        try {
-            boolean deleted = deleteUseCase.execute(id);
-            if (deleted) return ResponseEntity.noContent().build();
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Service not found");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        deleteUseCase.execute(id);
+        return ResponseEntity.noContent().build();
     }
 }
 

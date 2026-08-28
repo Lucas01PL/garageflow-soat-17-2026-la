@@ -1,4 +1,4 @@
-package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.presentation.dto.response;
+package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.presentation.dto.request;
 
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.model.UserRole;
 import jakarta.validation.constraints.Email;

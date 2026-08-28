@@ -1,5 +1,7 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.application.usecase;
 
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.RequiredFieldException;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.ResourceNotFoundException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.domain.repository.WorkshopServiceRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -12,10 +14,10 @@ public class DeleteWorkshopServiceUseCase {
 
     public boolean execute(String id) {
         if (id == null || id.isBlank()) {
-            throw new IllegalArgumentException("Service ID cannot be empty");
+            throw new RequiredFieldException("id");
         }
         if (!repository.existsById(id)) {
-            return false;
+            throw new ResourceNotFoundException("WorkshopService", "id", id);
         }
         repository.deleteById(id);
         return true;

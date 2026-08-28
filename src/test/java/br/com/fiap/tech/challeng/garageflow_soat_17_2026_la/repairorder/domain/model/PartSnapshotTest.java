@@ -1,6 +1,7 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model;
 
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.model.Part;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.InvalidFieldValueException;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -116,14 +117,14 @@ class PartSnapshotTest {
                 new BigDecimal("50.00")
         );
 
-        IllegalArgumentException exception =
+        InvalidFieldValueException exception =
                 assertThrows(
-                        IllegalArgumentException.class,
+                        InvalidFieldValueException.class,
                         () -> PartSnapshot.from(part, 0)
                 );
 
         assertEquals(
-                "Part quantity must be greater than zero",
+                "Field 'quantity' is invalid. Part quantity must be greater than zero",
                 exception.getMessage()
         );
     }
@@ -139,14 +140,14 @@ class PartSnapshotTest {
                 new BigDecimal("50.00")
         );
 
-        IllegalArgumentException exception =
+        InvalidFieldValueException exception =
                 assertThrows(
-                        IllegalArgumentException.class,
+                        InvalidFieldValueException.class,
                         () -> PartSnapshot.from(part, -1)
                 );
 
         assertEquals(
-                "Part quantity must be greater than zero",
+                "Field 'quantity' is invalid. Part quantity must be greater than zero",
                 exception.getMessage()
         );
     }

@@ -14,7 +14,7 @@ public class WorkshopServiceResponseDTO {
 
     private String id;
     private String description;
-    private BigDecimal value;
+    private BigDecimal price;
 
 }
 

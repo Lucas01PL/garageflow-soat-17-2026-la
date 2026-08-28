@@ -2,6 +2,8 @@ package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.
 
 import lombok.Getter;
 
+import java.util.List;
+
 @Getter
 public enum RepairOrderStatus {
 
@@ -12,11 +14,20 @@ public enum RepairOrderStatus {
     FINISHED("Finalizada"),
     DELIVERED("Entregue"),
     APPROVED("Aprovado"),
-    REJECTED("Rejeitado");
+    REJECTED("Rejeitado"),
+    CANCELLED("Cancelado");
 
     private final String description;
 
     RepairOrderStatus(String description) {
         this.description = description;
+    }
+
+    public static List<RepairOrderStatus> preventingPartDeletion() {
+        return List.of(
+                RECEIVED,
+                IN_DIAGNOSIS,
+                AWAITING_APPROVAL
+        );
     }
 }

@@ -1,5 +1,8 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.application.usecase;
 
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.InvalidFieldValueException;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.RequiredFieldException;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.RequiredObjectException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.model.User;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -16,33 +19,33 @@ public class CreateUserUseCase {
 
     public User execute(User user) {
         if (user == null) {
-            throw new IllegalArgumentException("User cannot be null");
+            throw new RequiredObjectException("User cannot be null");
         }
         if (user.getFullName() == null || user.getFullName().isBlank()) {
-            throw new IllegalArgumentException("Full name cannot be empty");
+            throw new RequiredFieldException("fullName");
         }
         if (user.getEmail() == null || user.getEmail().isBlank()) {
-            throw new IllegalArgumentException("Email cannot be empty");
+            throw new RequiredFieldException("email");
         }
         if (!isValidEmail(user.getEmail())) {
-            throw new IllegalArgumentException("Email format is invalid");
+            throw new InvalidFieldValueException("email", "Email format is invalid");
         }
         if (user.getPassword() == null || user.getPassword().isBlank()) {
-            throw new IllegalArgumentException("Password cannot be empty");
+            throw new RequiredFieldException("password");
         }
         if (user.getPassword().length() < 6) {
-            throw new IllegalArgumentException("Password must be at least 6 characters");
+            throw new InvalidFieldValueException("password", "Password must be at least 6 characters");
         }
         if (user.getStatus() == null || user.getStatus().isBlank()) {
-            throw new IllegalArgumentException("Status cannot be empty");
+            throw new RequiredFieldException("status");
         }
         if (user.getRole() == null) {
-            throw new IllegalArgumentException("Role cannot be empty");
+            throw new InvalidFieldValueException("role", "Role cannot be empty");
         }
 
         // Check if email already exists
         if (repository.findByEmail(user.getEmail()).isPresent()) {
-            throw new IllegalArgumentException("Email already exists");
+            throw new InvalidFieldValueException("email", "Email already exists");
         }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));

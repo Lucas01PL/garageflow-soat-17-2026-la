@@ -1,5 +1,7 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.application.usecase;
 
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.InvalidFieldValueException;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.RequiredObjectException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.model.User;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.model.UserRole;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.repository.UserRepository;
@@ -57,8 +59,8 @@ class CreateUserUseCaseTest {
 
     @Test
     void shouldThrowWhenUserIsNull() {
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> useCase.execute(null));
-        assertEquals("User cannot be null", ex.getMessage());
+        RequiredObjectException ex = assertThrows(RequiredObjectException.class, () -> useCase.execute(null));
+        assertEquals("User cannot be null cannot be null.", ex.getMessage());
     }
 
     @Test
@@ -72,8 +74,8 @@ class CreateUserUseCaseTest {
 
         when(repository.findByEmail(toCreate.getEmail())).thenReturn(Optional.of(new User()));
 
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> useCase.execute(toCreate));
-        assertEquals("Email already exists", ex.getMessage());
+        InvalidFieldValueException ex = assertThrows(InvalidFieldValueException.class, () -> useCase.execute(toCreate));
+        assertEquals("Field 'email' is invalid. Email already exists", ex.getMessage());
     }
 
     @Test
@@ -84,8 +86,8 @@ class CreateUserUseCaseTest {
         toCreate.setPassword("123");
         toCreate.setStatus("ACTIVE");
 
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> useCase.execute(toCreate));
-        assertEquals("Password must be at least 6 characters", ex.getMessage());
+        InvalidFieldValueException ex = assertThrows(InvalidFieldValueException.class, () -> useCase.execute(toCreate));
+        assertEquals("Field 'password' is invalid. Password must be at least 6 characters", ex.getMessage());
     }
 }
 

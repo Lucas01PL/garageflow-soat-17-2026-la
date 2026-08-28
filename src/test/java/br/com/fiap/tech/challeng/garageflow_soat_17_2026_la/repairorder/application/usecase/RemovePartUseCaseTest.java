@@ -11,7 +11,8 @@ import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.m
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.RepairOrder;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.repository.RepairOrderRepository;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.type.RepairOrderStatus;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.AddRemovePartRequest;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.AddPartRequest;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.RemovePartRequest;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.RequiredFieldException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -54,7 +55,7 @@ class RemovePartUseCaseTest {
 
     private RepairOrder repairOrder;
     private Part part;
-    private AddRemovePartRequest request;
+    private RemovePartRequest request;
 
     @BeforeEach
     void setUp() {
@@ -77,8 +78,7 @@ class RemovePartUseCaseTest {
                 ))
                 .build();
 
-        request = new AddRemovePartRequest();
-        request.setPartId("part-1");
+        request = new RemovePartRequest();
         request.setQuantity(2);
     }
 
@@ -102,6 +102,7 @@ class RemovePartUseCaseTest {
         RepairOrder result =
                 useCase.execute(
                         "repair-order-1",
+                        "part-1",
                         request
                 );
 
@@ -155,6 +156,7 @@ class RemovePartUseCaseTest {
         RepairOrder result =
                 useCase.execute(
                         "repair-order-1",
+                        "part-1",
                         request
                 );
 
@@ -183,7 +185,7 @@ class RemovePartUseCaseTest {
         RequiredFieldException exception =
                 assertThrows(
                         RequiredFieldException.class,
-                        () -> useCase.execute(null, request)
+                        () -> useCase.execute(null, "part-1", request)
                 );
 
         assertEquals(
@@ -218,6 +220,7 @@ class RemovePartUseCaseTest {
                         ResourceNotFoundException.class,
                         () -> useCase.execute(
                                 "repair-order-1",
+                                "part-1",
                                 request
                         )
                 );
@@ -237,8 +240,6 @@ class RemovePartUseCaseTest {
     @Test
     void shouldThrowWhenPartIdIsNull() {
 
-        request.setPartId(null);
-
         when(repairOrderFinder.findById("repair-order-1"))
                 .thenReturn(repairOrder);
 
@@ -247,6 +248,7 @@ class RemovePartUseCaseTest {
                         InvalidPartException.class,
                         () -> useCase.execute(
                                 "repair-order-1",
+                                null,
                                 request
                         )
                 );
@@ -269,8 +271,6 @@ class RemovePartUseCaseTest {
     @Test
     void shouldThrowWhenPartIdIsBlank() {
 
-        request.setPartId(" ");
-
         when(repairOrderFinder.findById("repair-order-1"))
                 .thenReturn(repairOrder);
 
@@ -279,6 +279,7 @@ class RemovePartUseCaseTest {
                         InvalidPartException.class,
                         () -> useCase.execute(
                                 "repair-order-1",
+                                "   ",
                                 request
                         )
                 );
@@ -309,6 +310,7 @@ class RemovePartUseCaseTest {
                         ResourceNotFoundException.class,
                         () -> useCase.execute(
                                 "repair-order-1",
+                                "part-1",
                                 request
                         )
                 );
@@ -346,6 +348,7 @@ class RemovePartUseCaseTest {
                         PartNotFoundException.class,
                         () -> useCase.execute(
                                 "repair-order-1",
+                                "part-1",
                                 request
                         )
                 );
@@ -379,6 +382,7 @@ class RemovePartUseCaseTest {
                         InsufficientQuantityException.class,
                         () -> useCase.execute(
                                 "repair-order-1",
+                                "part-1",
                                 request
                         )
                 );
@@ -416,6 +420,7 @@ class RemovePartUseCaseTest {
                         RuntimeException.class,
                         () -> useCase.execute(
                                 "repair-order-1",
+                                "part-1",
                                 request
                         )
                 );
@@ -463,6 +468,7 @@ class RemovePartUseCaseTest {
 
         useCase.execute(
                 "repair-order-1",
+                "part-1",
                 request
         );
 

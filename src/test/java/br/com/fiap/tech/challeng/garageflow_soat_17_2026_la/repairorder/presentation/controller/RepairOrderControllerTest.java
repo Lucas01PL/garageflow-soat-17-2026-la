@@ -1,27 +1,12 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.controller;
 
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase.AddPartUseCase;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase.AddWorkshopServiceUseCase;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase.ApproveRepairOrderUseCase;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase.CreateRepairOrderUseCase;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase.DeliverRepairOrderUseCase;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase.FinishWorkshopServiceUseCase;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase.GetRepairOrderByIdUseCase;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase.ListAllRepairOrdersUseCase;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase.RejectRepairOrderUseCase;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase.RemovePartUseCase;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase.RemoveWorkshopServiceUseCase;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase.RequestRepairOrderApprovalUseCase;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase.StartRepairOrderDiagnosisUseCase;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase.StartRepairOrderExecutionUseCase;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase.StartWorkshopServiceUseCase;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase.*;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.RepairOrder;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.AddRemovePartRequest;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.AddRemoveWorkshopServiceRequest;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.CreateRepairOrderRequest;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.FinishWorkshopServiceRequest;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.*;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.response.RepairOrderResponseDTO;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.mapper.RepairOrderMapper;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.config.security.AuthenticatedUser;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.RequiredFieldException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,13 +15,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -92,14 +78,19 @@ class RepairOrderControllerTest {
     @Mock
     private RequestRepairOrderApprovalUseCase requestRepairOrderApprovalUseCase;
 
+    @Mock
+    private CancelRepairOrderUseCase cancelRepairOrderUseCase;
+
     @InjectMocks
     private RepairOrderController controller;
 
     private RepairOrder repairOrder;
     private RepairOrderResponseDTO response;
     private CreateRepairOrderRequest createRequest;
-    private AddRemoveWorkshopServiceRequest workshopServiceRequest;
-    private AddRemovePartRequest partRequest;
+    private AddWorkshopServiceRequest workshopServiceRequest;
+    private RemoveWorkshopServiceRequest removeWorkshopServiceRequest;
+    private AddPartRequest partRequest;
+    private RemovePartRequest partRemoveRequest;
     private FinishWorkshopServiceRequest finishRequest;
 
     @BeforeEach
@@ -111,9 +102,18 @@ class RepairOrderControllerTest {
         response = new RepairOrderResponseDTO();
 
         createRequest = new CreateRepairOrderRequest();
-        workshopServiceRequest = new AddRemoveWorkshopServiceRequest();
-        partRequest = new AddRemovePartRequest();
+        workshopServiceRequest = new AddWorkshopServiceRequest();
+        partRequest = new AddPartRequest();
+        partRemoveRequest = new RemovePartRequest();
         finishRequest = new FinishWorkshopServiceRequest();
+
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(
+                        new AuthenticatedUser("user-123", "user@email.com"),
+                        null,
+                        List.of()
+                )
+        );
     }
 
     @Test
@@ -122,7 +122,7 @@ class RepairOrderControllerTest {
         RepairOrder model = repairOrder;
         RepairOrder created = repairOrder;
 
-        when(mapper.toModel(createRequest))
+        when(mapper.toModel(createRequest, "user-123"))
                 .thenReturn(model);
 
         when(createUseCase.execute(model))
@@ -145,7 +145,7 @@ class RepairOrderControllerTest {
         );
 
         verify(mapper)
-                .toModel(createRequest);
+                .toModel(createRequest, "user-123");
 
         verify(createUseCase)
                 .execute(model);
@@ -155,36 +155,15 @@ class RepairOrderControllerTest {
     }
 
     @Test
-    void shouldReturnBadRequestWhenCreateThrowsIllegalArgumentException() {
+    void shouldReturnBadRequestWhenUserIsNotAuthenticated() {
+        SecurityContextHolder.getContext().setAuthentication(null);
 
-        when(mapper.toModel(createRequest))
-                .thenReturn(repairOrder);
+        assertThrows(AuthenticationCredentialsNotFoundException.class, () -> {
+            controller.create(createRequest);
+        });
 
-        when(createUseCase.execute(repairOrder))
-                .thenThrow(
-                        new IllegalArgumentException(
-                                "Invalid repair order"
-                        )
-                );
-
-        ResponseEntity<?> result =
-                controller.create(createRequest);
-
-        assertEquals(
-                HttpStatus.BAD_REQUEST,
-                result.getStatusCode()
-        );
-
-        assertEquals(
-                "Invalid repair order",
-                result.getBody()
-        );
-
-        verify(createUseCase)
-                .execute(repairOrder);
-
-        verify(mapper, never())
-                .toResponse(any());
+        verifyNoInteractions(createUseCase);
+        verifyNoInteractions(mapper);
     }
 
     @Test
@@ -239,27 +218,18 @@ class RepairOrderControllerTest {
     }
 
     @Test
-    void shouldReturnBadRequestWhenGetByIdThrowsIllegalArgumentException() {
+    void shouldReturnBadRequestWhenGetByIdThrowsRequiredFieldException() {
 
         when(getByIdUseCase.execute(" "))
                 .thenThrow(
-                        new IllegalArgumentException(
-                                "repairOrderId cannot be empty"
+                        new RequiredFieldException(
+                                "repairOrderId"
                         )
                 );
 
-        ResponseEntity<?> result =
-                controller.getById(" ");
-
-        assertEquals(
-                HttpStatus.BAD_REQUEST,
-                result.getStatusCode()
-        );
-
-        assertEquals(
-                "repairOrderId cannot be empty",
-                result.getBody()
-        );
+        assertThrows(RequiredFieldException.class, () -> {
+            controller.getById(" ");
+        });
 
         verify(getByIdUseCase)
                 .execute(" ");
@@ -407,7 +377,8 @@ class RepairOrderControllerTest {
 
         when(removeWorkshopServiceUseCase.execute(
                 "repair-order-1",
-                workshopServiceRequest
+                "workshop-service-1",
+                removeWorkshopServiceRequest
         )).thenReturn(repairOrder);
 
         when(mapper.toResponse(repairOrder))
@@ -416,7 +387,8 @@ class RepairOrderControllerTest {
         ResponseEntity<?> result =
                 controller.removeWorkshopService(
                         "repair-order-1",
-                        workshopServiceRequest
+                        "workshop-service-1",
+                        removeWorkshopServiceRequest
                 );
 
         assertEquals(
@@ -432,7 +404,8 @@ class RepairOrderControllerTest {
         verify(removeWorkshopServiceUseCase)
                 .execute(
                         "repair-order-1",
-                        workshopServiceRequest
+                        "workshop-service-1",
+                        removeWorkshopServiceRequest
                 );
     }
 
@@ -441,7 +414,8 @@ class RepairOrderControllerTest {
 
         when(removePartUseCase.execute(
                 "repair-order-1",
-                partRequest
+                "partId",
+                partRemoveRequest
         )).thenReturn(repairOrder);
 
         when(mapper.toResponse(repairOrder))
@@ -450,7 +424,8 @@ class RepairOrderControllerTest {
         ResponseEntity<?> result =
                 controller.removePart(
                         "repair-order-1",
-                        partRequest
+                        "partId",
+                        partRemoveRequest
                 );
 
         assertEquals(
@@ -466,7 +441,8 @@ class RepairOrderControllerTest {
         verify(removePartUseCase)
                 .execute(
                         "repair-order-1",
-                        partRequest
+                        "partId",
+                        partRemoveRequest
                 );
     }
 
@@ -713,5 +689,35 @@ class RepairOrderControllerTest {
 
         verify(requestRepairOrderApprovalUseCase)
                 .execute("repair-order-1");
+    }
+
+    @Test
+    void shouldCancelRepairOrderSuccessfully() {
+
+        when(cancelRepairOrderUseCase.execute(
+                "repair-order-1"
+        )).thenReturn(repairOrder);
+
+        when(mapper.toResponse(repairOrder))
+                .thenReturn(response);
+
+        ResponseEntity<RepairOrderResponseDTO> result =
+                controller.cancel("repair-order-1");
+
+        assertEquals(
+                HttpStatus.OK,
+                result.getStatusCode()
+        );
+
+        assertSame(
+                response,
+                result.getBody()
+        );
+
+        verify(cancelRepairOrderUseCase)
+                .execute("repair-order-1");
+
+        verify(mapper)
+                .toResponse(repairOrder);
     }
 }
