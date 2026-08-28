@@ -9,6 +9,8 @@ public record ClientRequest(
 
         @NotBlank(message = "Document is required")
         String document,
+
+        @NotBlank(message = "Phone is required")
         String phone,
 
         @Email(message = "Email is invalid")
