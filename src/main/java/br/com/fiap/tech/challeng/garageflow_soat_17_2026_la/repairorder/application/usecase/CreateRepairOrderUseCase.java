@@ -1,7 +1,7 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase;
 
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.client.domain.model.Client;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.client.domain.repository.ClientRepository;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.customer.domain.model.Customer;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.customer.domain.repository.CustomerRepository;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.*;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.repository.RepairOrderRepository;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.RequiredFieldException;
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 public class CreateRepairOrderUseCase {
 
     private RepairOrderRepository repository;
-    private ClientRepository customerRepository;
+    private CustomerRepository customerRepository;
     private VehicleRepository vehicleRepository;
     private UserRepository userRepository;
 
@@ -28,7 +28,7 @@ public class CreateRepairOrderUseCase {
             throw new RequiredObjectException("Repair Order");
         }
 
-        Client customer = getCustomer(request.getCustomer());
+        Customer customer = getCustomer(request.getCustomer());
 
         CustomerSnapshot customerSnapshot = CustomerSnapshot.from(customer);
 
@@ -49,7 +49,7 @@ public class CreateRepairOrderUseCase {
         return repository.save(repairOrder);
     }
 
-    private Client getCustomer(CustomerSnapshot customer) {
+    private Customer getCustomer(CustomerSnapshot customer) {
         if(customer == null) {
             throw new RequiredObjectException("Customer");
         }

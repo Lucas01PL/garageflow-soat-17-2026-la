@@ -1,7 +1,7 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.integration;
 
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.client.domain.model.Client;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.client.domain.repository.ClientRepository;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.customer.domain.model.Customer;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.customer.domain.repository.CustomerRepository;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.config.MongoTestContainerConfiguration;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.RepairOrder;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.repository.RepairOrderRepository;
@@ -39,7 +39,7 @@ class RepairOrderIntegrationTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private ClientRepository clientRepository;
+    private CustomerRepository customerRepository;
 
     @Autowired
     private VehicleRepository vehicleRepository;
@@ -67,17 +67,17 @@ class RepairOrderIntegrationTest {
                 .forEach(vehicle ->
                         vehicleRepository.delete(vehicle.getId()));
 
-        clientRepository.findAll()
-                .forEach(client ->
-                        clientRepository.delete(client.getId()));
+        customerRepository.findAll()
+                .forEach(customer ->
+                        customerRepository.delete(customer.getId()));
     }
 
     @Test
     void shouldCreateAndPersistRepairOrderThroughHttp() throws Exception {
 
-        Client client = clientRepository.save(
-                new Client(
-                        "Integration Client",
+        Customer customer = customerRepository.save(
+                new Customer(
+                        "Integration Customer",
                         "52998224725",
                         "85999990000",
                         "integration@test.com",
@@ -107,7 +107,7 @@ class RepairOrderIntegrationTest {
                                                   "vehicleId": "%s"
                                                 }
                                                 """.formatted(
-                                                client.getId(),
+                                                customer.getId(),
                                                 vehicle.getId()
                                         )
                                 )
@@ -116,7 +116,7 @@ class RepairOrderIntegrationTest {
                 .andExpect(jsonPath("$.id", notNullValue()))
                 .andExpect(jsonPath("$.number", notNullValue()))
                 .andExpect(jsonPath("$.status", is("Recebida")))
-                .andExpect(jsonPath("$.customer.customerId", is(client.getId())))
+                .andExpect(jsonPath("$.customer.customerId", is(customer.getId())))
                 .andExpect(jsonPath("$.vehicle.vehicleId", is(vehicle.getId())))
                 .andReturn()
                 .getResponse()
@@ -140,7 +140,7 @@ class RepairOrderIntegrationTest {
                 .isNotBlank();
 
         assertThat(persisted.getCustomer().getCustomerId())
-                .isEqualTo(client.getId());
+                .isEqualTo(customer.getId());
 
         assertThat(persisted.getVehicle().getVehicleId())
                 .isEqualTo(vehicle.getId());
@@ -163,9 +163,9 @@ class RepairOrderIntegrationTest {
     @Test
     void shouldExecuteCompleteRepairOrderFlowThroughHttp() throws Exception {
 
-        Client client = clientRepository.save(
-                new Client(
-                        "Flow Client",
+        Customer customer = customerRepository.save(
+                new Customer(
+                        "Flow Customer",
                         "39053344705",
                         "85988880000",
                         "flow@test.com",
@@ -207,7 +207,7 @@ class RepairOrderIntegrationTest {
                                                           "vehicleId": "%s"
                                                         }
                                                         """.formatted(
-                                                        client.getId(),
+                                                        customer.getId(),
                                                         vehicle.getId()
                                                 )
                                         )
@@ -441,9 +441,9 @@ class RepairOrderIntegrationTest {
     @Test
     void shouldKeepRejectedRepairOrderAsTerminalState() throws Exception {
 
-        Client client = clientRepository.save(
-                new Client(
-                        "Rejected Client",
+        Customer customer = customerRepository.save(
+                new Customer(
+                        "Rejected Customer",
                         "11144477735",
                         "85977770000",
                         "rejected@test.com",
@@ -482,7 +482,7 @@ class RepairOrderIntegrationTest {
                                                           "vehicleId": "%s"
                                                         }
                                                         """.formatted(
-                                                        client.getId(),
+                                                        customer.getId(),
                                                         vehicle.getId()
                                                 )
                                         )

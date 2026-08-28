@@ -1,6 +1,6 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model;
 
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.client.domain.model.Client;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.customer.domain.model.Customer;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -20,7 +20,7 @@ public class CustomerSnapshot {
         this.customerId = customerId;
     }
 
-    public static CustomerSnapshot from(Client customer) {
+    public static CustomerSnapshot from(Customer customer) {
         Objects.requireNonNull(customer);
 
         CustomerSnapshot snapshot = new CustomerSnapshot(customer.getId());

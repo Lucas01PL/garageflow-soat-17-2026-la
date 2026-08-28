@@ -23,7 +23,7 @@ class GlobalExceptionHandlerTest {
 
     @Test
     void shouldHandleInvalidDocumentException() {
-        when(request.getRequestURI()).thenReturn("/client");
+        when(request.getRequestURI()).thenReturn("/customer");
         InvalidDocumentException exception = new InvalidDocumentException("111.111.111-11");
 
         ResponseEntity<ApiErrorResponse> response = handler.handleInvalidDocument(exception, request);
@@ -31,14 +31,14 @@ class GlobalExceptionHandlerTest {
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(HttpStatus.BAD_REQUEST.value(), response.getBody().status());
-        assertEquals("/client", response.getBody().path());
+        assertEquals("/customer", response.getBody().path());
         assertEquals(exception.getMessage(), response.getBody().message());
     }
 
     @Test
     void shouldHandleResourceNotFoundException() {
-        when(request.getRequestURI()).thenReturn("/client/id-1");
-        ResourceNotFoundException exception = new ResourceNotFoundException("Client", "id", "id-1");
+        when(request.getRequestURI()).thenReturn("/customer/id-1");
+        ResourceNotFoundException exception = new ResourceNotFoundException("Customer", "id", "id-1");
 
         ResponseEntity<ApiErrorResponse> response = handler.handleResourceNotFound(exception, request);
 
@@ -49,8 +49,8 @@ class GlobalExceptionHandlerTest {
 
     @Test
     void shouldHandleDuplicateResourceException() {
-        when(request.getRequestURI()).thenReturn("/client");
-        DuplicateResourceException exception = new DuplicateResourceException("Client", "document", "52998224725");
+        when(request.getRequestURI()).thenReturn("/customer");
+        DuplicateResourceException exception = new DuplicateResourceException("Customer", "document", "52998224725");
 
         ResponseEntity<ApiErrorResponse> response = handler.handleDuplicateResource(exception, request);
 
