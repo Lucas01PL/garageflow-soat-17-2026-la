@@ -56,7 +56,7 @@ A estrutura segue a separação de responsabilidades da **Clean Architecture**:
 ```
 src/main/java/br/com/fiap/tech/challeng/garageflow_soat_17_2026_la/
 ├── auth/                     # Segurança e autenticação
-├── client/                   # Clientes da oficina
+├── customer/                  # Clientes da oficina
 ├── vehicle/                  # Veículos e placas
 ├── user/                     # Usuários do sistema
 ├── part/                     # Peças e estoque
@@ -202,11 +202,11 @@ Os módulos da aplicação seguem uma API REST organizada por domínio. Além da
 
 | Método | Endpoint              | Descrição                                                                                  |
 |--------|-----------------------|--------------------------------------------------------------------------------------------|
-| `POST` | `/clients`            | Cria cliente                                                                               |
-| `GET` | `/clients/{id}`       | Busca cliente por ID                                                                       |
-| `GET` | `/clients?{document}` | Busca cliente por documento ou lista todos os clientes caso o documento não seja informado |
-| `PUT` | `/clients/{id}`       | Atualiza cliente                                                                           |
-| `DELETE` | `/clients/{id}`       | Remove cliente                                                                             |
+| `POST` | `/customers`            | Cria cliente                                                                               |
+| `GET` | `/customers/{id}`       | Busca cliente por ID                                                                       |
+| `GET` | `/customers?{document}` | Busca cliente por documento ou lista todos os clientes caso o documento não seja informado |
+| `PUT` | `/customers/{id}`       | Atualiza cliente                                                                           |
+| `DELETE` | `/customers/{id}`       | Remove cliente                                                                             |
 | `POST` | `/vehicles`           | Cria veículo                                                                               |
 | `GET` | `/vehicles/{id}`      | Busca veículo por ID                                                                       |
 | `GET` | `/vehicles?{plate}`   | Busca veículo por placa ou lista todos os veículos caso a placa não seja informada         |

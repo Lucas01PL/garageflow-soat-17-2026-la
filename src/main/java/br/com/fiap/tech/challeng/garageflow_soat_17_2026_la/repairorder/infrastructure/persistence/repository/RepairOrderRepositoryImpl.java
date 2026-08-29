@@ -136,6 +136,7 @@ public class RepairOrderRepositoryImpl implements RepairOrderRepository {
         entity.setVehicle(getVehicleDocument(domain.getVehicle()));
         entity.setWorkshopServices(getWorkshopServiceDocuments(domain));
         entity.setParts(getPartDocuments(domain.getParts()));
+        entity.setUserId(domain.getUserId());
         entity.setCreatedDate(domain.getCreatedDate());
         entity.setUpdatedDate(domain.getUpdatedDate());
         return entity;

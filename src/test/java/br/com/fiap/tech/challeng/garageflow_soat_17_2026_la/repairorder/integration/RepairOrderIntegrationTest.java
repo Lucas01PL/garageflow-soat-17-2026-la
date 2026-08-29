@@ -1,7 +1,7 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.integration;
 
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.client.domain.model.Client;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.client.domain.repository.ClientRepository;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.customer.domain.model.Customer;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.customer.domain.repository.CustomerRepository;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.config.MongoTestContainerConfiguration;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.RepairOrder;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.repository.RepairOrderRepository;
@@ -39,7 +39,7 @@ class RepairOrderIntegrationTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private ClientRepository clientRepository;
+    private CustomerRepository customerRepository;
 
     @Autowired
     private VehicleRepository vehicleRepository;
@@ -67,17 +67,17 @@ class RepairOrderIntegrationTest {
                 .forEach(vehicle ->
                         vehicleRepository.delete(vehicle.getId()));
 
-        clientRepository.findAll()
-                .forEach(client ->
-                        clientRepository.delete(client.getId()));
+        customerRepository.findAll()
+                .forEach(customer ->
+                        customerRepository.delete(customer.getId()));
     }
 
     @Test
     void shouldCreateAndPersistRepairOrderThroughHttp() throws Exception {
 
-        Client client = clientRepository.save(
-                new Client(
-                        "Integration Client",
+        Customer customer = customerRepository.save(
+                new Customer(
+                        "Integration Customer",
                         "52998224725",
                         "85999990000",
                         "integration@test.com",
@@ -107,7 +107,7 @@ class RepairOrderIntegrationTest {
                                                   "vehicleId": "%s"
                                                 }
                                                 """.formatted(
-                                                client.getId(),
+                                                customer.getId(),
                                                 vehicle.getId()
                                         )
                                 )
@@ -115,8 +115,8 @@ class RepairOrderIntegrationTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", notNullValue()))
                 .andExpect(jsonPath("$.number", notNullValue()))
-                .andExpect(jsonPath("$.status", is("Recebida")))
-                .andExpect(jsonPath("$.customer.customerId", is(client.getId())))
+                .andExpect(jsonPath("$.status", is("RECEIVED")))
+                .andExpect(jsonPath("$.customer.customerId", is(customer.getId())))
                 .andExpect(jsonPath("$.vehicle.vehicleId", is(vehicle.getId())))
                 .andReturn()
                 .getResponse()
@@ -140,7 +140,7 @@ class RepairOrderIntegrationTest {
                 .isNotBlank();
 
         assertThat(persisted.getCustomer().getCustomerId())
-                .isEqualTo(client.getId());
+                .isEqualTo(customer.getId());
 
         assertThat(persisted.getVehicle().getVehicleId())
                 .isEqualTo(vehicle.getId());
@@ -157,15 +157,15 @@ class RepairOrderIntegrationTest {
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(repairOrderId)))
-                .andExpect(jsonPath("$.status", is("Recebida")));
+                .andExpect(jsonPath("$.status", is("RECEIVED")));
     }
 
     @Test
     void shouldExecuteCompleteRepairOrderFlowThroughHttp() throws Exception {
 
-        Client client = clientRepository.save(
-                new Client(
-                        "Flow Client",
+        Customer customer = customerRepository.save(
+                new Customer(
+                        "Flow Customer",
                         "39053344705",
                         "85988880000",
                         "flow@test.com",
@@ -207,13 +207,13 @@ class RepairOrderIntegrationTest {
                                                           "vehicleId": "%s"
                                                         }
                                                         """.formatted(
-                                                        client.getId(),
+                                                        customer.getId(),
                                                         vehicle.getId()
                                                 )
                                         )
                         )
                         .andExpect(status().isCreated())
-                        .andExpect(jsonPath("$.status", is("Recebida")))
+                        .andExpect(jsonPath("$.status", is("RECEIVED")))
                         .andReturn()
                         .getResponse()
                         .getContentAsString();
@@ -238,7 +238,7 @@ class RepairOrderIntegrationTest {
                                 )
                 )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status", is("Em Diagnóstico")));
+                .andExpect(jsonPath("$.status", is("IN_DIAGNOSIS")));
 
         /*
          * 3. Adicionar serviço
@@ -262,7 +262,7 @@ class RepairOrderIntegrationTest {
                                 )
                 )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status", is("Em Diagnóstico")))
+                .andExpect(jsonPath("$.status", is("IN_DIAGNOSIS")))
                 .andExpect(jsonPath(
                         "$.workshopServices[0].workshopServiceId",
                         is(service.getId())
@@ -296,7 +296,7 @@ class RepairOrderIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath(
                         "$.status",
-                        is("Aguardando aprovação")
+                        is("AWAITING_APPROVAL")
                 ));
 
         /*
@@ -315,7 +315,7 @@ class RepairOrderIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath(
                         "$.status",
-                        is("Aprovado")
+                        is("APPROVED")
                 ));
 
         /*
@@ -334,7 +334,7 @@ class RepairOrderIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath(
                         "$.status",
-                        is("Em Execução")
+                        is("IN_EXECUTION")
                 ));
 
         /*
@@ -354,11 +354,11 @@ class RepairOrderIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath(
                         "$.status",
-                        is("Em Execução")
+                        is("IN_EXECUTION")
                 ))
                 .andExpect(jsonPath(
                         "$.workshopServices[0].status",
-                        is("Em Execução")
+                        is("IN_EXECUTION")
                 ));
 
         /*
@@ -384,11 +384,11 @@ class RepairOrderIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath(
                         "$.status",
-                        is("Finalizada")
+                        is("FINISHED")
                 ))
                 .andExpect(jsonPath(
                         "$.workshopServices[0].status",
-                        is("Finalizado")
+                        is("FINISHED")
                 ))
                 .andExpect(jsonPath(
                         "$.workshopServices[0].durationInMinutes",
@@ -411,7 +411,7 @@ class RepairOrderIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath(
                         "$.status",
-                        is("Entregue")
+                        is("DELIVERED")
                 ))
                 .andExpect(jsonPath(
                         "$.finishDate",
@@ -441,9 +441,9 @@ class RepairOrderIntegrationTest {
     @Test
     void shouldKeepRejectedRepairOrderAsTerminalState() throws Exception {
 
-        Client client = clientRepository.save(
-                new Client(
-                        "Rejected Client",
+        Customer customer = customerRepository.save(
+                new Customer(
+                        "Rejected Customer",
                         "11144477735",
                         "85977770000",
                         "rejected@test.com",
@@ -482,7 +482,7 @@ class RepairOrderIntegrationTest {
                                                           "vehicleId": "%s"
                                                         }
                                                         """.formatted(
-                                                        client.getId(),
+                                                        customer.getId(),
                                                         vehicle.getId()
                                                 )
                                         )
@@ -566,7 +566,7 @@ class RepairOrderIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath(
                         "$.status",
-                        is("Rejeitado")
+                        is("REJECTED")
                 ));
 
         /*

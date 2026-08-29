@@ -15,7 +15,7 @@ public class WorkshopServiceResponseMapper {
         workshopServiceResponse.setQuantity(model.getQuantity());
         workshopServiceResponse.setUnitPrice(model.getUnitPrice());
         workshopServiceResponse.setDurationInMinutes(model.getDurationInMinutes());
-        workshopServiceResponse.setStatus(model.getStatus().getDescription());
+        workshopServiceResponse.setStatus(model.getStatus().name());
         workshopServiceResponse.setStartedAt(model.getStartedAt());
         workshopServiceResponse.setFinishedAt(model.getFinishedAt());
         return workshopServiceResponse;

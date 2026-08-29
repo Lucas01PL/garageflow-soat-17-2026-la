@@ -36,7 +36,7 @@ public class RepairOrderMapper {
         var repairOrderResponseDTO = new RepairOrderResponseDTO();
         repairOrderResponseDTO.setId(model.getId());
         repairOrderResponseDTO.setNumber(model.getNumber());
-        repairOrderResponseDTO.setStatus(model.getStatus().getDescription());
+        repairOrderResponseDTO.setStatus(model.getStatus().name());
         repairOrderResponseDTO.setInitDate(model.getInitDate());
         repairOrderResponseDTO.setFinishDate(model.getFinishDate());
         repairOrderResponseDTO.setTotalServices(model.getTotalServices());

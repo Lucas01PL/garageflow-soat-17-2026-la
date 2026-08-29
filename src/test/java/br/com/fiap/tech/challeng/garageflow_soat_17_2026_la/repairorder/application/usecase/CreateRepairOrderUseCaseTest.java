@@ -1,7 +1,7 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase;
 
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.client.domain.model.Client;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.client.domain.repository.ClientRepository;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.customer.domain.model.Customer;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.customer.domain.repository.CustomerRepository;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.CustomerSnapshot;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.RepairOrder;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.VehicleSnapshot;
@@ -35,7 +35,7 @@ class CreateRepairOrderUseCaseTest {
     private RepairOrderRepository repository;
 
     @Mock
-    private ClientRepository customerRepository;
+    private CustomerRepository customerRepository;
 
     @Mock
     private VehicleRepository vehicleRepository;
@@ -46,8 +46,8 @@ class CreateRepairOrderUseCaseTest {
     @InjectMocks
     private CreateRepairOrderUseCase useCase;
 
-    private Client sampleClient() {
-        return new Client("cust1", "John Doe", "12345678900", "11999999999", "john@example.com", "Main St");
+    private Customer sampleCustomer() {
+        return new Customer("cust1", "John Doe", "12345678900", "11999999999", "john@example.com", "Main St");
     }
 
     private Vehicle sampleVehicle() {
@@ -62,18 +62,18 @@ class CreateRepairOrderUseCaseTest {
                 .userId("user1")
                 .build();
 
-        Client client = sampleClient();
+        Customer customer = sampleCustomer();
         Vehicle vehicle = sampleVehicle();
 
         RepairOrder saved = RepairOrder.builder()
                 .id("ro1")
                 .status(RepairOrderStatus.RECEIVED)
-                .customer(CustomerSnapshot.from(client))
+                .customer(CustomerSnapshot.from(customer))
                 .vehicle(VehicleSnapshot.from(vehicle))
                 .userId("user1")
                 .build();
 
-        when(customerRepository.findById("cust1")).thenReturn(Optional.of(client));
+        when(customerRepository.findById("cust1")).thenReturn(Optional.of(customer));
         when(vehicleRepository.findById("vehicle1")).thenReturn(Optional.of(vehicle));
         when(userRepository.findById("user1")).thenReturn(Optional.of(new User("user1", "John Doe", "john@example.com", "ATIVO", UserRole.ADMIN)));
         when(repository.save(any())).thenReturn(saved);
@@ -128,7 +128,7 @@ class CreateRepairOrderUseCaseTest {
                 .vehicle(new VehicleSnapshot(""))
                 .build();
 
-        when(customerRepository.findById("cust1")).thenReturn(Optional.of(sampleClient()));
+        when(customerRepository.findById("cust1")).thenReturn(Optional.of(sampleCustomer()));
 
         RequiredFieldException ex = assertThrows(RequiredFieldException.class, () -> useCase.execute(ro));
         assertEquals("Field 'vehicleId' is required.", ex.getMessage());
@@ -141,7 +141,7 @@ class CreateRepairOrderUseCaseTest {
                 .vehicle(new VehicleSnapshot("missing"))
                 .build();
 
-        when(customerRepository.findById("cust1")).thenReturn(Optional.of(sampleClient()));
+        when(customerRepository.findById("cust1")).thenReturn(Optional.of(sampleCustomer()));
         when(vehicleRepository.findById("missing")).thenReturn(Optional.empty());
 
         ResourceNotFoundException ex = assertThrows(ResourceNotFoundException.class, () -> useCase.execute(ro));

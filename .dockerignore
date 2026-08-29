@@ -1,0 +1,10 @@
+target/
+.git/
+.idea/
+.mvn/
+*.iml
+.DS_Store
+scripts/
+docs/
+*.md
+snyk-report.*

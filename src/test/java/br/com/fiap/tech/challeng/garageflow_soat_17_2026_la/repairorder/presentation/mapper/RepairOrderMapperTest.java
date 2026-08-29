@@ -47,7 +47,7 @@ class RepairOrderMapperTest {
 
         assertNotNull(dto);
         assertEquals("ro1", dto.getId());
-        assertEquals(RepairOrderStatus.RECEIVED.getDescription(), dto.getStatus());
+        assertEquals(RepairOrderStatus.RECEIVED.name(), dto.getStatus());
         assertEquals(new BigDecimal("500.00"), dto.getTotal());
         assertEquals("user1", dto.getUserId());
     }
