@@ -104,15 +104,15 @@ src/main/java/br/com/fiap/tech/challeng/garageflow_soat_17_2026_la/
 - ✅ **Maven 3.9+** (ou Maven Wrapper disponível)
 - ✅ **Docker** e **Docker Compose**
 
-### 1️⃣ Subir o MongoDB
+### 1️⃣ Subir a Stack Completa (MongoDB + Aplicação)
 
 Na raiz do projeto, execute:
 
 ```bash
-docker compose up -d
+docker compose up -d --build
 ```
 
-O MongoDB estará disponível em `localhost:27017`
+Isso sobe o MongoDB **e** a aplicação em containers. A aplicação estará disponível em `http://localhost:8080/api` e o MongoDB em `localhost:27017`.
 
 **Credenciais padrão (desenvolvimento):**
 - Usuário: `admin`
@@ -120,7 +120,15 @@ O MongoDB estará disponível em `localhost:27017`
 - Database: `garageflow-soat-17-2026-db`
 - Porta: `27017`
 
-### 2️⃣ Executar a Aplicação
+> ⚠️ Sempre que alterar o código, rode novamente com `--build` para que a imagem da aplicação seja reconstruída com as mudanças.
+
+### 2️⃣ Alternativa — Executar a Aplicação Localmente (fora de container)
+
+Útil para debug. Suba **apenas** o MongoDB em container e rode a aplicação via Maven, apontando para ele:
+
+```bash
+docker compose up -d mongodb
+```
 
 **Com Maven Wrapper (recomendado):**
 
@@ -139,6 +147,8 @@ mvn spring-boot:run
 ```
 
 A aplicação iniciará em `http://localhost:8080/api`
+
+> ⚠️ Não rode a stack completa (passo 1) e a aplicação local (passo 2) ao mesmo tempo — as duas tentam usar a porta `8080` e vão conflitar.
 ## ✅ Testes
 
 ### Executar Todos os Testes
