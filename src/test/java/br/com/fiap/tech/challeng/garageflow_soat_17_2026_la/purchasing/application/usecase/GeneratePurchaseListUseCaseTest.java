@@ -45,8 +45,8 @@ class GeneratePurchaseListUseCaseTest {
         assertEquals(PurchaseListStatus.PENDING, result.getStatus());
         assertEquals(2, result.getItems().size());
         assertEquals("part-1", result.getItems().get(0).getPartId());
-        assertEquals(8, result.getItems().get(0).getQuantityToBuy());
-        assertEquals(10, result.getItems().get(1).getQuantityToBuy());
+        assertEquals(2, result.getItems().get(0).getQuantityToBuy());
+        assertEquals(0, result.getItems().get(1).getQuantityToBuy());
     }
 
     @Test
@@ -60,8 +60,8 @@ class GeneratePurchaseListUseCaseTest {
     }
 
     @Test
-    void shouldNeverBuyLessThanOneUnit() {
-        Part part = new Part("part-1", "P001", "Filtro de oleo", 10, new BigDecimal("29.90"));
+    void shouldSetQuantityToBuyEqualToCurrentStockQuantity() {
+        Part part = new Part("part-1", "P001", "Filtro de oleo", 3, new BigDecimal("29.90"));
         when(partListToBuyUseCase.findPartsToBuy(5)).thenReturn(List.of(part));
 
         ArgumentCaptor<PurchaseList> captor = ArgumentCaptor.forClass(PurchaseList.class);
@@ -69,6 +69,6 @@ class GeneratePurchaseListUseCaseTest {
 
         useCase.generate(5);
 
-        assertEquals(1, captor.getValue().getItems().get(0).getQuantityToBuy());
+        assertEquals(part.getQuantity(), captor.getValue().getItems().get(0).getQuantityToBuy());
     }
 }

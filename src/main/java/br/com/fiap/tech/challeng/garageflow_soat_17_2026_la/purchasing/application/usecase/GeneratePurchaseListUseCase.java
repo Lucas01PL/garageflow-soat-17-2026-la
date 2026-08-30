@@ -27,14 +27,13 @@ public class GeneratePurchaseListUseCase {
     public PurchaseList generate(Integer threshold) {
         Integer appliedThreshold = threshold != null ? threshold : PartListToBuyUseCase.DEFAULT_LOW_STOCK_THRESHOLD;
         List<Part> lowStockParts = partListToBuyUseCase.findPartsToBuy(appliedThreshold);
-        int restockTarget = appliedThreshold * 2;
 
         List<PurchaseListItem> items = lowStockParts.stream()
                 .map(part -> new PurchaseListItem(
                         part.getId(),
                         part.getName(),
                         part.getQuantity(),
-                        Math.max(restockTarget - part.getQuantity(), 1),
+                        part.getQuantity(),
                         part.getPrice()
                 ))
                 .toList();
