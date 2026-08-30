@@ -1,0 +1,636 @@
+package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.integration;
+
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.customer.domain.model.Customer;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.customer.domain.repository.CustomerRepository;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.config.MongoTestContainerConfiguration;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.RepairOrder;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.repository.RepairOrderRepository;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.vehicle.domain.model.Vehicle;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.vehicle.domain.repository.VehicleRepository;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.domain.model.WorkshopService;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.domain.repository.WorkshopServiceRepository;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.math.BigDecimal;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+@Import(MongoTestContainerConfiguration.class)
+class RepairOrderIntegrationTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private CustomerRepository customerRepository;
+
+    @Autowired
+    private VehicleRepository vehicleRepository;
+
+    @Autowired
+    private WorkshopServiceRepository workshopServiceRepository;
+
+    @Autowired
+    private RepairOrderRepository repairOrderRepository;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    @AfterEach
+    void cleanDatabase() {
+
+        repairOrderRepository.findAll()
+                .forEach(repairOrder ->
+                        repairOrderRepository.deleteById(repairOrder.getId()));
+
+        workshopServiceRepository.findAll()
+                .forEach(service ->
+                        workshopServiceRepository.deleteById(service.getId()));
+
+        vehicleRepository.findAll()
+                .forEach(vehicle ->
+                        vehicleRepository.delete(vehicle.getId()));
+
+        customerRepository.findAll()
+                .forEach(customer ->
+                        customerRepository.delete(customer.getId()));
+    }
+
+    @Test
+    void shouldCreateAndPersistRepairOrderThroughHttp() throws Exception {
+
+        Customer customer = customerRepository.save(
+                new Customer(
+                        "Integration Customer",
+                        "52998224725",
+                        "85999990000",
+                        "integration@test.com",
+                        "Integration Street, 100"
+                )
+        );
+
+        Vehicle vehicle = vehicleRepository.save(
+                new Vehicle(
+                        "INT1A23",
+                        "Ford",
+                        "Ka",
+                        2018
+                )
+        );
+
+        String response = mockMvc.perform(
+                        post("/repair-orders")
+                                .header(
+                                        HttpHeaders.AUTHORIZATION,
+                                        "Bearer " + getAuthToken()
+                                )
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                                {
+                                                  "customerId": "%s",
+                                                  "vehicleId": "%s"
+                                                }
+                                                """.formatted(
+                                                customer.getId(),
+                                                vehicle.getId()
+                                        )
+                                )
+                )
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id", notNullValue()))
+                .andExpect(jsonPath("$.number", notNullValue()))
+                .andExpect(jsonPath("$.status", is("RECEIVED")))
+                .andExpect(jsonPath("$.customer.customerId", is(customer.getId())))
+                .andExpect(jsonPath("$.vehicle.vehicleId", is(vehicle.getId())))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        String repairOrderId =
+                com.jayway.jsonpath.JsonPath.read(response, "$.id");
+
+        /*
+         * Verifica que a informação foi persistida
+         * e não apenas retornada pelo controller.
+         */
+        RepairOrder persisted =
+                repairOrderRepository.findById(repairOrderId)
+                        .orElseThrow();
+
+        assertThat(persisted.getId())
+                .isEqualTo(repairOrderId);
+
+        assertThat(persisted.getNumber())
+                .isNotBlank();
+
+        assertThat(persisted.getCustomer().getCustomerId())
+                .isEqualTo(customer.getId());
+
+        assertThat(persisted.getVehicle().getVehicleId())
+                .isEqualTo(vehicle.getId());
+
+        /*
+         * Consulta novamente através da API.
+         */
+        mockMvc.perform(
+                        get("/repair-orders/{id}", repairOrderId)
+                                .header(
+                                        HttpHeaders.AUTHORIZATION,
+                                        "Bearer " + getAuthToken()
+                                )
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(repairOrderId)))
+                .andExpect(jsonPath("$.status", is("RECEIVED")));
+    }
+
+    @Test
+    void shouldExecuteCompleteRepairOrderFlowThroughHttp() throws Exception {
+
+        Customer customer = customerRepository.save(
+                new Customer(
+                        "Flow Customer",
+                        "39053344705",
+                        "85988880000",
+                        "flow@test.com",
+                        "Flow Street, 200"
+                )
+        );
+
+        Vehicle vehicle = vehicleRepository.save(
+                new Vehicle(
+                        "INT2B34",
+                        "Ford",
+                        "Ka",
+                        2018
+                )
+        );
+
+        WorkshopService service =
+                workshopServiceRepository.save(
+                        new WorkshopService(
+                                "Troca de óleo",
+                                new BigDecimal("150.00")
+                        )
+                );
+
+        /*
+         * 1. Criar OS
+         */
+        String createResponse =
+                mockMvc.perform(
+                                post("/repair-orders")
+                                        .header(
+                                                HttpHeaders.AUTHORIZATION,
+                                                "Bearer " + getAuthToken()
+                                        )
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .content("""
+                                                        {
+                                                          "customerId": "%s",
+                                                          "vehicleId": "%s"
+                                                        }
+                                                        """.formatted(
+                                                        customer.getId(),
+                                                        vehicle.getId()
+                                                )
+                                        )
+                        )
+                        .andExpect(status().isCreated())
+                        .andExpect(jsonPath("$.status", is("RECEIVED")))
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString();
+
+        String repairOrderId =
+                com.jayway.jsonpath.JsonPath.read(
+                        createResponse,
+                        "$.id"
+                );
+
+        /*
+         * 2. Iniciar diagnóstico
+         */
+        mockMvc.perform(
+                        patch(
+                                "/repair-orders/{id}/status/in-diagnosis",
+                                repairOrderId
+                        )
+                                .header(
+                                        HttpHeaders.AUTHORIZATION,
+                                        "Bearer " + getAuthToken()
+                                )
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status", is("IN_DIAGNOSIS")));
+
+        /*
+         * 3. Adicionar serviço
+         */
+        mockMvc.perform(
+                        post(
+                                "/repair-orders/{id}/workshop-services",
+                                repairOrderId
+                        )
+                                .header(
+                                        HttpHeaders.AUTHORIZATION,
+                                        "Bearer " + getAuthToken()
+                                )
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                        {
+                                          "workshopServiceId": "%s",
+                                          "quantity": 1
+                                        }
+                                        """.formatted(service.getId())
+                                )
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status", is("IN_DIAGNOSIS")))
+                .andExpect(jsonPath(
+                        "$.workshopServices[0].workshopServiceId",
+                        is(service.getId())
+                ))
+                .andExpect(jsonPath(
+                        "$.workshopServices[0].quantity",
+                        is(1)
+                ))
+                .andExpect(jsonPath(
+                        "$.totalServices",
+                        is(150.0)
+                ))
+                .andExpect(jsonPath(
+                        "$.total",
+                        is(150.0)
+                ));
+
+        /*
+         * 4. Solicitar aprovação
+         */
+        mockMvc.perform(
+                        patch(
+                                "/repair-orders/{id}/status/awaiting-approval",
+                                repairOrderId
+                        )
+                                .header(
+                                        HttpHeaders.AUTHORIZATION,
+                                        "Bearer " + getAuthToken()
+                                )
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath(
+                        "$.status",
+                        is("AWAITING_APPROVAL")
+                ));
+
+        /*
+         * 5. Cliente aprova
+         */
+        mockMvc.perform(
+                        patch(
+                                "/repair-orders/{id}/status/approved",
+                                repairOrderId
+                        )
+                                .header(
+                                        HttpHeaders.AUTHORIZATION,
+                                        "Bearer " + getAuthToken()
+                                )
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath(
+                        "$.status",
+                        is("APPROVED")
+                ));
+
+        /*
+         * 6. Iniciar execução
+         */
+        mockMvc.perform(
+                        patch(
+                                "/repair-orders/{id}/status/in-execution",
+                                repairOrderId
+                        )
+                                .header(
+                                        HttpHeaders.AUTHORIZATION,
+                                        "Bearer " + getAuthToken()
+                                )
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath(
+                        "$.status",
+                        is("IN_EXECUTION")
+                ));
+
+        /*
+         * 7. Iniciar serviço
+         */
+        mockMvc.perform(
+                        patch(
+                                "/repair-orders/{id}/workshop-services/{serviceId}/status/in-execution",
+                                repairOrderId,
+                                service.getId()
+                        )
+                                .header(
+                                        HttpHeaders.AUTHORIZATION,
+                                        "Bearer " + getAuthToken()
+                                )
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath(
+                        "$.status",
+                        is("IN_EXECUTION")
+                ))
+                .andExpect(jsonPath(
+                        "$.workshopServices[0].status",
+                        is("IN_EXECUTION")
+                ));
+
+        /*
+         * 8. Finalizar serviço
+         */
+        mockMvc.perform(
+                        patch(
+                                "/repair-orders/{id}/workshop-services/{serviceId}/status/finished",
+                                repairOrderId,
+                                service.getId()
+                        )
+                                .header(
+                                        HttpHeaders.AUTHORIZATION,
+                                        "Bearer " + getAuthToken()
+                                )
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                        {
+                                          "durationInMinutes": 45
+                                        }
+                                        """)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath(
+                        "$.status",
+                        is("FINISHED")
+                ))
+                .andExpect(jsonPath(
+                        "$.workshopServices[0].status",
+                        is("FINISHED")
+                ))
+                .andExpect(jsonPath(
+                        "$.workshopServices[0].durationInMinutes",
+                        is(45)
+                ));
+
+        /*
+         * 9. Entregar veículo
+         */
+        mockMvc.perform(
+                        patch(
+                                "/repair-orders/{id}/status/delivered",
+                                repairOrderId
+                        )
+                                .header(
+                                        HttpHeaders.AUTHORIZATION,
+                                        "Bearer " + getAuthToken()
+                                )
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath(
+                        "$.status",
+                        is("DELIVERED")
+                ))
+                .andExpect(jsonPath(
+                        "$.finishDate",
+                        notNullValue()
+                ));
+
+        /*
+         * 10. Verificar persistência final
+         */
+        RepairOrder persisted =
+                repairOrderRepository.findById(repairOrderId)
+                        .orElseThrow();
+
+        assertThat(persisted.getStatus().name())
+                .isEqualTo("DELIVERED");
+
+        assertThat(persisted.getWorkshopServices())
+                .hasSize(1);
+
+        assertThat(
+                persisted.getWorkshopServices()
+                        .getFirst()
+                        .getDurationInMinutes()
+        ).isEqualTo(45);
+    }
+
+    @Test
+    void shouldKeepRejectedRepairOrderAsTerminalState() throws Exception {
+
+        Customer customer = customerRepository.save(
+                new Customer(
+                        "Rejected Customer",
+                        "11144477735",
+                        "85977770000",
+                        "rejected@test.com",
+                        "Rejected Street, 300"
+                )
+        );
+
+        Vehicle vehicle = vehicleRepository.save(
+                new Vehicle(
+                        "INT3C45",
+                        "Ford",
+                        "Ka",
+                        2018
+                )
+        );
+
+        WorkshopService service =
+                workshopServiceRepository.save(
+                        new WorkshopService(
+                                "Diagnóstico",
+                                new BigDecimal("100.00")
+                        )
+                );
+
+        String response =
+                mockMvc.perform(
+                                post("/repair-orders")
+                                        .header(
+                                                HttpHeaders.AUTHORIZATION,
+                                                "Bearer " + getAuthToken()
+                                        )
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .content("""
+                                                        {
+                                                          "customerId": "%s",
+                                                          "vehicleId": "%s"
+                                                        }
+                                                        """.formatted(
+                                                        customer.getId(),
+                                                        vehicle.getId()
+                                                )
+                                        )
+                        )
+                        .andExpect(status().isCreated())
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString();
+
+        String repairOrderId =
+                com.jayway.jsonpath.JsonPath.read(
+                        response,
+                        "$.id"
+                );
+
+        /*
+         * RECEIVED → IN_DIAGNOSIS
+         */
+        mockMvc.perform(
+                        patch(
+                                "/repair-orders/{id}/status/in-diagnosis",
+                                repairOrderId
+                        )
+                                .header(
+                                        HttpHeaders.AUTHORIZATION,
+                                        "Bearer " + getAuthToken()
+                                )
+                )
+                .andExpect(status().isOk());
+
+        /*
+         * Adiciona serviço.
+         */
+        mockMvc.perform(
+                        post(
+                                "/repair-orders/{id}/workshop-services",
+                                repairOrderId
+                        )
+                                .header(
+                                        HttpHeaders.AUTHORIZATION,
+                                        "Bearer " + getAuthToken()
+                                )
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                        {
+                                          "workshopServiceId": "%s",
+                                          "quantity": 1
+                                        }
+                                        """.formatted(service.getId()))
+                )
+                .andExpect(status().isOk());
+
+        /*
+         * IN_DIAGNOSIS → AWAITING_APPROVAL
+         */
+        mockMvc.perform(
+                        patch(
+                                "/repair-orders/{id}/status/awaiting-approval",
+                                repairOrderId
+                        )
+                                .header(
+                                        HttpHeaders.AUTHORIZATION,
+                                        "Bearer " + getAuthToken()
+                                )
+                )
+                .andExpect(status().isOk());
+
+        /*
+         * AWAITING_APPROVAL → REJECTED
+         */
+        mockMvc.perform(
+                        patch(
+                                "/repair-orders/{id}/status/rejected",
+                                repairOrderId
+                        )
+                                .header(
+                                        HttpHeaders.AUTHORIZATION,
+                                        "Bearer " + getAuthToken()
+                                )
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath(
+                        "$.status",
+                        is("REJECTED")
+                ));
+
+        /*
+         * REJECTED → APPROVED
+         * Deve ser proibido.
+         */
+        mockMvc.perform(
+                        patch(
+                                "/repair-orders/{id}/status/approved",
+                                repairOrderId
+                        )
+                                .header(
+                                        HttpHeaders.AUTHORIZATION,
+                                        "Bearer " + getAuthToken()
+                                )
+                )
+                .andExpect(status().isBadRequest());
+
+        /*
+         * REJECTED → IN_DIAGNOSIS
+         * Deve ser proibido.
+         */
+        mockMvc.perform(
+                        patch(
+                                "/repair-orders/{id}/status/in-diagnosis",
+                                repairOrderId
+                        )
+                                .header(
+                                        HttpHeaders.AUTHORIZATION,
+                                        "Bearer " + getAuthToken()
+                                )
+                )
+                .andExpect(status().isBadRequest());
+
+        /*
+         * Confirma que o estado persistido continua REJECTED.
+         */
+        RepairOrder persisted =
+                repairOrderRepository.findById(repairOrderId)
+                        .orElseThrow();
+
+        assertThat(persisted.getStatus().name())
+                .isEqualTo("REJECTED");
+    }
+
+    private String getAuthToken() throws Exception {
+
+        String response = mockMvc.perform(
+                        post("/auth/login")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                        {
+                                          "email": "admin@garageflow.com",
+                                          "password": "admin123"
+                                        }
+                                        """)
+                )
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        JsonNode json = objectMapper.readTree(response);
+
+        return json.get("token").asText();
+    }
+}

@@ -1,0 +1,40 @@
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: garageflow-mongodb
+    restart: unless-stopped
+
+    ports:
+      - "27017:27017"
+
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin123
+      MONGO_INITDB_DATABASE: garageflow-soat-17-2026-db
+
+    volumes:
+      - mongodb_data:/data/db
+
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    container_name: garageflow-app
+    restart: unless-stopped
+
+    ports:
+      - "8080:8080"
+
+    environment:
+      SPRING_MONGODB_URI: mongodb://admin:admin123@mongodb:27017/garageflow-soat-17-2026-db?authSource=admin
+
+    depends_on:
+      mongodb:
+        condition: service_healthy
+
+volumes:
+  mongodb_data:

@@ -1,0 +1,23 @@
+package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.domain.model;
+
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+
+// TODO: utilizar record ao inves de classe
+@NoArgsConstructor
+@Data
+public class WorkshopService {
+
+    private String id;
+    private String description;
+    private BigDecimal price;
+
+    public WorkshopService(String description, BigDecimal price) {
+        this.description = description;
+        this.price = price;
+    }
+
+}
