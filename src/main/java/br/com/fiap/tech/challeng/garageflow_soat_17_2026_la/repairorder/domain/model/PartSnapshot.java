@@ -17,6 +17,10 @@ public class PartSnapshot {
     private Integer quantity;
     private BigDecimal unitPrice;
 
+    public PartSnapshot (String id) {
+        this.id = id;
+    }
+
     public static PartSnapshot from(Part part, Integer quantity) {
 
         Objects.requireNonNull(part);
