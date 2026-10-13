@@ -19,7 +19,9 @@ class RepairOrderMapperTest {
     void toModelShouldMapDtoToModel() {
         CreateRepairOrderRequest dto = new CreateRepairOrderRequest(
                 "vehicle1",
-                "cust1"
+                "cust1",
+                null,
+                null
         );
 
         RepairOrder model = mapper.toModel(dto, "id1");

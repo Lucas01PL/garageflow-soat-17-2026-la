@@ -2,9 +2,9 @@ package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.applica
 
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.customer.domain.model.Customer;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.customer.domain.repository.CustomerRepository;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.CustomerSnapshot;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.RepairOrder;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.VehicleSnapshot;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.model.Part;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.repository.PartRepository;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.*;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.repository.RepairOrderRepository;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.type.RepairOrderStatus;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.RequiredFieldException;
@@ -15,6 +15,8 @@ import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.model.Us
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.repository.UserRepository;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.vehicle.domain.model.Vehicle;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.vehicle.domain.repository.VehicleRepository;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.domain.model.WorkshopService;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.domain.repository.WorkshopServiceRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -22,6 +24,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -42,6 +46,12 @@ class CreateRepairOrderUseCaseTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private PartRepository partRepository;
+
+    @Mock
+    private WorkshopServiceRepository workshopServiceRepository;
 
     @InjectMocks
     private CreateRepairOrderUseCase useCase;
@@ -89,6 +99,38 @@ class CreateRepairOrderUseCaseTest {
         assertEquals("cust1", captor.getValue().getCustomer().getCustomerId());
         assertEquals("vehicle1", captor.getValue().getVehicle().getVehicleId());
         assertNotNull(captor.getValue().getNumber());
+    }
+
+    @Test
+    void shouldCreateRepairOrderWithWorkshopServicesAndPartsFromIds() {
+        WorkshopService workshopService = new WorkshopService("Alignment", BigDecimal.valueOf(150.00));
+        workshopService.setId("ws-1");
+
+        Part part = new Part("part-1", "P-001", "Brake Pad", 5, BigDecimal.valueOf(80.00));
+
+        RepairOrder input = RepairOrder.builder()
+                .customer(new CustomerSnapshot("cust1"))
+                .vehicle(new VehicleSnapshot("vehicle1"))
+                .userId("user1")
+                .workshopServices(List.of(new WorkshopServiceSnapshot("ws-1")))
+                .parts(List.of(new PartSnapshot("part-1")))
+                .build();
+
+        when(customerRepository.findById("cust1")).thenReturn(Optional.of(sampleCustomer()));
+        when(vehicleRepository.findById("vehicle1")).thenReturn(Optional.of(sampleVehicle()));
+        when(userRepository.findById("user1")).thenReturn(Optional.of(new User("user1", "John Doe", "john@example.com", "ATIVO", UserRole.ADMIN)));
+        when(workshopServiceRepository.findById("ws-1")).thenReturn(Optional.of(workshopService));
+        when(partRepository.findById("part-1")).thenReturn(Optional.of(part));
+        when(repository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        RepairOrder result = useCase.execute(input);
+
+        assertEquals(1, result.getWorkshopServices().size());
+        assertEquals("ws-1", result.getWorkshopServices().getFirst().getWorkshopServiceId());
+        assertEquals(1, result.getWorkshopServices().getFirst().getQuantity());
+        assertEquals(1, result.getParts().size());
+        assertEquals("part-1", result.getParts().getFirst().getId());
+        assertEquals(1, result.getParts().getFirst().getQuantity());
     }
 
     @Test
