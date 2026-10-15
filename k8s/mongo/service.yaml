@@ -1,0 +1,18 @@
+# Service "headless" (clusterIP: None) do Mongo. O StatefulSet exige um Service
+# para dar nome de rede estável ao pod. A app conecta em "mongo:27017"
+# (dentro do namespace) e o DNS devolve o IP do pod do banco.
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo
+  namespace: garageflow
+  labels:
+    app.kubernetes.io/name: mongo
+spec:
+  clusterIP: None
+  selector:
+    app.kubernetes.io/name: mongo
+  ports:
+    - name: mongo
+      port: 27017
+      targetPort: 27017
