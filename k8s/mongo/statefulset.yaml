@@ -49,12 +49,9 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /data/db
-  # Cria um PersistentVolumeClaim por pod. No k3s e no kind usa o storage local padrão.
-  volumeClaimTemplates:
-    - metadata:
-        name: data
-      spec:
-        accessModes: ["ReadWriteOnce"]
-        resources:
-          requests:
-            storage: 1Gi
+      # emptyDir: disco temporário, apagado se o pod for recriado. Funciona em
+      # qualquer cluster (kind, k3s, EKS sem o driver EBS) e não cria volume EBS
+      # extra. Serve ao estudo, onde a persistência dos dados não importa.
+      volumes:
+        - name: data
+          emptyDir: {}
