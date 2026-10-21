@@ -16,8 +16,9 @@ variable "environment" {
 }
 
 variable "kubernetes_version" {
-  type    = string
-  default = "1.32"
+  description = "Versão do Kubernetes no EKS. Use uma em suporte PADRÃO (1.33 e anteriores estão em suporte estendido, que custa bem mais)"
+  type        = string
+  default     = "1.36"
 }
 
 variable "node_group_name" {

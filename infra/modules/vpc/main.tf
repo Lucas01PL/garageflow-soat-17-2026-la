@@ -1,6 +1,5 @@
-provider "aws" {
-  region = var.aws_region
-}
+# O provider "aws" é herdado do ambiente (environments/dev). Se o módulo tivesse
+# um bloco próprio, as default_tags do ambiente não chegariam aos recursos daqui.
 
 resource "aws_vpc" "vpc_main" {
   cidr_block = "10.0.0.0/16"
