@@ -1,0 +1,19 @@
+# Service NodePort: abre a porta 30080 em todos os nós do cluster e encaminha
+# para a porta 8080 dos pods da app. A API fica em http://<IP-do-nó>:30080/api
+# (a app usa context-path /api). Faixa válida de NodePort: 30000-32767.
+apiVersion: v1
+kind: Service
+metadata:
+  name: garageflow-app
+  namespace: garageflow
+  labels:
+    app.kubernetes.io/name: garageflow-app
+spec:
+  type: NodePort
+  selector:
+    app.kubernetes.io/name: garageflow-app
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+      nodePort: 30080
