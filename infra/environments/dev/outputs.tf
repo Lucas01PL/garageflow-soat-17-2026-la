@@ -33,3 +33,13 @@ output "alb_target_group_arn" {
   value       = module.alb.target_group_arn
 }
 
+output "mongo_private_ip" {
+  description = "IP privado da instância do MongoDB (acessível só de dentro da VPC)"
+  value       = module.mongo.private_ip
+}
+
+output "mongo_ssm_parameter" {
+  description = "Nome do parâmetro do SSM com a senha do MongoDB"
+  value       = module.mongo.ssm_parameter_name
+}
+

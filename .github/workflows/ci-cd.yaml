@@ -86,6 +86,8 @@ jobs:
       AWS_REGION: us-east-1
       CLUSTER_NAME: garageflow-dev
       ALB_NAME: garageflow-dev-alb
+      MONGO_NAME: garageflow-dev-mongo
+      MONGO_SSM_PARAMETER: /garageflow/dev/mongo-password
 
     steps:
       - uses: actions/checkout@v4
@@ -116,27 +118,36 @@ jobs:
       - name: Namespace
         run: kubectl apply -f k8s/namespace.yaml
 
-      - name: Criar Secrets
+      - name: Localizar o MongoDB e criar Secrets
         env:
-          MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           ADMIN_SEED_PASSWORD: ${{ secrets.ADMIN_SEED_PASSWORD }}
         run: |
-          kubectl create secret generic mongo-secret -n garageflow \
-            --from-literal=MONGO_INITDB_ROOT_USERNAME=admin \
-            --from-literal=MONGO_INITDB_ROOT_PASSWORD="$MONGO_PASSWORD" \
-            --dry-run=client -o yaml | kubectl apply -f -
+          MONGO_PASSWORD=$(aws ssm get-parameter --name "$MONGO_SSM_PARAMETER" \
+            --with-decryption --query 'Parameter.Value' --output text)
+          echo "::add-mask::$MONGO_PASSWORD"
+
+          MONGO_IP=$(aws ec2 describe-instances \
+            --filters "Name=tag:Name,Values=$MONGO_NAME" "Name=instance-state-name,Values=running" \
+            --query 'Reservations[0].Instances[0].PrivateIpAddress' --output text)
+          echo "MongoDB em $MONGO_IP"
+          if [ -z "$MONGO_IP" ] || [ "$MONGO_IP" = "None" ]; then
+            echo "Instância do MongoDB não encontrada. O terraform apply foi feito?"
+            exit 1
+          fi
+          echo "MONGO_IP=$MONGO_IP" >> "$GITHUB_ENV"
 
           kubectl create secret generic garageflow-app-secret -n garageflow \
-            --from-literal=SPRING_MONGODB_URI="mongodb://admin:${MONGO_PASSWORD}@mongo:27017/garageflow-soat-17-2026-db?authSource=admin" \
+            --from-literal=SPRING_MONGODB_URI="mongodb://admin:${MONGO_PASSWORD}@${MONGO_IP}:27017/garageflow-soat-17-2026-db?authSource=admin" \
             --from-literal=JWT_SECRET="$JWT_SECRET" \
             --from-literal=ADMIN_SEED_PASSWORD="$ADMIN_SEED_PASSWORD" \
             --dry-run=client -o yaml | kubectl apply -f -
 
-      - name: Deploy do MongoDB
+      - name: Esperar o MongoDB responder
         run: |
-          kubectl apply -f k8s/mongo/service.yaml -f k8s/mongo/statefulset.yaml
-          kubectl rollout status statefulset/mongo -n garageflow --timeout=300s
+          kubectl run mongo-check -n garageflow --rm -i --restart=Never \
+            --image=busybox:1.36 --command -- sh -c \
+            'for i in $(seq 1 60); do nc -z -w 3 "$0" 27017 && exit 0; sleep 5; done; exit 1' "$MONGO_IP"
 
       - name: Deploy da aplicação
         run: |
@@ -173,4 +184,3 @@ jobs:
           kubectl get nodes
           kubectl describe pods -n garageflow
           kubectl logs -n garageflow -l app.kubernetes.io/name=garageflow-app --tail=100 || true
-          kubectl logs -n garageflow mongo-0 --tail=50 || true

@@ -54,7 +54,22 @@ module "eks" {
   admin_role_arn = var.admin_role_arn
 }
 
-# 4. Conecta o Target Group do ALB ao Auto Scaling Group dos nós do EKS
+# 4. Banco de dados: instância EC2 com MongoDB em container. A senha é gerada
+# pelo Terraform e guardada no SSM, de onde a pipeline a lê (sem duplicar)
+module "mongo" {
+  source = "../../modules/mongo"
+
+  name_prefix = "${var.project_name}-${var.environment}"
+  vpc_id      = module.vpc.vpc_id
+  subnet_id   = module.vpc.public_subnet_ids[0]
+
+  # Só os nós do EKS podem acessar a porta 27017
+  nodes_security_group_id = module.eks.node_security_group_id
+
+  ssm_parameter_name = "/${var.project_name}/${var.environment}/mongo-password"
+}
+
+# 5. Conecta o Target Group do ALB ao Auto Scaling Group dos nós do EKS
 # Isso garante que as instâncias EC2 do node group recebam o tráfego do ALB automaticamente
 resource "aws_autoscaling_attachment" "eks_nodes" {
   autoscaling_group_name = module.eks.node_group_autoscaling_group_names[0][0]
