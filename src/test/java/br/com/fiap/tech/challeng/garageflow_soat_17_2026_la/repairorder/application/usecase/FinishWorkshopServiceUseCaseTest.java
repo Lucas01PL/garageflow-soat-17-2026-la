@@ -1,6 +1,7 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase;
 
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.service.RepairOrderFinder;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.command.FinishWorkshopServiceCommand;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.exception.InvalidRepairOrderItemException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.exception.InvalidRepairOrderStateException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.exception.WorkshopServiceNotFoundException;
@@ -9,7 +10,6 @@ import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.m
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.repository.RepairOrderRepository;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.type.RepairOrderStatus;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.type.WorkshopServiceStatus;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.FinishWorkshopServiceRequest;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.RequiredFieldException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,7 +48,7 @@ class FinishWorkshopServiceUseCaseTest {
 
     private RepairOrder repairOrder;
     private WorkshopServiceSnapshot workshopService;
-    private FinishWorkshopServiceRequest request;
+    private FinishWorkshopServiceCommand command;
 
     @BeforeEach
     void setUp() {
@@ -64,8 +64,7 @@ class FinishWorkshopServiceUseCaseTest {
                 )
                 .build();
 
-        request = new FinishWorkshopServiceRequest();
-        request.setDurationInMinutes(45);
+        command = new FinishWorkshopServiceCommand(45);
     }
 
     @Test
@@ -81,7 +80,7 @@ class FinishWorkshopServiceUseCaseTest {
                 useCase.execute(
                         "repair-order-1",
                         "workshop-service-1",
-                        request
+                        command
                 );
 
         assertNotNull(result);
@@ -134,7 +133,7 @@ class FinishWorkshopServiceUseCaseTest {
                         () -> useCase.execute(
                                 null,
                                 "workshop-service-1",
-                                request
+                                command
                         )
                 );
 
@@ -167,7 +166,7 @@ class FinishWorkshopServiceUseCaseTest {
                         () -> useCase.execute(
                                 "repair-order-1",
                                 "workshop-service-1",
-                                request
+                                command
                         )
                 );
 
@@ -191,7 +190,7 @@ class FinishWorkshopServiceUseCaseTest {
                         () -> useCase.execute(
                                 "repair-order-1",
                                 "workshop-service-not-found",
-                                request
+                                command
                         )
                 );
 
@@ -223,7 +222,7 @@ class FinishWorkshopServiceUseCaseTest {
                         () -> useCase.execute(
                                 "repair-order-1",
                                 "workshop-service-1",
-                                request
+                                command
                         )
                 );
 
@@ -239,7 +238,7 @@ class FinishWorkshopServiceUseCaseTest {
     @Test
     void shouldThrowWhenDurationIsZero() {
 
-        request.setDurationInMinutes(0);
+        command = new FinishWorkshopServiceCommand(0);
 
         when(repairOrderFinder.findById("repair-order-1"))
                 .thenReturn(repairOrder);
@@ -250,7 +249,7 @@ class FinishWorkshopServiceUseCaseTest {
                         () -> useCase.execute(
                                 "repair-order-1",
                                 "workshop-service-1",
-                                request
+                                command
                         )
                 );
 
@@ -266,7 +265,7 @@ class FinishWorkshopServiceUseCaseTest {
     @Test
     void shouldThrowWhenDurationIsNegative() {
 
-        request.setDurationInMinutes(-10);
+        command = new FinishWorkshopServiceCommand(-10);
 
         when(repairOrderFinder.findById("repair-order-1"))
                 .thenReturn(repairOrder);
@@ -277,7 +276,7 @@ class FinishWorkshopServiceUseCaseTest {
                         () -> useCase.execute(
                                 "repair-order-1",
                                 "workshop-service-1",
-                                request
+                                command
                         )
                 );
 
@@ -305,7 +304,7 @@ class FinishWorkshopServiceUseCaseTest {
                 () -> useCase.execute(
                         "repair-order-1",
                         "workshop-service-1",
-                        request
+                        command
                 )
         );
 
@@ -325,7 +324,7 @@ class FinishWorkshopServiceUseCaseTest {
         useCase.execute(
                 "repair-order-1",
                 "workshop-service-1",
-                request
+                command
         );
 
         ArgumentCaptor<RepairOrder> captor =

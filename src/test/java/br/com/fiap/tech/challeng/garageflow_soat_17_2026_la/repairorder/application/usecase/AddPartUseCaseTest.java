@@ -4,13 +4,13 @@ import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.application.use
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.model.Part;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.repository.PartRepository;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.service.RepairOrderFinder;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.command.AddPartCommand;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.exception.InvalidPartException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.exception.PartStockOperationException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.PartSnapshot;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.RepairOrder;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.repository.RepairOrderRepository;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.type.RepairOrderStatus;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.AddPartRequest;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.NotEnoughResourceException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.RequiredFieldException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.ResourceNotFoundException;
@@ -49,7 +49,7 @@ class AddPartUseCaseTest {
 
     private RepairOrder repairOrder;
     private Part part;
-    private AddPartRequest request;
+    private AddPartCommand command;
 
     @BeforeEach
     void setUp() {
@@ -66,9 +66,7 @@ class AddPartUseCaseTest {
                 new BigDecimal("50.00")
         );
 
-        request = new AddPartRequest();
-        request.setPartId("part-1");
-        request.setQuantity(2);
+        command = new AddPartCommand("part-1", 2);
     }
 
     @Test
@@ -87,7 +85,7 @@ class AddPartUseCaseTest {
                 .thenReturn("Debited successfully");
 
         RepairOrder result =
-                useCase.execute("repair-order-1", request);
+                useCase.execute("repair-order-1", command);
 
         assertNotNull(result);
         assertSame(repairOrder, result);
@@ -121,9 +119,7 @@ class AddPartUseCaseTest {
     @Test
     void shouldThrowWhenRepairOrderIdIsNull() {
 
-        AddPartRequest partRequest = new AddPartRequest();
-        partRequest.setPartId("part-1");
-        partRequest.setQuantity(1);
+        AddPartCommand partCommand = new AddPartCommand("part-1", 1);
 
         when(repairOrderFinder.findById(null))
                 .thenThrow(new RequiredFieldException("repairOrderId"));
@@ -131,7 +127,7 @@ class AddPartUseCaseTest {
         RequiredFieldException exception =
                 assertThrows(
                         RequiredFieldException.class,
-                        () -> useCase.execute(null, partRequest)
+                        () -> useCase.execute(null, partCommand)
                 );
 
         assertEquals(
@@ -164,7 +160,7 @@ class AddPartUseCaseTest {
         ResourceNotFoundException exception =
                 assertThrows(
                         ResourceNotFoundException.class,
-                        () -> useCase.execute("repair-order-1", request)
+                        () -> useCase.execute("repair-order-1", command)
                 );
 
         assertTrue(
@@ -185,7 +181,7 @@ class AddPartUseCaseTest {
     @Test
     void shouldThrowWhenPartIdIsNull() {
 
-        request.setPartId(null);
+        command = new AddPartCommand(null, 2);
 
         when(repairOrderFinder.findById("repair-order-1"))
                 .thenReturn(repairOrder);
@@ -195,7 +191,7 @@ class AddPartUseCaseTest {
                         InvalidPartException.class,
                         () -> useCase.execute(
                                 "repair-order-1",
-                                request
+                                command
                         )
                 );
 
@@ -217,7 +213,7 @@ class AddPartUseCaseTest {
     @Test
     void shouldThrowWhenPartIdIsBlank() {
 
-        request.setPartId(" ");
+        command = new AddPartCommand(" ", 2);
 
         when(repairOrderFinder.findById("repair-order-1"))
                 .thenReturn(repairOrder);
@@ -227,7 +223,7 @@ class AddPartUseCaseTest {
                         InvalidPartException.class,
                         () -> useCase.execute(
                                 "repair-order-1",
-                                request
+                                command
                         )
                 );
 
@@ -257,7 +253,7 @@ class AddPartUseCaseTest {
                         ResourceNotFoundException.class,
                         () -> useCase.execute(
                                 "repair-order-1",
-                                request
+                                command
                         )
                 );
 
@@ -301,7 +297,7 @@ class AddPartUseCaseTest {
                         NotEnoughResourceException.class,
                         () -> useCase.execute(
                                 "repair-order-1",
-                                request
+                                command
                         )
                 );
 
@@ -343,7 +339,7 @@ class AddPartUseCaseTest {
                         PartStockOperationException.class,
                         () -> useCase.execute(
                                 "repair-order-1",
-                                request
+                                command
                         )
                 );
 
@@ -373,7 +369,7 @@ class AddPartUseCaseTest {
         when(repository.save(any(RepairOrder.class)))
                 .thenReturn(repairOrder);
 
-        useCase.execute("repair-order-1", request);
+        useCase.execute("repair-order-1", command);
 
         ArgumentCaptor<RepairOrder> captor =
                 ArgumentCaptor.forClass(RepairOrder.class);
