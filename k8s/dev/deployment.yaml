@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: garageflow
+  namespace: garageflow-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: garageflow
+  template:
+    metadata:
+      labels:
+        app: garageflow
+    spec:
+      containers:
+        - name: garageflow
+          image: <seu-registry>/garageflow:dev
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: garageflow-config
+            - secretRef:
+                name: garageflow-secret
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 250m
+              memory: 512Mi
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 20

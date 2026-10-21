@@ -24,6 +24,10 @@ public class WorkshopServiceSnapshot {
     private LocalDateTime startedAt;
     private LocalDateTime finishedAt;
 
+    public WorkshopServiceSnapshot (String workshopServiceId) {
+        this.workshopServiceId = workshopServiceId;
+    }
+
     public static WorkshopServiceSnapshot from(WorkshopService workshopService, Integer quantity) {
         Objects.requireNonNull(workshopService);
         Objects.requireNonNull(quantity);

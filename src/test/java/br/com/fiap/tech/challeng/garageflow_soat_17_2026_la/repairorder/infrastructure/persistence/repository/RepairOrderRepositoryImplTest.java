@@ -132,7 +132,7 @@ class RepairOrderRepositoryImplTest {
         d.setUserId("user1");
         d.setId("ro1");
 
-        when(mongoRepository.findByStatusContainingIgnoreCase("PENDING")).thenReturn(List.of(d));
+        when(mongoRepository.findByStatusContainingIgnoreCaseOrderByStatusCodeAscCreatedDateAsc("PENDING")).thenReturn(List.of(d));
 
         List<RepairOrder> result = repository.findByStatusContainingIgnoreCase("PENDING");
 

@@ -2,10 +2,13 @@ package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.present
 
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.*;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.CreateRepairOrderRequest;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.response.CreateRepairOrderResponse;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.response.RepairOrderResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
 
 @RequiredArgsConstructor
 @Component
@@ -24,10 +27,22 @@ public class RepairOrderMapper {
             throw new AuthenticationCredentialsNotFoundException("User not authenticated");
         }
 
+        var services = new ArrayList<WorkshopServiceSnapshot>();
+        if (dto.getServiceIds() != null && !dto.getServiceIds().isEmpty()) {
+            dto.getServiceIds().stream().map(WorkshopServiceSnapshot::new).forEach(services::add);
+        }
+
+        var parts = new ArrayList<PartSnapshot>();
+        if (dto.getPartIds() != null && !dto.getPartIds().isEmpty()) {
+            dto.getPartIds().stream().map(PartSnapshot::new).forEach(parts::add);
+        }
+
         return RepairOrder.builder()
                 .vehicle(new VehicleSnapshot(dto.getVehicleId()))
                 .customer(new CustomerSnapshot(dto.getCustomerId()))
                 .userId(userId)
+                .workshopServices(services)
+                .parts(parts)
                 .build();
     }
 
@@ -50,6 +65,12 @@ public class RepairOrderMapper {
         repairOrderResponseDTO.setCreatedDate(model.getCreatedDate());
         repairOrderResponseDTO.setUpdatedDate(model.getUpdatedDate());
         return repairOrderResponseDTO;
+    }
+
+    public CreateRepairOrderResponse toCreateRepairOrderResponse(RepairOrder model) {
+        if (model == null) return null;
+
+        return new CreateRepairOrderResponse(model.getId());
     }
 }
 

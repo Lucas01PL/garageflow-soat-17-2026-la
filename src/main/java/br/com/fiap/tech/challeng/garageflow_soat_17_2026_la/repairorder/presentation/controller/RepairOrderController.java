@@ -1,19 +1,17 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.controller;
 
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.customer.application.usecase.GetCustomerUseCase;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.customer.domain.model.Customer;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase.*;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.service.RepairOrderApplicationService;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.RepairOrder;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.*;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.response.AverageWorkshopServiceExecutionTimeResponse;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.response.CreateRepairOrderResponse;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.response.RepairOrderResponseDTO;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.mapper.RepairOrderMapper;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.mapper.WorkshopServiceMonitoringResponseMapper;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.ResourceNotFoundException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.presentation.controller.BaseController;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,65 +19,25 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/repair-orders")
 public class RepairOrderController extends BaseController {
 
-    private CreateRepairOrderUseCase createUseCase;
-
-    private GetRepairOrderByIdUseCase getByIdUseCase;
-
-    private ListAllRepairOrdersUseCase listAllUseCase;
-
-    private AddWorkshopServiceUseCase addWorkshopServiceUseCase;
-
-    private AddPartUseCase addPartUseCase;
-
-    private RemovePartUseCase removePartUseCase;
-
-    private RemoveWorkshopServiceUseCase removeWorkshopServiceUseCase;
-
-    private StartRepairOrderDiagnosisUseCase startRepairOrderDiagnosisUseCase;
-
-    private StartWorkshopServiceUseCase startWorkshopServiceUseCase;
-
-    private FinishWorkshopServiceUseCase finishWorkshopServiceUseCase;
-
-    private RepairOrderMapper mapper;
-
-    private ApproveRepairOrderUseCase approveRepairOrderUseCase;
-
-    private RejectRepairOrderUseCase rejectRepairOrderUseCase;
-
-    private DeliverRepairOrderUseCase deliverRepairOrderUseCase;
-
-    private StartRepairOrderExecutionUseCase startRepairOrderExecutionUseCase;
-
-    private RequestRepairOrderApprovalUseCase requestRepairOrderApprovalUseCase;
-
-    private ListRepairOrdersByCustomerUseCase listRepairOrdersByCustomerUseCase;
-
-    private ListRepairOrdersByStatusUseCase listRepairOrdersByStatusUseCase;
-
-    private GetAverageWorkshopServiceExecutionTimeUseCase averageWorkshopServiceExecutionTimeUseCase;
-
-    private WorkshopServiceMonitoringResponseMapper workshopServiceMonitoringResponseMapper;
-
-    private CancelRepairOrderUseCase cancelRepairOrderUseCase;
-
-    private GetCustomerUseCase getCustomerUseCase;
+    private final RepairOrderApplicationService applicationService;
+    private final RepairOrderMapper mapper;
+    private final WorkshopServiceMonitoringResponseMapper workshopServiceMonitoringResponseMapper;
 
     @Operation(
             summary = "Create Repair Order",
             description = "Creates a new repair order."
     )
     @PostMapping
-    public ResponseEntity<?> create(@Valid @RequestBody CreateRepairOrderRequest dto) {
+    public ResponseEntity<CreateRepairOrderResponse> create(@Valid @RequestBody CreateRepairOrderRequest dto) {
         String userId = resolveCurrentUserId();
         RepairOrder ro = mapper.toModel(dto, userId);
-        RepairOrder created = createUseCase.execute(ro);
-        return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toResponse(created));
+        RepairOrder created = applicationService.create(ro);
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toCreateRepairOrderResponse(created));
     }
 
     @Operation(
@@ -87,8 +45,8 @@ public class RepairOrderController extends BaseController {
             description = "Retrieves a repair order by its ID."
     )
     @GetMapping("/{id}")
-    public ResponseEntity<?> getById(@PathVariable String id) {
-        Optional<RepairOrder> ro = getByIdUseCase.execute(id);
+    public ResponseEntity<RepairOrderResponseDTO> getById(@PathVariable String id) {
+        Optional<RepairOrder> ro = applicationService.getById(id);
         return ro.map(repairOrder -> ResponseEntity.ok(mapper.toResponse(repairOrder)))
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
@@ -99,16 +57,8 @@ public class RepairOrderController extends BaseController {
     )
     @GetMapping
     public ResponseEntity<List<RepairOrderResponseDTO>> list(@RequestParam(required = false) String status) {
-
-        List<RepairOrder> list;
-
-        if (status == null || status.isBlank()) {
-            list = listAllUseCase.execute();
-        } else {
-            list = listRepairOrdersByStatusUseCase.execute(status);
-        }
-
-        List<RepairOrderResponseDTO> dtos = list.stream().map(mapper::toResponse).toList();
+        List<RepairOrder> repairOrders = applicationService.list(status);
+        List<RepairOrderResponseDTO> dtos = repairOrders.stream().map(mapper::toResponse).toList();
         return ResponseEntity.ok(dtos);
     }
 
@@ -121,11 +71,8 @@ public class RepairOrderController extends BaseController {
             @PathVariable String repairOrderId,
             @Valid @RequestBody AddWorkshopServiceRequest request) {
 
-        RepairOrder repairOrder =
-                addWorkshopServiceUseCase.execute(repairOrderId, request);
-
-        return ResponseEntity.ok(
-                mapper.toResponse(repairOrder));
+        RepairOrder repairOrder = applicationService.addWorkshopService(repairOrderId, request);
+        return ResponseEntity.ok(mapper.toResponse(repairOrder));
     }
 
     @Operation(
@@ -137,11 +84,8 @@ public class RepairOrderController extends BaseController {
             @PathVariable String repairOrderId,
             @Valid @RequestBody AddPartRequest request) {
 
-        RepairOrder repairOrder =
-                addPartUseCase.execute(repairOrderId, request);
-
-        return ResponseEntity.ok(
-                mapper.toResponse(repairOrder));
+        RepairOrder repairOrder = applicationService.addPart(repairOrderId, request);
+        return ResponseEntity.ok(mapper.toResponse(repairOrder));
     }
 
     @Operation(
@@ -154,11 +98,8 @@ public class RepairOrderController extends BaseController {
             @PathVariable String workshopServiceId,
             @Valid @RequestBody RemoveWorkshopServiceRequest request) {
 
-        RepairOrder repairOrder =
-                removeWorkshopServiceUseCase.execute(repairOrderId, workshopServiceId, request);
-
-        return ResponseEntity.ok(
-                mapper.toResponse(repairOrder));
+        RepairOrder repairOrder = applicationService.removeWorkshopService(repairOrderId, workshopServiceId, request);
+        return ResponseEntity.ok(mapper.toResponse(repairOrder));
     }
 
     @Operation(
@@ -171,11 +112,8 @@ public class RepairOrderController extends BaseController {
             @PathVariable String partId,
             @Valid @RequestBody RemovePartRequest request) {
 
-        RepairOrder repairOrder =
-                removePartUseCase.execute(repairOrderId, partId, request);
-
-        return ResponseEntity.ok(
-                mapper.toResponse(repairOrder));
+        RepairOrder repairOrder = applicationService.removePart(repairOrderId, partId, request);
+        return ResponseEntity.ok(mapper.toResponse(repairOrder));
     }
 
     @Operation(
@@ -186,11 +124,8 @@ public class RepairOrderController extends BaseController {
     public ResponseEntity<RepairOrderResponseDTO> inDiagnosis(
             @PathVariable String repairOrderId) {
 
-        RepairOrder repairOrder =
-                startRepairOrderDiagnosisUseCase.execute(repairOrderId);
-
-        return ResponseEntity.ok(
-                mapper.toResponse(repairOrder));
+        RepairOrder repairOrder = applicationService.startDiagnosis(repairOrderId);
+        return ResponseEntity.ok(mapper.toResponse(repairOrder));
     }
 
     @Operation(
@@ -202,9 +137,7 @@ public class RepairOrderController extends BaseController {
             @PathVariable String repairOrderId,
             @PathVariable String workshopServiceId) {
 
-        RepairOrder repairOrder =
-                startWorkshopServiceUseCase.execute(repairOrderId, workshopServiceId);
-
+        RepairOrder repairOrder = applicationService.startWorkshopService(repairOrderId, workshopServiceId);
         return ResponseEntity.ok(mapper.toResponse(repairOrder));
     }
 
@@ -218,9 +151,7 @@ public class RepairOrderController extends BaseController {
             @PathVariable String workshopServiceId,
             @Valid @RequestBody FinishWorkshopServiceRequest request) {
 
-        RepairOrder repairOrder =
-                finishWorkshopServiceUseCase.execute(repairOrderId, workshopServiceId, request);
-
+        RepairOrder repairOrder = applicationService.finishWorkshopService(repairOrderId, workshopServiceId, request);
         return ResponseEntity.ok(mapper.toResponse(repairOrder));
     }
 
@@ -233,12 +164,8 @@ public class RepairOrderController extends BaseController {
             @PathVariable String repairOrderId) {
 
         String userId = resolveCurrentUserId();
-
-        RepairOrder repairOrder =
-                approveRepairOrderUseCase.execute(repairOrderId, userId);
-
-        return ResponseEntity.ok(
-                mapper.toResponse(repairOrder));
+        RepairOrder repairOrder = applicationService.approve(repairOrderId, userId);
+        return ResponseEntity.ok(mapper.toResponse(repairOrder));
     }
 
     @Operation(
@@ -249,11 +176,8 @@ public class RepairOrderController extends BaseController {
     public ResponseEntity<RepairOrderResponseDTO> reject(
             @PathVariable String repairOrderId) {
 
-        RepairOrder repairOrder =
-                rejectRepairOrderUseCase.execute(repairOrderId);
-
-        return ResponseEntity.ok(
-                mapper.toResponse(repairOrder));
+        RepairOrder repairOrder = applicationService.reject(repairOrderId);
+        return ResponseEntity.ok(mapper.toResponse(repairOrder));
     }
 
     @Operation(
@@ -264,11 +188,8 @@ public class RepairOrderController extends BaseController {
     public ResponseEntity<RepairOrderResponseDTO> deliver(
             @PathVariable String repairOrderId) {
 
-        RepairOrder repairOrder =
-                deliverRepairOrderUseCase.execute(repairOrderId);
-
-        return ResponseEntity.ok(
-                mapper.toResponse(repairOrder));
+        RepairOrder repairOrder = applicationService.deliver(repairOrderId);
+        return ResponseEntity.ok(mapper.toResponse(repairOrder));
     }
 
     @Operation(
@@ -279,11 +200,8 @@ public class RepairOrderController extends BaseController {
     public ResponseEntity<RepairOrderResponseDTO> startExecution(
             @PathVariable String repairOrderId) {
 
-        RepairOrder repairOrder =
-                startRepairOrderExecutionUseCase.execute(repairOrderId);
-
-        return ResponseEntity.ok(
-                mapper.toResponse(repairOrder));
+        RepairOrder repairOrder = applicationService.startExecution(repairOrderId);
+        return ResponseEntity.ok(mapper.toResponse(repairOrder));
     }
 
     @Operation(
@@ -294,11 +212,8 @@ public class RepairOrderController extends BaseController {
     public ResponseEntity<RepairOrderResponseDTO> requestApproval(
             @PathVariable String repairOrderId) {
 
-        RepairOrder repairOrder =
-                requestRepairOrderApprovalUseCase.execute(repairOrderId);
-
-        return ResponseEntity.ok(
-                mapper.toResponse(repairOrder));
+        RepairOrder repairOrder = applicationService.requestApproval(repairOrderId);
+        return ResponseEntity.ok(mapper.toResponse(repairOrder));
     }
 
     @Operation(
@@ -306,22 +221,10 @@ public class RepairOrderController extends BaseController {
             description = "Retrieves the repair orders belonging to the customer linked to the authenticated user's email."
     )
     @GetMapping("/customer")
-    public ResponseEntity<?> listByCustomer() {
-
+    public ResponseEntity<List<RepairOrderResponseDTO>> listByCustomer() {
         String currentEmail = resolveCurrentEmail();
-
-        String customerId = getCustomerUseCase.getCustomerByEmail(currentEmail)
-                .map(Customer::getId)
-                .orElseThrow(() -> new ResourceNotFoundException("Customer", "email", currentEmail));
-
-        List<RepairOrder> repairOrders =
-                listRepairOrdersByCustomerUseCase.execute(customerId);
-
-        List<RepairOrderResponseDTO> response =
-                repairOrders.stream()
-                        .map(mapper::toResponse)
-                        .toList();
-
+        List<RepairOrder> repairOrders = applicationService.listByCustomerEmail(currentEmail);
+        List<RepairOrderResponseDTO> response = repairOrders.stream().map(mapper::toResponse).toList();
         return ResponseEntity.ok(response);
     }
 
@@ -332,15 +235,11 @@ public class RepairOrderController extends BaseController {
     @GetMapping("/monitoring/workshop-services/average-execution-time")
     public ResponseEntity<List<AverageWorkshopServiceExecutionTimeResponse>>
     getAverageWorkshopServiceExecutionTime() {
-
         List<AverageWorkshopServiceExecutionTimeResponse> response =
-                averageWorkshopServiceExecutionTimeUseCase.execute()
+                applicationService.getAverageWorkshopServiceExecutionTime()
                         .stream()
-                        .map(
-                                workshopServiceMonitoringResponseMapper::toResponse
-                        )
+                        .map(workshopServiceMonitoringResponseMapper::toResponse)
                         .toList();
-
         return ResponseEntity.ok(response);
     }
 
@@ -352,12 +251,8 @@ public class RepairOrderController extends BaseController {
     public ResponseEntity<RepairOrderResponseDTO> cancel(
             @PathVariable String repairOrderId) {
 
-        RepairOrder repairOrder =
-                cancelRepairOrderUseCase.execute(repairOrderId);
-
-        return ResponseEntity.ok(
-                mapper.toResponse(repairOrder)
-        );
+        RepairOrder repairOrder = applicationService.cancel(repairOrderId);
+        return ResponseEntity.ok(mapper.toResponse(repairOrder));
     }
 }
 
