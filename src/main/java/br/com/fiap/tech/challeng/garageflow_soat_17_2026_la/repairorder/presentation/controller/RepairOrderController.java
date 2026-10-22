@@ -1,6 +1,11 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.controller;
 
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.service.RepairOrderApplicationService;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.command.AddPartCommand;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.command.AddWorkshopServiceCommand;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.command.FinishWorkshopServiceCommand;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.command.RemovePartCommand;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.command.RemoveWorkshopServiceCommand;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.RepairOrder;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.*;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.response.AverageWorkshopServiceExecutionTimeResponse;
@@ -71,7 +76,9 @@ public class RepairOrderController extends BaseController {
             @PathVariable String repairOrderId,
             @Valid @RequestBody AddWorkshopServiceRequest request) {
 
-        RepairOrder repairOrder = applicationService.addWorkshopService(repairOrderId, request);
+        RepairOrder repairOrder = applicationService.addWorkshopService(
+                repairOrderId,
+                new AddWorkshopServiceCommand(request.getWorkshopServiceId(), request.getQuantity()));
         return ResponseEntity.ok(mapper.toResponse(repairOrder));
     }
 
@@ -84,7 +91,9 @@ public class RepairOrderController extends BaseController {
             @PathVariable String repairOrderId,
             @Valid @RequestBody AddPartRequest request) {
 
-        RepairOrder repairOrder = applicationService.addPart(repairOrderId, request);
+        RepairOrder repairOrder = applicationService.addPart(
+                repairOrderId,
+                new AddPartCommand(request.getPartId(), request.getQuantity()));
         return ResponseEntity.ok(mapper.toResponse(repairOrder));
     }
 
@@ -98,7 +107,10 @@ public class RepairOrderController extends BaseController {
             @PathVariable String workshopServiceId,
             @Valid @RequestBody RemoveWorkshopServiceRequest request) {
 
-        RepairOrder repairOrder = applicationService.removeWorkshopService(repairOrderId, workshopServiceId, request);
+        RepairOrder repairOrder = applicationService.removeWorkshopService(
+                repairOrderId,
+                workshopServiceId,
+                new RemoveWorkshopServiceCommand(request.getQuantity()));
         return ResponseEntity.ok(mapper.toResponse(repairOrder));
     }
 
@@ -112,7 +124,10 @@ public class RepairOrderController extends BaseController {
             @PathVariable String partId,
             @Valid @RequestBody RemovePartRequest request) {
 
-        RepairOrder repairOrder = applicationService.removePart(repairOrderId, partId, request);
+        RepairOrder repairOrder = applicationService.removePart(
+                repairOrderId,
+                partId,
+                new RemovePartCommand(request.getQuantity()));
         return ResponseEntity.ok(mapper.toResponse(repairOrder));
     }
 
@@ -151,7 +166,10 @@ public class RepairOrderController extends BaseController {
             @PathVariable String workshopServiceId,
             @Valid @RequestBody FinishWorkshopServiceRequest request) {
 
-        RepairOrder repairOrder = applicationService.finishWorkshopService(repairOrderId, workshopServiceId, request);
+        RepairOrder repairOrder = applicationService.finishWorkshopService(
+                repairOrderId,
+                workshopServiceId,
+                new FinishWorkshopServiceCommand(request.getDurationInMinutes()));
         return ResponseEntity.ok(mapper.toResponse(repairOrder));
     }
 

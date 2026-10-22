@@ -4,12 +4,12 @@ import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.application.use
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.model.Part;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.repository.PartRepository;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.service.RepairOrderFinder;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.command.AddPartCommand;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.exception.InvalidPartException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.exception.PartStockOperationException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.PartSnapshot;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.RepairOrder;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.repository.RepairOrderRepository;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.AddPartRequest;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.NotEnoughResourceException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.ResourceNotFoundException;
 import lombok.AllArgsConstructor;
@@ -24,16 +24,16 @@ public class AddPartUseCase {
     private final RepairOrderFinder repairOrderFinder;
     private final PartStockControlUseCase partStockControlUseCase;
 
-    public RepairOrder execute(String repairOrderId, AddPartRequest request) {
+    public RepairOrder execute(String repairOrderId, AddPartCommand command) {
 
         RepairOrder repairOrder = repairOrderFinder.findById(repairOrderId);
 
-        Part part = getPart(request.getPartId());
+        Part part = getPart(command.partId());
 
-        PartSnapshot partSnapshot = PartSnapshot.from(part, request.getQuantity());
+        PartSnapshot partSnapshot = PartSnapshot.from(part, command.quantity());
 
         try {
-            partStockControlUseCase.debitPartStock(request.getPartId(), request.getQuantity());
+            partStockControlUseCase.debitPartStock(command.partId(), command.quantity());
         } catch (NotEnoughResourceException e) {
             throw e;
         } catch (Exception e) {
@@ -44,7 +44,7 @@ public class AddPartUseCase {
             repairOrder.addPart(partSnapshot);
         } catch (Exception e) {
             try {
-                partStockControlUseCase.addPartStock(request.getPartId(), request.getQuantity());
+                partStockControlUseCase.addPartStock(command.partId(), command.quantity());
             } catch (Exception rollbackException) {
                 throw new PartStockOperationException("add", "Failed to rollback stock after add part failure: " + rollbackException.getMessage());
             }
@@ -66,4 +66,3 @@ public class AddPartUseCase {
 
     }
 }
-

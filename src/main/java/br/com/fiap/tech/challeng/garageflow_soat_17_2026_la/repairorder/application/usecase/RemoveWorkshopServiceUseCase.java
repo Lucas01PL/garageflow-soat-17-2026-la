@@ -1,10 +1,10 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase;
 
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.service.RepairOrderFinder;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.command.RemoveWorkshopServiceCommand;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.RepairOrder;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.WorkshopServiceSnapshot;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.repository.RepairOrderRepository;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.RemoveWorkshopServiceRequest;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.RequiredFieldException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.ResourceNotFoundException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.domain.model.WorkshopService;
@@ -23,7 +23,7 @@ public class RemoveWorkshopServiceUseCase {
     public RepairOrder execute(
             String repairOrderId,
             String workshopServiceId,
-            RemoveWorkshopServiceRequest request) {
+            RemoveWorkshopServiceCommand command) {
 
         RepairOrder repairOrder = repairOrderFinder.findById(repairOrderId);
 
@@ -33,7 +33,7 @@ public class RemoveWorkshopServiceUseCase {
         WorkshopServiceSnapshot snapshot =
                 WorkshopServiceSnapshot.from(
                         workshopService,
-                        request.getQuantity());
+                        command.quantity());
 
         repairOrder.removeWorkshopService(snapshot);
 

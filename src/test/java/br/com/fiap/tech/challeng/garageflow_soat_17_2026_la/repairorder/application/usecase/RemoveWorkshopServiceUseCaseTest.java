@@ -1,13 +1,13 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase;
 
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.service.RepairOrderFinder;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.command.RemoveWorkshopServiceCommand;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.exception.InsufficientQuantityException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.exception.WorkshopServiceNotFoundException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.RepairOrder;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.WorkshopServiceSnapshot;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.repository.RepairOrderRepository;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.type.RepairOrderStatus;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.RemoveWorkshopServiceRequest;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.InvalidFieldValueException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.RequiredFieldException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.ResourceNotFoundException;
@@ -53,7 +53,7 @@ class RemoveWorkshopServiceUseCaseTest {
 
     private RepairOrder repairOrder;
     private WorkshopService workshopService;
-    private RemoveWorkshopServiceRequest request;
+    private RemoveWorkshopServiceCommand command;
 
     @BeforeEach
     void setUp() {
@@ -80,8 +80,7 @@ class RemoveWorkshopServiceUseCaseTest {
                 )
                 .build();
 
-        request = new RemoveWorkshopServiceRequest();
-        request.setQuantity(2);
+        command = new RemoveWorkshopServiceCommand(2);
     }
 
     @Test
@@ -100,7 +99,7 @@ class RemoveWorkshopServiceUseCaseTest {
                 useCase.execute(
                         "repair-order-1",
                         "workshop-service-1",
-                        request
+                        command
                 );
 
         assertNotNull(result);
@@ -137,7 +136,7 @@ class RemoveWorkshopServiceUseCaseTest {
     @Test
     void shouldRemoveEntireWorkshopServiceWhenRequestedQuantityEqualsCurrentQuantity() {
 
-        request.setQuantity(5);
+        command = new RemoveWorkshopServiceCommand(5);
 
         when(repairOrderFinder.findById("repair-order-1"))
                 .thenReturn(repairOrder);
@@ -152,7 +151,7 @@ class RemoveWorkshopServiceUseCaseTest {
                 useCase.execute(
                         "repair-order-1",
                         "workshop-service-1",
-                        request
+                        command
                 );
 
         assertNotNull(result);
@@ -180,7 +179,7 @@ class RemoveWorkshopServiceUseCaseTest {
                         () -> useCase.execute(
                                 null,
                                 "workshop-service-1",
-                                request
+                                command
                         )
                 );
 
@@ -216,7 +215,7 @@ class RemoveWorkshopServiceUseCaseTest {
                         () -> useCase.execute(
                                 "repair-order-1",
                                 "workshop-service-1",
-                                request
+                                command
                         )
                 );
 
@@ -243,7 +242,7 @@ class RemoveWorkshopServiceUseCaseTest {
                         () -> useCase.execute(
                                 "repair-order-1",
                                 null,
-                                request
+                                command
                         )
                 );
 
@@ -273,7 +272,7 @@ class RemoveWorkshopServiceUseCaseTest {
                         () -> useCase.execute(
                                 "repair-order-1",
                                 "  ",
-                                request
+                                command
                         )
                 );
 
@@ -303,7 +302,7 @@ class RemoveWorkshopServiceUseCaseTest {
                         () -> useCase.execute(
                                 "repair-order-1",
                                 "workshop-service-1",
-                                request
+                                command
                         )
                 );
 
@@ -339,7 +338,7 @@ class RemoveWorkshopServiceUseCaseTest {
                         () -> useCase.execute(
                                 "repair-order-1",
                                 "workshop-service-1",
-                                request
+                                command
                         )
                 );
 
@@ -361,7 +360,7 @@ class RemoveWorkshopServiceUseCaseTest {
     @Test
     void shouldThrowWhenRequestedQuantityIsGreaterThanRepairOrderQuantity() {
 
-        request.setQuantity(6);
+        command = new RemoveWorkshopServiceCommand(6);
 
         when(repairOrderFinder.findById("repair-order-1"))
                 .thenReturn(repairOrder);
@@ -375,7 +374,7 @@ class RemoveWorkshopServiceUseCaseTest {
                         () -> useCase.execute(
                                 "repair-order-1",
                                 "workshop-service-1",
-                                request
+                                command
                         )
                 );
 
@@ -397,7 +396,7 @@ class RemoveWorkshopServiceUseCaseTest {
     @Test
     void shouldThrowWhenQuantityIsZero() {
 
-        request.setQuantity(0);
+        command = new RemoveWorkshopServiceCommand(0);
 
         when(repairOrderFinder.findById("repair-order-1"))
                 .thenReturn(repairOrder);
@@ -411,7 +410,7 @@ class RemoveWorkshopServiceUseCaseTest {
                         () -> useCase.execute(
                                 "repair-order-1",
                                 "workshop-service-1",
-                                request
+                                command
                         )
                 );
 
@@ -427,7 +426,7 @@ class RemoveWorkshopServiceUseCaseTest {
     @Test
     void shouldThrowWhenQuantityIsNegative() {
 
-        request.setQuantity(-1);
+        command = new RemoveWorkshopServiceCommand(-1);
 
         when(repairOrderFinder.findById("repair-order-1"))
                 .thenReturn(repairOrder);
@@ -441,7 +440,7 @@ class RemoveWorkshopServiceUseCaseTest {
                         () -> useCase.execute(
                                 "repair-order-1",
                                 "workshop-service-1",
-                                request
+                                command
                         )
                 );
 
@@ -457,7 +456,7 @@ class RemoveWorkshopServiceUseCaseTest {
     @Test
     void shouldNotPersistWhenRemoveWorkshopServiceFails() {
 
-        request.setQuantity(10);
+        command = new RemoveWorkshopServiceCommand(10);
 
         when(repairOrderFinder.findById("repair-order-1"))
                 .thenReturn(repairOrder);
@@ -470,7 +469,7 @@ class RemoveWorkshopServiceUseCaseTest {
                 () -> useCase.execute(
                         "repair-order-1",
                         "workshop-service-1",
-                        request
+                        command
                 )
         );
 
@@ -493,7 +492,7 @@ class RemoveWorkshopServiceUseCaseTest {
         useCase.execute(
                 "repair-order-1",
                 "workshop-service-1",
-                request
+                command
         );
 
         ArgumentCaptor<RepairOrder> captor =

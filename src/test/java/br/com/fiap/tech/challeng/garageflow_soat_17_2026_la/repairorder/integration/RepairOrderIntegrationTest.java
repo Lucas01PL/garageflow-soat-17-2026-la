@@ -5,6 +5,7 @@ import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.customer.domain.repo
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.config.MongoTestContainerConfiguration;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.RepairOrder;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.repository.RepairOrderRepository;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.type.RepairOrderStatus;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.vehicle.domain.model.Vehicle;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.vehicle.domain.repository.VehicleRepository;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.domain.model.WorkshopService;
@@ -22,8 +23,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -70,6 +73,42 @@ class RepairOrderIntegrationTest {
         customerRepository.findAll()
                 .forEach(customer ->
                         customerRepository.delete(customer.getId()));
+    }
+
+    @Test
+    void shouldListOnlyEligibleRepairOrdersOrderedByStatusAndCreatedDate() throws Exception {
+        LocalDateTime baseDate = LocalDateTime.of(2026, 1, 1, 10, 0);
+        saveRepairOrder("received-later", RepairOrderStatus.RECEIVED, baseDate.plusDays(2));
+        saveRepairOrder("received-earlier", RepairOrderStatus.RECEIVED, baseDate);
+        saveRepairOrder("in-diagnosis", RepairOrderStatus.IN_DIAGNOSIS, baseDate);
+        saveRepairOrder("in-execution", RepairOrderStatus.IN_EXECUTION, baseDate);
+        saveRepairOrder("awaiting-approval", RepairOrderStatus.AWAITING_APPROVAL, baseDate);
+
+        saveRepairOrder("finished", RepairOrderStatus.FINISHED, baseDate);
+        saveRepairOrder("delivered", RepairOrderStatus.DELIVERED, baseDate);
+        saveRepairOrder("approved", RepairOrderStatus.APPROVED, baseDate);
+        saveRepairOrder("rejected", RepairOrderStatus.REJECTED, baseDate);
+        saveRepairOrder("cancelled", RepairOrderStatus.CANCELLED, baseDate);
+
+        mockMvc.perform(
+                        get("/repair-orders")
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAuthToken())
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[*].number", contains(
+                        "awaiting-approval",
+                        "in-diagnosis",
+                        "in-execution",
+                        "received-earlier",
+                        "received-later"
+                )))
+                .andExpect(jsonPath("$[*].status", contains(
+                        "AWAITING_APPROVAL",
+                        "IN_DIAGNOSIS",
+                        "IN_EXECUTION",
+                        "RECEIVED",
+                        "RECEIVED"
+                )));
     }
 
     @Test
@@ -610,6 +649,15 @@ class RepairOrderIntegrationTest {
 
         assertThat(persisted.getStatus().name())
                 .isEqualTo("REJECTED");
+    }
+
+    private void saveRepairOrder(String number, RepairOrderStatus status, LocalDateTime createdDate) {
+        repairOrderRepository.save(RepairOrder.builder()
+                .number(number)
+                .status(status)
+                .userId("integration-test-user")
+                .createdDate(createdDate)
+                .build());
     }
 
     private String getAuthToken() throws Exception {
