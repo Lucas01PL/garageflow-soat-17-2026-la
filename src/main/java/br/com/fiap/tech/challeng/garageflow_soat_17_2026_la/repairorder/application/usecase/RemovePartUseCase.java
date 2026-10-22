@@ -1,16 +1,13 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase;
 
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.application.usecase.PartStockControlUseCase;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.model.Part;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.repository.PartRepository;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.service.PartService;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.service.RepairOrderPartStockCoordinator;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.service.RepairOrderFinder;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.command.RemovePartCommand;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.exception.InvalidPartException;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.exception.PartStockOperationException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.PartSnapshot;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.RepairOrder;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.repository.RepairOrderRepository;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.ResourceNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,46 +16,30 @@ import org.springframework.stereotype.Service;
 public class RemovePartUseCase {
 
     private final RepairOrderRepository repository;
-    private final PartRepository partRepository;
+    private final PartService partService;
     private final RepairOrderFinder repairOrderFinder;
-    private final PartStockControlUseCase partStockControlUseCase;
+    private final RepairOrderPartStockCoordinator partStockCoordinator;
 
     public RepairOrder execute(String repairOrderId, String partId, RemovePartCommand command) {
 
         RepairOrder repairOrder = repairOrderFinder.findById(repairOrderId);
 
-        Part part = getPart(partId);
+        validatePartId(partId);
+        PartSnapshot partSnapshot = partService.resolvePart(partId, command.quantity());
 
-        PartSnapshot partSnapshot = PartSnapshot.from(part, command.quantity());
-
-        try {
-            partStockControlUseCase.addPartStock(partId, command.quantity());
-        } catch (Exception e) {
-            throw new PartStockOperationException("add", e.getMessage());
-        }
-
-        try {
-            repairOrder.removePart(partSnapshot);
-        } catch (Exception e) {
-            try {
-                partStockControlUseCase.debitPartStock(partId, command.quantity());
-            } catch (Exception rollbackException) {
-                throw new PartStockOperationException("remove", "Failed to rollback stock after remove part failure: " + rollbackException.getMessage());
-            }
-            throw e;
-        }
+        partStockCoordinator.restoreAndExecute(
+                partSnapshot,
+                () -> {
+                    repairOrder.removePart(partSnapshot);
+                    return null;
+                });
 
         return repository.save(repairOrder);
     }
 
-    private Part getPart(String partId) {
+    private void validatePartId(String partId) {
         if (partId == null || partId.isBlank()) {
             throw new InvalidPartException("Part ID cannot be empty");
         }
-
-        return partRepository.findById(partId)
-                .orElseThrow(() -> new ResourceNotFoundException("Part", "id", partId));
-
     }
 }
-
