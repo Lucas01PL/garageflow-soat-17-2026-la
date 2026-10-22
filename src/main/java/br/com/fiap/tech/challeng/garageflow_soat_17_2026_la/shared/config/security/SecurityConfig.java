@@ -53,6 +53,7 @@ public class SecurityConfig {
                 .authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/actuator/health/**").permitAll()
                         .requestMatchers("/docs/**", "/openapi/**", "/v3/api-docs/**", "/swagger-ui/**", "/webjars/**").permitAll()
 
                         .requestMatchers("/users/**").hasRole("ADMIN")

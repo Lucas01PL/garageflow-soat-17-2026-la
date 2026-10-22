@@ -12,7 +12,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Repository
 public class RepairOrderRepositoryImpl implements RepairOrderRepository {
@@ -84,7 +83,10 @@ public class RepairOrderRepositoryImpl implements RepairOrderRepository {
 
     @Override
     public List<RepairOrder> listAll(List<RepairOrderStatus> status) {
-        return repairOrderMongoRepository.listAll(status);
+        return repairOrderMongoRepository.findByStatusInOrderByStatusAscCreatedDateAsc(status)
+                .stream()
+                .map(this::toDomain)
+                .collect(Collectors.toList());
     }
 
     private RepairOrder toDomain(RepairOrderDocument entity) {

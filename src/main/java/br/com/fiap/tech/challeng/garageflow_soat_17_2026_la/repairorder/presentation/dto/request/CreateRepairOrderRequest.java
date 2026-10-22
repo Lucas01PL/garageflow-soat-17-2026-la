@@ -18,8 +18,8 @@ public class CreateRepairOrderRequest {
     @NotBlank(message = "Customer ID cannot be blank")
     private String customerId;
 
-    private List<String> serviceIds;
+    private List<AddWorkshopServiceRequest> workshopServices;
 
-    private List<String> partIds;
+    private List<AddPartRequest> parts;
 }
 

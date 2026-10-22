@@ -1,6 +1,5 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.infrastructure.persistence.mongo;
 
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.RepairOrder;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.type.RepairOrderStatus;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.infrastructure.persistence.document.RepairOrderDocument;
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -30,12 +29,6 @@ public interface RepairOrderMongoRepository extends MongoRepository<RepairOrderD
             String partId
     );
 
-    @Query("""
-        select ro
-        from RepairOrder ro
-        where ro.status in :statuses
-        order by ro.status asc, ro.createdDate asc
-        """)
-    List<RepairOrder> listAll(@Param("status") List<RepairOrderStatus> status);
+    List<RepairOrderDocument> findByStatusInOrderByStatusAscCreatedDateAsc(@Param("status") List<RepairOrderStatus> status);
 }
 
