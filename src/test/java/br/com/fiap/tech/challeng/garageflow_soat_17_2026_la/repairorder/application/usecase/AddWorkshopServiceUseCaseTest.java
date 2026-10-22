@@ -1,6 +1,7 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase;
 
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.service.RepairOrderFinder;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.service.WorkshopServiceService;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.command.AddWorkshopServiceCommand;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.RepairOrder;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.WorkshopServiceSnapshot;
@@ -15,7 +16,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -44,7 +44,8 @@ class AddWorkshopServiceUseCaseTest {
     @Mock
     private RepairOrderFinder repairOrderFinder;
 
-    @InjectMocks
+    private WorkshopServiceService workshopServiceService;
+
     private AddWorkshopServiceUseCase useCase;
 
     private RepairOrder repairOrder;
@@ -66,6 +67,11 @@ class AddWorkshopServiceUseCaseTest {
         workshopService.setId("workshop-service-1");
 
         command = new AddWorkshopServiceCommand("workshop-service-1", 2);
+        workshopServiceService = new WorkshopServiceService(workshopServiceRepository);
+        useCase = new AddWorkshopServiceUseCase(
+                repository,
+                workshopServiceService,
+                repairOrderFinder);
     }
 
     @Test
