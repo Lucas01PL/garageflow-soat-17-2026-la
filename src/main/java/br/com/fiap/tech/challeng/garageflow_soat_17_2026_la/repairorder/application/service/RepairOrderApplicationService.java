@@ -2,6 +2,7 @@ package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.applica
 
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.customer.application.usecase.GetCustomerUseCase;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.customer.domain.model.Customer;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.event.RepairOrderStatusChangedEvent;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase.*;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.command.AddPartCommand;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.command.AddWorkshopServiceCommand;
@@ -10,10 +11,13 @@ import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.applicat
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.command.RemoveWorkshopServiceCommand;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.AverageWorkshopServiceExecutionTime;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.RepairOrder;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.type.RepairOrderStatus;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,6 +45,7 @@ public class RepairOrderApplicationService {
     private final ListRepairOrdersByCustomerUseCase listRepairOrdersByCustomerUseCase;
     private final GetAverageWorkshopServiceExecutionTimeUseCase averageWorkshopServiceExecutionTimeUseCase;
     private final GetCustomerUseCase getCustomerUseCase;
+    private final ApplicationEventPublisher eventPublisher;
 
     public RepairOrder create(RepairOrder repairOrder) {
         return createUseCase.execute(repairOrder);
@@ -74,7 +79,10 @@ public class RepairOrderApplicationService {
     }
 
     public RepairOrder startDiagnosis(String repairOrderId) {
-        return startRepairOrderDiagnosisUseCase.execute(repairOrderId);
+        RepairOrder repairOrder =
+                startRepairOrderDiagnosisUseCase.execute(repairOrderId);
+        publishStatusNotification(repairOrder);
+        return repairOrder;
     }
 
     public RepairOrder startWorkshopService(String repairOrderId, String workshopServiceId) {
@@ -82,31 +90,47 @@ public class RepairOrderApplicationService {
     }
 
     public RepairOrder finishWorkshopService(String repairOrderId, String workshopServiceId, FinishWorkshopServiceCommand command) {
-        return finishWorkshopServiceUseCase.execute(repairOrderId, workshopServiceId, command);
+        RepairOrder repairOrder = finishWorkshopServiceUseCase.execute(repairOrderId, workshopServiceId, command);
+        if (repairOrder.getStatus() == RepairOrderStatus.FINISHED) {
+            publishStatusNotification(repairOrder);
+        }
+        return repairOrder;
     }
 
     public RepairOrder approve(String repairOrderId, String userId) {
-        return approveRepairOrderUseCase.execute(repairOrderId, userId);
+        RepairOrder repairOrder = approveRepairOrderUseCase.execute(repairOrderId, userId);
+        publishStatusNotification(repairOrder);
+        return repairOrder;
     }
 
     public RepairOrder reject(String repairOrderId) {
-        return rejectRepairOrderUseCase.execute(repairOrderId);
+        RepairOrder repairOrder = rejectRepairOrderUseCase.execute(repairOrderId);
+        publishStatusNotification(repairOrder);
+        return repairOrder;
     }
 
     public RepairOrder deliver(String repairOrderId) {
-        return deliverRepairOrderUseCase.execute(repairOrderId);
+        RepairOrder repairOrder = deliverRepairOrderUseCase.execute(repairOrderId);
+        publishStatusNotification(repairOrder);
+        return repairOrder;
     }
 
     public RepairOrder startExecution(String repairOrderId) {
-        return startRepairOrderExecutionUseCase.execute(repairOrderId);
+        RepairOrder repairOrder = startRepairOrderExecutionUseCase.execute(repairOrderId);
+        publishStatusNotification(repairOrder);
+        return repairOrder;
     }
 
     public RepairOrder requestApproval(String repairOrderId) {
-        return requestRepairOrderApprovalUseCase.execute(repairOrderId);
+        RepairOrder repairOrder = requestRepairOrderApprovalUseCase.execute(repairOrderId);
+        publishStatusNotification(repairOrder);
+        return repairOrder;
     }
 
     public RepairOrder cancel(String repairOrderId) {
-        return cancelRepairOrderUseCase.execute(repairOrderId);
+        RepairOrder repairOrder = cancelRepairOrderUseCase.execute(repairOrderId);
+        publishStatusNotification(repairOrder);
+        return repairOrder;
     }
 
     public List<RepairOrder> listByCustomerEmail(String email) {
@@ -119,5 +143,22 @@ public class RepairOrderApplicationService {
 
     public List<AverageWorkshopServiceExecutionTime> getAverageWorkshopServiceExecutionTime() {
         return averageWorkshopServiceExecutionTimeUseCase.execute();
+    }
+
+    private void publishStatusNotification(
+            RepairOrder repairOrder) {
+
+        var customer = repairOrder.getCustomer();
+
+        eventPublisher.publishEvent(
+                new RepairOrderStatusChangedEvent(
+                        repairOrder.getId(),
+                        repairOrder.getNumber(),
+                        customer == null ? null : customer.getName(),
+                        customer == null ? null : customer.getEmail(),
+                        repairOrder.getStatus(),
+                        Instant.now()
+                )
+        );
     }
 }
