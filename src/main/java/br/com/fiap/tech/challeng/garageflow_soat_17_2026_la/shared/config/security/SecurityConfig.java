@@ -54,6 +54,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/docs/**", "/openapi/**", "/v3/api-docs/**", "/swagger-ui/**", "/webjars/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/external/**").permitAll()
 
                         .requestMatchers("/users/**").hasRole("ADMIN")
 
