@@ -12,6 +12,24 @@ public record RepairOrderStatusChangedEvent(
         String customerName,
         String customerEmail,
         RepairOrderStatus newStatus,
-        Instant occurredAt
+        Instant occurredAt,
+        String approvalToken
 ) {
+    public RepairOrderStatusChangedEvent(
+            String repairOrderId,
+            String repairOrderNumber,
+            String customerName,
+            String customerEmail,
+            RepairOrderStatus newStatus,
+            Instant occurredAt) {
+        this(
+                repairOrderId,
+                repairOrderNumber,
+                customerName,
+                customerEmail,
+                newStatus,
+                occurredAt,
+                null
+        );
+    }
 }

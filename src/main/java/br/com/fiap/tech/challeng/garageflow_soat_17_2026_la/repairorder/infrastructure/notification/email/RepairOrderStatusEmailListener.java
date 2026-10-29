@@ -100,14 +100,16 @@ public class RepairOrderStatusEmailListener {
                             repairOrderNumber,
                             statusDescription,
                             statusCode,
-                            occurredAt
+                            occurredAt,
+                            event.approvalToken()
                     ),
                     buildHtmlMessage(
                             customerName,
                             repairOrderNumber,
                             statusDescription,
                             statusCode,
-                            occurredAt
+                            occurredAt,
+                            event.approvalToken()
                     )
             );
 
@@ -137,7 +139,8 @@ public class RepairOrderStatusEmailListener {
             String repairOrderNumber,
             String statusDescription,
             String statusCode,
-            String occurredAt) {
+            String occurredAt,
+            String approvalToken) {
 
         return """
                 Olá, %s!
@@ -159,7 +162,7 @@ public class RepairOrderStatusEmailListener {
                 statusDescription,
                 statusCode,
                 occurredAt
-        );
+        ) + buildApprovalInstructions(approvalToken);
     }
 
     private String buildHtmlMessage(
@@ -167,7 +170,8 @@ public class RepairOrderStatusEmailListener {
             String repairOrderNumber,
             String statusDescription,
             String statusCode,
-            String occurredAt) {
+            String occurredAt,
+            String approvalToken) {
 
         String html = """
                 <!DOCTYPE html>
@@ -353,6 +357,8 @@ public class RepairOrderStatusEmailListener {
                                                 </tr>
                                             </table>
 
+                                            {{approvalInstructions}}
+
                                             <p style="margin:26px 0 0;
                                                       font-size:14px;
                                                       line-height:1.8;
@@ -420,7 +426,49 @@ public class RepairOrderStatusEmailListener {
                 .replace(
                         "{{occurredAt}}",
                         escapeHtml(occurredAt)
+                )
+                .replace(
+                        "{{approvalInstructions}}",
+                        buildApprovalHtml(approvalToken)
                 );
+    }
+
+    private String buildApprovalInstructions(String approvalToken) {
+        if (!hasText(approvalToken)) {
+            return "";
+        }
+
+        return """
+
+                Para aprovar ou rejeitar o orçamento, envie uma requisição
+                POST para /repair-orders/budget-decision, informando esta
+                chave no cabeçalho X-API-Key:
+                %s
+                Use o corpo {"approved": true} para aprovar ou
+                {"approved": false} para rejeitar. A chave expira em sete dias.
+                """.formatted(approvalToken);
+    }
+
+    private String buildApprovalHtml(String approvalToken) {
+        if (!hasText(approvalToken)) {
+            return "";
+        }
+
+        return """
+                <p style="margin:26px 0 0;
+                          font-size:14px;
+                          line-height:1.8;
+                          color:#526176;">
+                    Para aprovar ou rejeitar o orçamento, envie uma requisição
+                    <strong>POST</strong> para
+                    <code>/repair-orders/budget-decision</code>, informando
+                    esta chave no cabeçalho <code>X-API-Key</code>:
+                    <br><code>%s</code>
+                    <br>Use <code>{"approved": true}</code> para aprovar ou
+                    <code>{"approved": false}</code> para rejeitar. A chave
+                    expira em sete dias.
+                </p>
+                """.formatted(escapeHtml(approvalToken));
     }
 
     private String escapeHtml(String value) {
