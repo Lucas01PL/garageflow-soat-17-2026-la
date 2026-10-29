@@ -7,6 +7,7 @@ import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.e
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.exception.WorkshopServiceNotFoundException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.type.RepairOrderStatus;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.type.WorkshopServiceStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
 import lombok.Getter;
 import org.jspecify.annotations.NonNull;
@@ -39,6 +40,9 @@ public class RepairOrder {
     private String userId;
     private LocalDateTime createdDate;
     private LocalDateTime updatedDate;
+
+    @JsonIgnore
+    private RepairOrderApprovalLink approvalLink;
 
 
     public void addWorkshopService(
@@ -250,6 +254,7 @@ public class RepairOrder {
                     "Repair Order must be awaiting customer approval.");
         }
 
+        invalidateApprovalLink();
         status = RepairOrderStatus.APPROVED;
         updatedDate = LocalDateTime.now(ZoneId.systemDefault());
     }
@@ -269,6 +274,7 @@ public class RepairOrder {
                     "Repair Order must be awaiting customer approval.");
         }
 
+        invalidateApprovalLink();
         status = RepairOrderStatus.REJECTED;
         updatedDate = LocalDateTime.now(ZoneId.systemDefault());
     }
@@ -300,6 +306,7 @@ public class RepairOrder {
     public void requestApproval() {
         validateCanRequestApproval();
 
+        invalidateApprovalLink();
         status = RepairOrderStatus.AWAITING_APPROVAL;
         updatedDate = LocalDateTime.now(ZoneId.systemDefault());
     }
@@ -345,6 +352,39 @@ public class RepairOrder {
                     "Repair Order cannot be cancelled in the current state."
             );
         }
+    }
+
+    public void createApprovalLink(
+            String tokenHash,
+            java.time.Instant now,
+            java.time.Instant expiresAt) {
+
+        if (status != RepairOrderStatus.AWAITING_APPROVAL) {
+            throw new InvalidRepairOrderStateException(
+                    "Repair Order must be awaiting approval to create an approval link."
+            );
+        }
+
+        this.approvalLink = new RepairOrderApprovalLink(
+                tokenHash,
+                now,
+                expiresAt,
+                null
+        );
+    }
+
+    public void invalidateApprovalLink() {
+        this.approvalLink = null;
+    }
+
+    public void consumeApprovalLink(java.time.Instant now) {
+        if (approvalLink == null || !approvalLink.isValid(now)) {
+            throw new InvalidRepairOrderStateException(
+                    "Approval link is invalid, expired or already used."
+            );
+        }
+
+        this.approvalLink = approvalLink.markAsUsed(now);
     }
 
     private boolean canBeCancelled() {
