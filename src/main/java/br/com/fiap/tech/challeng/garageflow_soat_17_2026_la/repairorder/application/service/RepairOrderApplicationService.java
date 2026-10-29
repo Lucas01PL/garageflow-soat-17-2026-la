@@ -44,6 +44,7 @@ public class RepairOrderApplicationService {
     private final CancelRepairOrderUseCase cancelRepairOrderUseCase;
     private final ListRepairOrdersByCustomerUseCase listRepairOrdersByCustomerUseCase;
     private final GetAverageWorkshopServiceExecutionTimeUseCase averageWorkshopServiceExecutionTimeUseCase;
+    private final DecideRepairOrderBudgetUseCase decideRepairOrderBudgetUseCase;
     private final GetCustomerUseCase getCustomerUseCase;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -122,7 +123,16 @@ public class RepairOrderApplicationService {
     }
 
     public RepairOrder requestApproval(String repairOrderId) {
-        RepairOrder repairOrder = requestRepairOrderApprovalUseCase.execute(repairOrderId);
+        var approvalResult =
+                requestRepairOrderApprovalUseCase.executeWithToken(repairOrderId);
+        RepairOrder repairOrder = approvalResult.repairOrder();
+        publishStatusNotification(repairOrder, approvalResult.rawToken());
+        return repairOrder;
+    }
+
+    public RepairOrder decideBudget(String token, boolean approved) {
+        RepairOrder repairOrder =
+                decideRepairOrderBudgetUseCase.execute(token, approved);
         publishStatusNotification(repairOrder);
         return repairOrder;
     }
@@ -148,6 +158,13 @@ public class RepairOrderApplicationService {
     private void publishStatusNotification(
             RepairOrder repairOrder) {
 
+        publishStatusNotification(repairOrder, null);
+    }
+
+    private void publishStatusNotification(
+            RepairOrder repairOrder,
+            String approvalToken) {
+
         var customer = repairOrder.getCustomer();
 
         eventPublisher.publishEvent(
@@ -157,7 +174,8 @@ public class RepairOrderApplicationService {
                         customer == null ? null : customer.getName(),
                         customer == null ? null : customer.getEmail(),
                         repairOrder.getStatus(),
-                        Instant.now()
+                        Instant.now(),
+                        approvalToken
                 )
         );
     }
