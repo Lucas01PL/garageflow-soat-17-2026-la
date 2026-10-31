@@ -3,6 +3,10 @@ package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la
 
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la
         .repairorder.application.event.RepairOrderStatusChangedEvent;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la
+        .repairorder.application.event.RepairOrderStatusChangedEvent.BudgetItem;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la
+        .repairorder.domain.type.RepairOrderStatus;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -18,9 +22,14 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.HtmlUtils;
 
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.text.NumberFormat;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Currency;
+import java.util.List;
+import java.util.Locale;
 
 @Component
 @RequiredArgsConstructor
@@ -90,6 +99,9 @@ public class RepairOrderStatusEmailListener {
                     properties.publicBaseUrl().replaceAll("/+$", "")
                             + "/external/repair-orders/budget-decision";
 
+            String budgetPlainText = buildBudgetPlainText(event);
+            String budgetHtml = buildBudgetHtml(event);
+
             helper.setFrom(properties.from());
             helper.setTo(event.customerEmail());
 
@@ -105,6 +117,7 @@ public class RepairOrderStatusEmailListener {
                             statusDescription,
                             statusCode,
                             occurredAt,
+                            budgetPlainText,
                             event.approvalToken(),
                             decisionUrl
                     ),
@@ -114,6 +127,7 @@ public class RepairOrderStatusEmailListener {
                             statusDescription,
                             statusCode,
                             occurredAt,
+                            budgetHtml,
                             event.approvalToken(),
                             decisionUrl
                     )
@@ -146,6 +160,7 @@ public class RepairOrderStatusEmailListener {
             String statusDescription,
             String statusCode,
             String occurredAt,
+            String budgetDetails,
             String approvalToken,
             String decisionUrl) {
 
@@ -169,7 +184,7 @@ public class RepairOrderStatusEmailListener {
                 statusDescription,
                 statusCode,
                 occurredAt
-        ) + buildApprovalInstructions(approvalToken, decisionUrl);
+        ) + budgetDetails + buildApprovalInstructions(approvalToken, decisionUrl);
     }
 
     private String buildHtmlMessage(
@@ -178,6 +193,7 @@ public class RepairOrderStatusEmailListener {
             String statusDescription,
             String statusCode,
             String occurredAt,
+            String budgetDetails,
             String approvalToken,
             String decisionUrl) {
 
@@ -365,6 +381,8 @@ public class RepairOrderStatusEmailListener {
                                                 </tr>
                                             </table>
 
+                                            {{budgetDetails}}
+
                                             {{approvalInstructions}}
 
                                             <p style="margin:26px 0 0;
@@ -436,9 +454,165 @@ public class RepairOrderStatusEmailListener {
                         escapeHtml(occurredAt)
                 )
                 .replace(
+                        "{{budgetDetails}}",
+                        budgetDetails
+                )
+                .replace(
                         "{{approvalInstructions}}",
                         buildApprovalHtml(approvalToken, decisionUrl)
                 );
+    }
+
+    private String buildBudgetPlainText(
+            RepairOrderStatusChangedEvent event) {
+        if (event.newStatus() != RepairOrderStatus.AWAITING_APPROVAL) {
+            return "";
+        }
+
+        StringBuilder budget = new StringBuilder("""
+
+                Orçamento para aprovação
+
+                Serviços:
+                """);
+        appendPlainItems(budget, event.services());
+        budget.append("Total de serviços: ")
+                .append(formatCurrency(event.totalServices()))
+                .append("\n\nPeças:\n");
+        appendPlainItems(budget, event.parts());
+        budget.append("Total de peças: ")
+                .append(formatCurrency(event.totalParts()))
+                .append("\nTotal geral: ")
+                .append(formatCurrency(event.total()))
+                .append("\n");
+        return budget.toString();
+    }
+
+    private void appendPlainItems(
+            StringBuilder output,
+            List<BudgetItem> items) {
+        if (items.isEmpty()) {
+            output.append("- Nenhum item informado\n");
+            return;
+        }
+
+        for (BudgetItem item : items) {
+            output.append("- ")
+                    .append(item.description())
+                    .append(" | Quantidade: ")
+                    .append(item.quantity())
+                    .append(" | Unitário: ")
+                    .append(formatCurrency(item.unitPrice()))
+                    .append(" | Subtotal: ")
+                    .append(formatCurrency(lineTotal(item)))
+                    .append("\n");
+        }
+    }
+
+    private String buildBudgetHtml(
+            RepairOrderStatusChangedEvent event) {
+        if (event.newStatus() != RepairOrderStatus.AWAITING_APPROVAL) {
+            return "";
+        }
+
+        return """
+                <div style="margin-top:24px;
+                            padding:20px;
+                            background-color:#f7f9fc;
+                            border:1px solid #e1e7ef;
+                            border-radius:8px;
+                            color:#243247;">
+                    <h2 style="margin:0 0 18px;font-size:18px;">
+                        Orçamento para aprovação
+                    </h2>
+                %s
+                    <p style="margin:18px 0 0;font-size:14px;">
+                        <strong>Total geral: %s</strong>
+                    </p>
+                </div>
+                """.formatted(
+                buildBudgetCategoryHtml(
+                        "Serviços",
+                        event.services(),
+                        event.totalServices()
+                ) + buildBudgetCategoryHtml(
+                        "Peças",
+                        event.parts(),
+                        event.totalParts()
+                ),
+                escapeHtml(formatCurrency(event.total()))
+        );
+    }
+
+    private String buildBudgetCategoryHtml(
+            String title,
+            List<BudgetItem> items,
+            BigDecimal categoryTotal) {
+        StringBuilder category = new StringBuilder("""
+                    <h3 style="margin:18px 0 8px;font-size:15px;">%s</h3>
+                    <table role="presentation" width="100%%" cellspacing="0"
+                           cellpadding="8" border="0"
+                           style="border-collapse:collapse;font-size:13px;">
+                        <thead>
+                            <tr style="text-align:left;background-color:#e8edf3;">
+                                <th>Descrição</th>
+                                <th>Quantidade</th>
+                                <th>Valor unitário</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                """.formatted(escapeHtml(title)));
+
+        if (items.isEmpty()) {
+            category.append("""
+                            <tr>
+                                <td colspan="4">Nenhum item informado</td>
+                            </tr>
+                    """);
+        } else {
+            for (BudgetItem item : items) {
+                category.append("""
+                            <tr style="border-bottom:1px solid #e1e7ef;">
+                                <td>%s</td>
+                                <td>%s</td>
+                                <td>%s</td>
+                                <td>%s</td>
+                            </tr>
+                        """.formatted(
+                        escapeHtml(item.description()),
+                        escapeHtml(item.quantity().toString()),
+                        escapeHtml(formatCurrency(item.unitPrice())),
+                        escapeHtml(formatCurrency(lineTotal(item)))
+                ));
+            }
+        }
+
+        return category.append("""
+                        </tbody>
+                    </table>
+                    <p style="margin:8px 0 0;text-align:right;font-size:13px;">
+                        Total de %s: <strong>%s</strong>
+                    </p>
+                """.formatted(
+                escapeHtml(title.toLowerCase(Locale.forLanguageTag("pt-BR"))),
+                escapeHtml(formatCurrency(categoryTotal))
+        )).toString();
+    }
+
+    private BigDecimal lineTotal(BudgetItem item) {
+        return item.unitPrice().multiply(BigDecimal.valueOf(item.quantity()));
+    }
+
+    private String formatCurrency(BigDecimal amount) {
+        if (amount == null) {
+            return "Não informado";
+        }
+
+        NumberFormat formatter =
+                NumberFormat.getCurrencyInstance(Locale.forLanguageTag("pt-BR"));
+        formatter.setCurrency(Currency.getInstance("BRL"));
+        return formatter.format(amount);
     }
 
     private String buildApprovalInstructions(
