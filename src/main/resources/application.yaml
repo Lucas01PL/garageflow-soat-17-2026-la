@@ -24,6 +24,7 @@ app:
   notification:
     mail:
       from: ${MAIL_FROM:${MAIL_USERNAME}}
+      public-base-url: ${APP_PUBLIC_BASE_URL:http://localhost:8080/api}
 
 server:
   servlet:
