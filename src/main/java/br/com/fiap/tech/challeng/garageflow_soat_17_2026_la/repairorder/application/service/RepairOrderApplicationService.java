@@ -10,7 +10,9 @@ import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.applicat
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.command.RemovePartCommand;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.command.RemoveWorkshopServiceCommand;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.AverageWorkshopServiceExecutionTime;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.PartSnapshot;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.RepairOrder;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.WorkshopServiceSnapshot;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.type.RepairOrderStatus;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -175,8 +177,35 @@ public class RepairOrderApplicationService {
                         customer == null ? null : customer.getEmail(),
                         repairOrder.getStatus(),
                         Instant.now(),
-                        approvalToken
+                        approvalToken,
+                        repairOrder.getWorkshopServices().stream()
+                                .map(RepairOrderApplicationService::toBudgetItem)
+                                .toList(),
+                        repairOrder.getParts().stream()
+                                .map(RepairOrderApplicationService::toBudgetItem)
+                                .toList(),
+                        repairOrder.getTotalServices(),
+                        repairOrder.getTotalParts(),
+                        repairOrder.getTotal()
                 )
+        );
+    }
+
+    private static RepairOrderStatusChangedEvent.BudgetItem toBudgetItem(
+            WorkshopServiceSnapshot service) {
+        return new RepairOrderStatusChangedEvent.BudgetItem(
+                service.getDescription(),
+                service.getQuantity(),
+                service.getUnitPrice()
+        );
+    }
+
+    private static RepairOrderStatusChangedEvent.BudgetItem toBudgetItem(
+            PartSnapshot part) {
+        return new RepairOrderStatusChangedEvent.BudgetItem(
+                part.getDescription(),
+                part.getQuantity(),
+                part.getUnitPrice()
         );
     }
 }
