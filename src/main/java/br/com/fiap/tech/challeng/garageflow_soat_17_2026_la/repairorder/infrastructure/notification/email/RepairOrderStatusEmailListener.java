@@ -86,6 +86,10 @@ public class RepairOrderStatusEmailListener {
                             ? "Não informado"
                             : DATE_FORMATTER.format(event.occurredAt());
 
+            String decisionUrl =
+                    properties.publicBaseUrl().replaceAll("/+$", "")
+                            + "/external/repair-orders/budget-decision";
+
             helper.setFrom(properties.from());
             helper.setTo(event.customerEmail());
 
@@ -101,7 +105,8 @@ public class RepairOrderStatusEmailListener {
                             statusDescription,
                             statusCode,
                             occurredAt,
-                            event.approvalToken()
+                            event.approvalToken(),
+                            decisionUrl
                     ),
                     buildHtmlMessage(
                             customerName,
@@ -109,7 +114,8 @@ public class RepairOrderStatusEmailListener {
                             statusDescription,
                             statusCode,
                             occurredAt,
-                            event.approvalToken()
+                            event.approvalToken(),
+                            decisionUrl
                     )
             );
 
@@ -140,7 +146,8 @@ public class RepairOrderStatusEmailListener {
             String statusDescription,
             String statusCode,
             String occurredAt,
-            String approvalToken) {
+            String approvalToken,
+            String decisionUrl) {
 
         return """
                 Olá, %s!
@@ -162,7 +169,7 @@ public class RepairOrderStatusEmailListener {
                 statusDescription,
                 statusCode,
                 occurredAt
-        ) + buildApprovalInstructions(approvalToken);
+        ) + buildApprovalInstructions(approvalToken, decisionUrl);
     }
 
     private String buildHtmlMessage(
@@ -171,7 +178,8 @@ public class RepairOrderStatusEmailListener {
             String statusDescription,
             String statusCode,
             String occurredAt,
-            String approvalToken) {
+            String approvalToken,
+            String decisionUrl) {
 
         String html = """
                 <!DOCTYPE html>
@@ -429,46 +437,90 @@ public class RepairOrderStatusEmailListener {
                 )
                 .replace(
                         "{{approvalInstructions}}",
-                        buildApprovalHtml(approvalToken)
+                        buildApprovalHtml(approvalToken, decisionUrl)
                 );
     }
 
-    private String buildApprovalInstructions(String approvalToken) {
+    private String buildApprovalInstructions(
+            String approvalToken,
+            String decisionUrl) {
         if (!hasText(approvalToken)) {
             return "";
         }
 
         return """
 
-                Para aprovar ou rejeitar o orçamento, envie uma requisição
-                POST para /repair-orders/budget-decision, informando esta
-                chave no cabeçalho X-API-Key:
-                %s
-                Use o corpo {"approved": true} para aprovar ou
-                {"approved": false} para rejeitar. A chave expira em sete dias.
-                """.formatted(approvalToken);
+                Para aprovar ou rejeitar o orçamento, use os botões no e-mail.
+                Se eles não estiverem disponíveis, envie uma requisição POST
+                para %s com os campos token=%s e approved=true (aprovar) ou
+                approved=false (rejeitar). A chave expira em sete dias.
+                """.formatted(decisionUrl, approvalToken);
     }
 
-    private String buildApprovalHtml(String approvalToken) {
+    private String buildApprovalHtml(
+            String approvalToken,
+            String decisionUrl) {
         if (!hasText(approvalToken)) {
             return "";
         }
 
         return """
-                <p style="margin:26px 0 0;
-                          font-size:14px;
-                          line-height:1.8;
-                          color:#526176;">
-                    Para aprovar ou rejeitar o orçamento, envie uma requisição
-                    <strong>POST</strong> para
-                    <code>/repair-orders/budget-decision</code>, informando
-                    esta chave no cabeçalho <code>X-API-Key</code>:
-                    <br><code>%s</code>
-                    <br>Use <code>{"approved": true}</code> para aprovar ou
-                    <code>{"approved": false}</code> para rejeitar. A chave
-                    expira em sete dias.
-                </p>
-                """.formatted(escapeHtml(approvalToken));
+                <div style="margin-top:26px;
+                            font-size:14px;
+                            line-height:1.8;
+                            color:#526176;">
+                    <p style="margin:0 0 16px;">
+                        Escolha uma opção para responder ao orçamento:
+                    </p>
+                    <table role="presentation" cellspacing="0" cellpadding="0"
+                           border="0">
+                        <tr>
+                            <td style="padding-right:10px;">
+                                <form action="%s" method="post">
+                                    <input type="hidden" name="token" value="%s">
+                                    <input type="hidden" name="approved" value="true">
+                                    <button type="submit"
+                                            style="padding:12px 20px;
+                                                   border:0;
+                                                   border-radius:6px;
+                                                   background-color:#16834a;
+                                                   color:#ffffff;
+                                                   font-size:14px;
+                                                   font-weight:bold;
+                                                   cursor:pointer;">
+                                        Aprovar orçamento
+                                    </button>
+                                </form>
+                            </td>
+                            <td>
+                                <form action="%s" method="post">
+                                    <input type="hidden" name="token" value="%s">
+                                    <input type="hidden" name="approved" value="false">
+                                    <button type="submit"
+                                            style="padding:12px 20px;
+                                                   border:0;
+                                                   border-radius:6px;
+                                                   background-color:#b42318;
+                                                   color:#ffffff;
+                                                   font-size:14px;
+                                                   font-weight:bold;
+                                                   cursor:pointer;">
+                                        Rejeitar orçamento
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    </table>
+                    <p style="margin:16px 0 0;">
+                        A chave expira em sete dias e só pode ser usada uma vez.
+                    </p>
+                </div>
+                """.formatted(
+                escapeHtml(decisionUrl),
+                escapeHtml(approvalToken),
+                escapeHtml(decisionUrl),
+                escapeHtml(approvalToken)
+        );
     }
 
     private String escapeHtml(String value) {
