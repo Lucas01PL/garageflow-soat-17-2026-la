@@ -4,6 +4,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "app.notification.mail")
 public record MailNotificationProperties(
-        String from
+        String from,
+        String publicBaseUrl
 ) {
 }
