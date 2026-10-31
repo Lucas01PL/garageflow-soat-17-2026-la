@@ -39,18 +39,23 @@ spec:
             limits:
               cpu: 500m
               memory: 768Mi
-          # Sem spring-boot-starter-actuator no pom, usamos probes TCP na porta 8080.
           # startupProbe dá até ~3 min para a JVM subir antes das outras começarem.
           startupProbe:
-            tcpSocket:
+            httpGet:
+              path: /api/actuator/health/liveness
               port: 8080
+              scheme: HTTP
             periodSeconds: 5
             failureThreshold: 36
           readinessProbe:
-            tcpSocket:
+            httpGet:
+              path: /api/actuator/health/readiness
               port: 8080
+              scheme: HTTP
             periodSeconds: 5
           livenessProbe:
-            tcpSocket:
+            httpGet:
+              path: /api/actuator/health/liveness
               port: 8080
+              scheme: HTTP
             periodSeconds: 10

@@ -3,7 +3,9 @@ package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.applica
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.application.usecase.PartStockControlUseCase;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.model.Part;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.repository.PartRepository;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.service.PartService;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.service.RepairOrderFinder;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.service.RepairOrderPartStockCoordinator;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.command.RemovePartCommand;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.exception.InsufficientQuantityException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.exception.InvalidPartException;
@@ -18,7 +20,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -49,7 +50,9 @@ class RemovePartUseCaseTest {
     @Mock
     private PartStockControlUseCase partStockControlUseCase;
 
-    @InjectMocks
+    private PartService partService;
+    private RepairOrderPartStockCoordinator partStockCoordinator;
+
     private RemovePartUseCase useCase;
 
     private RepairOrder repairOrder;
@@ -78,6 +81,13 @@ class RemovePartUseCaseTest {
                 .build();
 
         command = new RemovePartCommand(2);
+        partService = new PartService(partRepository);
+        partStockCoordinator = new RepairOrderPartStockCoordinator(partStockControlUseCase);
+        useCase = new RemovePartUseCase(
+                repository,
+                partService,
+                repairOrderFinder,
+                partStockCoordinator);
     }
 
     @Test

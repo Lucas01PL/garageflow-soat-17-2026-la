@@ -106,7 +106,8 @@ public class RepairOrder {
 
     private void validateCanModifyItems() {
 
-        if (status != RepairOrderStatus.RECEIVED &&
+        if (status != null &&
+                status != RepairOrderStatus.RECEIVED &&
                 status != RepairOrderStatus.IN_DIAGNOSIS) {
 
             throw new InvalidRepairOrderItemException(

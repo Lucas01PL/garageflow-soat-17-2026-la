@@ -25,10 +25,8 @@ module "alb" {
   public_subnet_ids = module.vpc.public_subnet_ids
   target_port       = 30080 # NodePort padrão da aplicação no Kubernetes
 
-  # A app usa context-path /api e só libera rotas públicas específicas.
-  # A raiz "/" devolve 403/404 e deixaria os nós "unhealthy". Se o actuator
-  # entrar na app, trocar por /api/actuator/health.
-  health_check_path = "/api/openapi"
+  # A app usa context-path /api; o health do Actuator é público para o ALB.
+  health_check_path = "/api/actuator/health"
 
   tags = {
     Project     = var.project_name

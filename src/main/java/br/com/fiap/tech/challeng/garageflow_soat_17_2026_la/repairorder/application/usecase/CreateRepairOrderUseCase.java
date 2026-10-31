@@ -2,8 +2,9 @@ package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.applica
 
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.customer.domain.model.Customer;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.customer.domain.repository.CustomerRepository;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.model.Part;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.repository.PartRepository;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.service.PartService;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.service.RepairOrderPartStockCoordinator;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.service.WorkshopServiceService;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.*;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.repository.RepairOrderRepository;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.RequiredFieldException;
@@ -13,24 +14,22 @@ import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.model.Us
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.user.domain.repository.UserRepository;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.vehicle.domain.model.Vehicle;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.vehicle.domain.repository.VehicleRepository;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.domain.model.WorkshopService;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.domain.repository.WorkshopServiceRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
 @Service
 public class CreateRepairOrderUseCase {
 
-    private RepairOrderRepository repository;
-    private CustomerRepository customerRepository;
-    private VehicleRepository vehicleRepository;
-    private UserRepository userRepository;
-    private PartRepository partRepository;
-    private WorkshopServiceRepository workshopServiceRepository;
+    private final RepairOrderRepository repository;
+    private final CustomerRepository customerRepository;
+    private final VehicleRepository vehicleRepository;
+    private final UserRepository userRepository;
+    private final WorkshopServiceService workshopServiceService;
+    private final PartService partService;
+    private final RepairOrderPartStockCoordinator partStockCoordinator;
 
     public RepairOrder execute(RepairOrder request) {
         if (request == null) {
@@ -52,22 +51,24 @@ public class CreateRepairOrderUseCase {
                 .customer(customerSnapshot)
                 .vehicle(vehicleSnapshot)
                 .userId(user.getId())
-                .workshopServices(workshopServices)
-                .parts(parts)
                 .build();
         repairOrder.number();
         repairOrder.received();
+        workshopServices.forEach(repairOrder::addWorkshopService);
+        parts.forEach(repairOrder::addPart);
 
-        return repository.save(repairOrder);
+        return partStockCoordinator.debitAndExecute(
+                parts,
+                () -> repository.save(repairOrder));
     }
 
     private List<WorkshopServiceSnapshot> resolveWorkshopServices(List<WorkshopServiceSnapshot> workshopServices) {
         if (workshopServices == null || workshopServices.isEmpty()) {
-            return new ArrayList<>();
+            return List.of();
         }
 
         return workshopServices.stream()
-                .map(this::resolveWorkshopServiceSnapshot)
+                .map(snapshot -> resolveWorkshopServiceSnapshot(snapshot))
                 .toList();
     }
 
@@ -76,21 +77,13 @@ public class CreateRepairOrderUseCase {
             throw new RequiredObjectException("Workshop service");
         }
 
-        String workshopServiceId = snapshot.getWorkshopServiceId();
-        if (workshopServiceId == null || workshopServiceId.isBlank()) {
-            throw new RequiredFieldException("workshopServiceId");
-        }
-
-        WorkshopService workshopService = workshopServiceRepository.findById(workshopServiceId)
-                .orElseThrow(() -> new ResourceNotFoundException("Workshop service", "id", workshopServiceId));
-
         Integer quantity = snapshot.getQuantity() == null ? 1 : snapshot.getQuantity();
-        return WorkshopServiceSnapshot.from(workshopService, quantity);
+        return workshopServiceService.resolveWorkshopService(snapshot.getWorkshopServiceId(), quantity);
     }
 
     private List<PartSnapshot> resolveParts(List<PartSnapshot> parts) {
         if (parts == null || parts.isEmpty()) {
-            return new ArrayList<>();
+            return List.of();
         }
 
         return parts.stream()
@@ -108,11 +101,8 @@ public class CreateRepairOrderUseCase {
             throw new RequiredFieldException("partId");
         }
 
-        Part part = partRepository.findById(partId)
-                .orElseThrow(() -> new ResourceNotFoundException("Part", "id", partId));
-
         Integer quantity = snapshot.getQuantity() == null ? 1 : snapshot.getQuantity();
-        return PartSnapshot.from(part, quantity);
+        return partService.resolvePart(partId, quantity);
     }
 
     private Customer getCustomer(CustomerSnapshot customer) {
@@ -145,4 +135,3 @@ public class CreateRepairOrderUseCase {
     }
 
 }
-
