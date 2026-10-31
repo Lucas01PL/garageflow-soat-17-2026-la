@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface RepairOrderMongoRepository extends MongoRepository<RepairOrderDocument, String> {
@@ -30,5 +31,7 @@ public interface RepairOrderMongoRepository extends MongoRepository<RepairOrderD
     );
 
     List<RepairOrderDocument> findByStatusInOrderByStatusAscCreatedDateAsc(@Param("status") List<RepairOrderStatus> status);
+
+    Optional<RepairOrderDocument> findByApprovalLink_TokenHash(String tokenHash);
 }
 

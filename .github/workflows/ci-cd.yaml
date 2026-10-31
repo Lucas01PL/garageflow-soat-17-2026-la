@@ -151,8 +151,16 @@ jobs:
 
       - name: Deploy da aplicação
         run: |
+          ALB_DNS=$(aws elbv2 describe-load-balancers --names "$ALB_NAME" \
+            --query 'LoadBalancers[0].DNSName' --output text)
+          if [ -z "$ALB_DNS" ] || [ "$ALB_DNS" = "None" ]; then
+            echo "Load Balancer não encontrado: $ALB_NAME"
+            exit 1
+          fi
+
           kubectl apply -f k8s/app/configmap.yaml -f k8s/app/service.yaml -f k8s/app/hpa.yaml
           kubectl set image --local -f k8s/app/deployment.yaml app="$IMAGE" -o yaml | kubectl apply -f -
+          kubectl set env deployment/garageflow-app -n garageflow "APP_PUBLIC_BASE_URL=http://$ALB_DNS/api"
           kubectl rollout status deployment/garageflow-app -n garageflow --timeout=300s
 
       - name: Smoke test pelo ALB
