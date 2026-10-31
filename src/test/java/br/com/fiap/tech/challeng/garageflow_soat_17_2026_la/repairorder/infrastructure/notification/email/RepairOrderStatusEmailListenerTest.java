@@ -26,13 +26,17 @@ class RepairOrderStatusEmailListenerTest {
     @Mock
     private JavaMailSender mailSender;
 
+    @Mock
     private RepairOrderStatusEmailListener listener;
 
     @BeforeEach
     void setUp() {
         listener = new RepairOrderStatusEmailListener(
                 mailSender,
-                new MailNotificationProperties("no-reply@garageflow.com")
+                new MailNotificationProperties(
+                        "no-reply@garageflow.com",
+                        "https://garageflow.example/api/"
+                )
         );
     }
 
@@ -58,10 +62,14 @@ class RepairOrderStatusEmailListenerTest {
 
         String content = extractText(captor.getValue());
         assertTrue(content.contains("one-time-secret"));
-        assertTrue(content.contains("/repair-orders/budget-decision"));
-        assertTrue(content.contains("X-API-Key"));
-        assertTrue(content.contains("{\"approved\": true}"));
-        assertTrue(content.contains("{\"approved\": false}"));
+        assertTrue(content.contains(
+                "https://garageflow.example/api/external/repair-orders/budget-decision"
+        ));
+        assertTrue(content.contains("name=\"approved\" value=\"true\""));
+        assertTrue(content.contains("name=\"approved\" value=\"false\""));
+        assertTrue(content.contains("name=\"token\" value=\"one-time-secret\""));
+        assertTrue(content.contains("Aprovar orçamento"));
+        assertTrue(content.contains("Rejeitar orçamento"));
     }
 
     private String extractText(Part part) throws Exception {
