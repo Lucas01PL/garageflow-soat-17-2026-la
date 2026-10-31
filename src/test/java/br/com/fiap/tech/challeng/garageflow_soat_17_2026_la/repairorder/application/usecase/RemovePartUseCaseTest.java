@@ -3,7 +3,10 @@ package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.applica
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.application.usecase.PartStockControlUseCase;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.model.Part;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.repository.PartRepository;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.service.PartService;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.service.RepairOrderFinder;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.service.RepairOrderPartStockCoordinator;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.command.RemovePartCommand;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.exception.InsufficientQuantityException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.exception.InvalidPartException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.exception.PartNotFoundException;
@@ -11,15 +14,12 @@ import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.m
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.RepairOrder;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.repository.RepairOrderRepository;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.type.RepairOrderStatus;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.AddPartRequest;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.RemovePartRequest;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.RequiredFieldException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -50,12 +50,14 @@ class RemovePartUseCaseTest {
     @Mock
     private PartStockControlUseCase partStockControlUseCase;
 
-    @InjectMocks
+    private PartService partService;
+    private RepairOrderPartStockCoordinator partStockCoordinator;
+
     private RemovePartUseCase useCase;
 
     private RepairOrder repairOrder;
     private Part part;
-    private RemovePartRequest request;
+    private RemovePartCommand command;
 
     @BeforeEach
     void setUp() {
@@ -78,8 +80,14 @@ class RemovePartUseCaseTest {
                 ))
                 .build();
 
-        request = new RemovePartRequest();
-        request.setQuantity(2);
+        command = new RemovePartCommand(2);
+        partService = new PartService(partRepository);
+        partStockCoordinator = new RepairOrderPartStockCoordinator(partStockControlUseCase);
+        useCase = new RemovePartUseCase(
+                repository,
+                partService,
+                repairOrderFinder,
+                partStockCoordinator);
     }
 
     @Test
@@ -103,7 +111,7 @@ class RemovePartUseCaseTest {
                 useCase.execute(
                         "repair-order-1",
                         "part-1",
-                        request
+                        command
                 );
 
         assertNotNull(result);
@@ -137,7 +145,7 @@ class RemovePartUseCaseTest {
     @Test
     void shouldRemoveEntirePartWhenRequestedQuantityEqualsCurrentQuantity() {
 
-        request.setQuantity(5);
+        command = new RemovePartCommand(5);
 
         when(repairOrderFinder.findById("repair-order-1"))
                 .thenReturn(repairOrder);
@@ -157,7 +165,7 @@ class RemovePartUseCaseTest {
                 useCase.execute(
                         "repair-order-1",
                         "part-1",
-                        request
+                        command
                 );
 
         assertNotNull(result);
@@ -185,7 +193,7 @@ class RemovePartUseCaseTest {
         RequiredFieldException exception =
                 assertThrows(
                         RequiredFieldException.class,
-                        () -> useCase.execute(null, "part-1", request)
+                        () -> useCase.execute(null,                         "part-1", command)
                 );
 
         assertEquals(
@@ -221,7 +229,7 @@ class RemovePartUseCaseTest {
                         () -> useCase.execute(
                                 "repair-order-1",
                                 "part-1",
-                                request
+                                command
                         )
                 );
 
@@ -249,7 +257,7 @@ class RemovePartUseCaseTest {
                         () -> useCase.execute(
                                 "repair-order-1",
                                 null,
-                                request
+                                command
                         )
                 );
 
@@ -280,7 +288,7 @@ class RemovePartUseCaseTest {
                         () -> useCase.execute(
                                 "repair-order-1",
                                 "   ",
-                                request
+                                command
                         )
                 );
 
@@ -311,7 +319,7 @@ class RemovePartUseCaseTest {
                         () -> useCase.execute(
                                 "repair-order-1",
                                 "part-1",
-                                request
+                                command
                         )
                 );
 
@@ -349,7 +357,7 @@ class RemovePartUseCaseTest {
                         () -> useCase.execute(
                                 "repair-order-1",
                                 "part-1",
-                                request
+                                command
                         )
                 );
 
@@ -369,7 +377,7 @@ class RemovePartUseCaseTest {
     @Test
     void shouldThrowWhenRequestedQuantityIsGreaterThanRepairOrderQuantity() {
 
-        request.setQuantity(6);
+        command = new RemovePartCommand(6);
 
         when(repairOrderFinder.findById("repair-order-1"))
                 .thenReturn(repairOrder);
@@ -383,7 +391,7 @@ class RemovePartUseCaseTest {
                         () -> useCase.execute(
                                 "repair-order-1",
                                 "part-1",
-                                request
+                                command
                         )
                 );
 
@@ -421,7 +429,7 @@ class RemovePartUseCaseTest {
                         () -> useCase.execute(
                                 "repair-order-1",
                                 "part-1",
-                                request
+                                command
                         )
                 );
 
@@ -469,7 +477,7 @@ class RemovePartUseCaseTest {
         useCase.execute(
                 "repair-order-1",
                 "part-1",
-                request
+                command
         );
 
         ArgumentCaptor<RepairOrder> captor =

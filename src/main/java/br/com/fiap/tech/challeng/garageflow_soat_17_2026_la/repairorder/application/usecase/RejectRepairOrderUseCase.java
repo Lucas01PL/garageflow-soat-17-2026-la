@@ -23,6 +23,10 @@ public class RejectRepairOrderUseCase {
         RepairOrder repairOrder =
                 repairOrderFinder.findById(repairOrderId);
 
+        return execute(repairOrder);
+    }
+
+    RepairOrder execute(RepairOrder repairOrder) {
         try {
             for (var partSnapshot : repairOrder.getParts()) {
                 partStockControlUseCase.addPartStock(partSnapshot.getId(), partSnapshot.getQuantity());

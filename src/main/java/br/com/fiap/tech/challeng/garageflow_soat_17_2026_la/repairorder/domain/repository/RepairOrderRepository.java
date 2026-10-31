@@ -26,5 +26,7 @@ public interface RepairOrderRepository {
 
     List<RepairOrder> listAll(List<RepairOrderStatus> status);
 
+    Optional<RepairOrder> findByApprovalTokenHash(String tokenHash);
+
 }
 

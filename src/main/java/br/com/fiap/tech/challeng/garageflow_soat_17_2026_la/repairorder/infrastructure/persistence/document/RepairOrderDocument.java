@@ -49,5 +49,7 @@ public class RepairOrderDocument {
 
     private LocalDateTime updatedDate;
 
+    private RepairOrderApprovalLinkDocument approvalLink;
+
 }
 

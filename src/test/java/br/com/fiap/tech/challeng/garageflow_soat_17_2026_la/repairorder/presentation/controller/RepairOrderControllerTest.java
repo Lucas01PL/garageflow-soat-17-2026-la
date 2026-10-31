@@ -1,8 +1,18 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.controller;
 
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.service.RepairOrderApplicationService;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.command.AddPartCommand;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.command.AddWorkshopServiceCommand;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.command.FinishWorkshopServiceCommand;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.command.RemovePartCommand;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.command.RemoveWorkshopServiceCommand;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.RepairOrder;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.AddPartRequest;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.AddWorkshopServiceRequest;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.CreateRepairOrderRequest;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.FinishWorkshopServiceRequest;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.RemovePartRequest;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.RemoveWorkshopServiceRequest;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.response.CreateRepairOrderResponse;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.response.RepairOrderResponseDTO;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.mapper.RepairOrderMapper;
@@ -126,5 +136,72 @@ class RepairOrderControllerTest {
         assertEquals(HttpStatus.OK, result.getStatusCode());
         assertSame(response, result.getBody());
         verify(applicationService).startExecution("repair-order-1");
+    }
+
+    @Test
+    void shouldMapAddPartRequestToCommand() {
+        AddPartRequest request = new AddPartRequest();
+        request.setPartId("part-1");
+        request.setQuantity(2);
+        AddPartCommand command = new AddPartCommand("part-1", 2);
+        when(applicationService.addPart("repair-order-1", command)).thenReturn(repairOrder);
+        when(mapper.toResponse(repairOrder)).thenReturn(response);
+
+        controller.addPart("repair-order-1", request);
+
+        verify(applicationService).addPart("repair-order-1", command);
+    }
+
+    @Test
+    void shouldMapAddWorkshopServiceRequestToCommand() {
+        AddWorkshopServiceRequest request = new AddWorkshopServiceRequest();
+        request.setWorkshopServiceId("service-1");
+        request.setQuantity(3);
+        AddWorkshopServiceCommand command = new AddWorkshopServiceCommand("service-1", 3);
+        when(applicationService.addWorkshopService("repair-order-1", command)).thenReturn(repairOrder);
+        when(mapper.toResponse(repairOrder)).thenReturn(response);
+
+        controller.addWorkshopService("repair-order-1", request);
+
+        verify(applicationService).addWorkshopService("repair-order-1", command);
+    }
+
+    @Test
+    void shouldMapRemovePartRequestToCommand() {
+        RemovePartRequest request = new RemovePartRequest();
+        request.setQuantity(2);
+        RemovePartCommand command = new RemovePartCommand(2);
+        when(applicationService.removePart("repair-order-1", "part-1", command)).thenReturn(repairOrder);
+        when(mapper.toResponse(repairOrder)).thenReturn(response);
+
+        controller.removePart("repair-order-1", "part-1", request);
+
+        verify(applicationService).removePart("repair-order-1", "part-1", command);
+    }
+
+    @Test
+    void shouldMapRemoveWorkshopServiceRequestToCommand() {
+        RemoveWorkshopServiceRequest request = new RemoveWorkshopServiceRequest();
+        request.setQuantity(4);
+        RemoveWorkshopServiceCommand command = new RemoveWorkshopServiceCommand(4);
+        when(applicationService.removeWorkshopService("repair-order-1", "service-1", command)).thenReturn(repairOrder);
+        when(mapper.toResponse(repairOrder)).thenReturn(response);
+
+        controller.removeWorkshopService("repair-order-1", "service-1", request);
+
+        verify(applicationService).removeWorkshopService("repair-order-1", "service-1", command);
+    }
+
+    @Test
+    void shouldMapFinishWorkshopServiceRequestToCommand() {
+        FinishWorkshopServiceRequest request = new FinishWorkshopServiceRequest();
+        request.setDurationInMinutes(45);
+        FinishWorkshopServiceCommand command = new FinishWorkshopServiceCommand(45);
+        when(applicationService.finishWorkshopService("repair-order-1", "service-1", command)).thenReturn(repairOrder);
+        when(mapper.toResponse(repairOrder)).thenReturn(response);
+
+        controller.finishWorkshopService("repair-order-1", "service-1", request);
+
+        verify(applicationService).finishWorkshopService("repair-order-1", "service-1", command);
     }
 }

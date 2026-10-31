@@ -1,11 +1,12 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase;
 
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.service.RepairOrderFinder;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.service.WorkshopServiceService;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.command.AddWorkshopServiceCommand;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.RepairOrder;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.WorkshopServiceSnapshot;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.repository.RepairOrderRepository;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.type.RepairOrderStatus;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.AddWorkshopServiceRequest;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.InvalidFieldValueException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.RequiredFieldException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.ResourceNotFoundException;
@@ -15,7 +16,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -44,12 +44,13 @@ class AddWorkshopServiceUseCaseTest {
     @Mock
     private RepairOrderFinder repairOrderFinder;
 
-    @InjectMocks
+    private WorkshopServiceService workshopServiceService;
+
     private AddWorkshopServiceUseCase useCase;
 
     private RepairOrder repairOrder;
     private WorkshopService workshopService;
-    private AddWorkshopServiceRequest request;
+    private AddWorkshopServiceCommand command;
 
     @BeforeEach
     void setUp() {
@@ -65,9 +66,12 @@ class AddWorkshopServiceUseCaseTest {
 
         workshopService.setId("workshop-service-1");
 
-        request = new AddWorkshopServiceRequest();
-        request.setWorkshopServiceId("workshop-service-1");
-        request.setQuantity(2);
+        command = new AddWorkshopServiceCommand("workshop-service-1", 2);
+        workshopServiceService = new WorkshopServiceService(workshopServiceRepository);
+        useCase = new AddWorkshopServiceUseCase(
+                repository,
+                workshopServiceService,
+                repairOrderFinder);
     }
 
     @Test
@@ -83,7 +87,7 @@ class AddWorkshopServiceUseCaseTest {
                 .thenReturn(repairOrder);
 
         RepairOrder result =
-                useCase.execute("repair-order-1", request);
+                useCase.execute("repair-order-1", command);
 
         assertNotNull(result);
         assertSame(repairOrder, result);
@@ -134,7 +138,7 @@ class AddWorkshopServiceUseCaseTest {
         RequiredFieldException exception =
                 assertThrows(
                         RequiredFieldException.class,
-                        () -> useCase.execute(" ", request)
+                        () -> useCase.execute(" ", command)
                 );
 
         assertEquals(
@@ -168,7 +172,7 @@ class AddWorkshopServiceUseCaseTest {
                         ResourceNotFoundException.class,
                         () -> useCase.execute(
                                 "repair-order-1",
-                                request
+                                command
                         )
                 );
 
@@ -186,7 +190,7 @@ class AddWorkshopServiceUseCaseTest {
     @Test
     void shouldThrowWhenWorkshopServiceIdIsNull() {
 
-        request.setWorkshopServiceId(null);
+        command = new AddWorkshopServiceCommand(null, 2);
 
         when(repairOrderFinder.findById("repair-order-1"))
                 .thenReturn(repairOrder);
@@ -196,7 +200,7 @@ class AddWorkshopServiceUseCaseTest {
                         RequiredFieldException.class,
                         () -> useCase.execute(
                                 "repair-order-1",
-                                request
+                                command
                         )
                 );
 
@@ -217,7 +221,7 @@ class AddWorkshopServiceUseCaseTest {
     @Test
     void shouldThrowWhenWorkshopServiceIdIsBlank() {
 
-        request.setWorkshopServiceId(" ");
+        command = new AddWorkshopServiceCommand(" ", 2);
 
         when(repairOrderFinder.findById("repair-order-1"))
                 .thenReturn(repairOrder);
@@ -227,7 +231,7 @@ class AddWorkshopServiceUseCaseTest {
                         RequiredFieldException.class,
                         () -> useCase.execute(
                                 "repair-order-1",
-                                request
+                                command
                         )
                 );
 
@@ -259,7 +263,7 @@ class AddWorkshopServiceUseCaseTest {
                         ResourceNotFoundException.class,
                         () -> useCase.execute(
                                 "repair-order-1",
-                                request
+                                command
                         )
                 );
 
@@ -281,7 +285,7 @@ class AddWorkshopServiceUseCaseTest {
     @Test
     void shouldThrowWhenQuantityIsZero() {
 
-        request.setQuantity(0);
+        command = new AddWorkshopServiceCommand("workshop-service-1", 0);
 
         when(repairOrderFinder.findById("repair-order-1"))
                 .thenReturn(repairOrder);
@@ -294,7 +298,7 @@ class AddWorkshopServiceUseCaseTest {
                         InvalidFieldValueException.class,
                         () -> useCase.execute(
                                 "repair-order-1",
-                                request
+                                command
                         )
                 );
 
@@ -310,7 +314,7 @@ class AddWorkshopServiceUseCaseTest {
     @Test
     void shouldThrowWhenQuantityIsNegative() {
 
-        request.setQuantity(-1);
+        command = new AddWorkshopServiceCommand("workshop-service-1", -1);
 
         when(repairOrderFinder.findById("repair-order-1"))
                 .thenReturn(repairOrder);
@@ -323,7 +327,7 @@ class AddWorkshopServiceUseCaseTest {
                         InvalidFieldValueException.class,
                         () -> useCase.execute(
                                 "repair-order-1",
-                                request
+                                command
                         )
                 );
 
@@ -348,7 +352,7 @@ class AddWorkshopServiceUseCaseTest {
         when(repository.save(any(RepairOrder.class)))
                 .thenReturn(repairOrder);
 
-        useCase.execute("repair-order-1", request);
+        useCase.execute("repair-order-1", command);
 
         ArgumentCaptor<RepairOrder> captor =
                 ArgumentCaptor.forClass(RepairOrder.class);

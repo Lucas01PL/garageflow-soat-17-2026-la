@@ -1,0 +1,8 @@
+jwt:
+  secret: c2VjcmV0LWtleS1mb3ItZGV2ZWxvcG1lbnQtb25seS1jaGFuZ2UtaW4tcHJvZHVjdGlvbi1lbnZzLTI1Ng\=\=
+  expiration-minutes: 60
+
+spring:
+  mail:
+    host: localhost
+    port: 1025

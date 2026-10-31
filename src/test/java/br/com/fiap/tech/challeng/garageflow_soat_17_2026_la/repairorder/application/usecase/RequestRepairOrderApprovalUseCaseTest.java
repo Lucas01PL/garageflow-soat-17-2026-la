@@ -1,6 +1,7 @@
 package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase;
 
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.service.RepairOrderFinder;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.service.ApprovalTokenGenerator;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.exception.InvalidRepairOrderItemException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.exception.InvalidRepairOrderStateException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.RepairOrder;
@@ -17,6 +18,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.Mockito;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -41,6 +43,9 @@ class RequestRepairOrderApprovalUseCaseTest {
     @Mock
     private RepairOrderRepository repairOrderRepository;
 
+    @Mock
+    private ApprovalTokenGenerator tokenGenerator;
+
     @InjectMocks
     private RequestRepairOrderApprovalUseCase useCase;
 
@@ -48,6 +53,10 @@ class RequestRepairOrderApprovalUseCaseTest {
 
     @BeforeEach
     void setUp() {
+        Mockito.lenient().when(tokenGenerator.generateToken())
+                .thenReturn("raw-token");
+        Mockito.lenient().when(tokenGenerator.hash("raw-token"))
+                .thenReturn("token-hash");
 
         WorkshopServiceSnapshot workshopService =
                 new WorkshopServiceSnapshot();
