@@ -4,6 +4,9 @@ import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.e
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.type.WorkshopServiceStatus;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.InvalidFieldValueException;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.workshopservice.domain.model.WorkshopService;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -24,8 +27,9 @@ public class WorkshopServiceSnapshot {
     private LocalDateTime startedAt;
     private LocalDateTime finishedAt;
 
-    public WorkshopServiceSnapshot (String workshopServiceId) {
+    public WorkshopServiceSnapshot (String workshopServiceId, @NotNull(message = "Quantity cannot be null") @Positive(message = "Quantity must be greater than zero") @Min(value = 1, message = "Quantity must be a positive integer") Integer quantity) {
         this.workshopServiceId = workshopServiceId;
+        this.quantity = quantity;
     }
 
     public static WorkshopServiceSnapshot from(WorkshopService workshopService, Integer quantity) {

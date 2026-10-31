@@ -3,9 +3,13 @@ package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.applica
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.customer.application.usecase.GetCustomerUseCase;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.customer.domain.model.Customer;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.usecase.*;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.command.AddPartCommand;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.command.AddWorkshopServiceCommand;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.command.FinishWorkshopServiceCommand;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.command.RemovePartCommand;
+import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.application.command.RemoveWorkshopServiceCommand;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.AverageWorkshopServiceExecutionTime;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.model.RepairOrder;
-import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.presentation.dto.request.*;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -53,20 +57,20 @@ public class RepairOrderApplicationService {
         return listRepairOrdersByStatusUseCase.execute(status);
     }
 
-    public RepairOrder addWorkshopService(String repairOrderId, AddWorkshopServiceRequest request) {
-        return addWorkshopServiceUseCase.execute(repairOrderId, request);
+    public RepairOrder addWorkshopService(String repairOrderId, AddWorkshopServiceCommand command) {
+        return addWorkshopServiceUseCase.execute(repairOrderId, command);
     }
 
-    public RepairOrder addPart(String repairOrderId, AddPartRequest request) {
-        return addPartUseCase.execute(repairOrderId, request);
+    public RepairOrder addPart(String repairOrderId, AddPartCommand command) {
+        return addPartUseCase.execute(repairOrderId, command);
     }
 
-    public RepairOrder removeWorkshopService(String repairOrderId, String workshopServiceId, RemoveWorkshopServiceRequest request) {
-        return removeWorkshopServiceUseCase.execute(repairOrderId, workshopServiceId, request);
+    public RepairOrder removeWorkshopService(String repairOrderId, String workshopServiceId, RemoveWorkshopServiceCommand command) {
+        return removeWorkshopServiceUseCase.execute(repairOrderId, workshopServiceId, command);
     }
 
-    public RepairOrder removePart(String repairOrderId, String partId, RemovePartRequest request) {
-        return removePartUseCase.execute(repairOrderId, partId, request);
+    public RepairOrder removePart(String repairOrderId, String partId, RemovePartCommand command) {
+        return removePartUseCase.execute(repairOrderId, partId, command);
     }
 
     public RepairOrder startDiagnosis(String repairOrderId) {
@@ -77,8 +81,8 @@ public class RepairOrderApplicationService {
         return startWorkshopServiceUseCase.execute(repairOrderId, workshopServiceId);
     }
 
-    public RepairOrder finishWorkshopService(String repairOrderId, String workshopServiceId, FinishWorkshopServiceRequest request) {
-        return finishWorkshopServiceUseCase.execute(repairOrderId, workshopServiceId, request);
+    public RepairOrder finishWorkshopService(String repairOrderId, String workshopServiceId, FinishWorkshopServiceCommand command) {
+        return finishWorkshopServiceUseCase.execute(repairOrderId, workshopServiceId, command);
     }
 
     public RepairOrder approve(String repairOrderId, String userId) {

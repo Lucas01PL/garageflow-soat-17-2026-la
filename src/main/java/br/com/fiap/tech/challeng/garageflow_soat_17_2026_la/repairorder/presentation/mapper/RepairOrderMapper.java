@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Component
@@ -27,23 +27,23 @@ public class RepairOrderMapper {
             throw new AuthenticationCredentialsNotFoundException("User not authenticated");
         }
 
-        var services = new ArrayList<WorkshopServiceSnapshot>();
-        if (dto.getServiceIds() != null && !dto.getServiceIds().isEmpty()) {
-            dto.getServiceIds().stream().map(WorkshopServiceSnapshot::new).forEach(services::add);
-        }
-
-        var parts = new ArrayList<PartSnapshot>();
-        if (dto.getPartIds() != null && !dto.getPartIds().isEmpty()) {
-            dto.getPartIds().stream().map(PartSnapshot::new).forEach(parts::add);
-        }
-
-        return RepairOrder.builder()
+        RepairOrder repairOrder = RepairOrder.builder()
                 .vehicle(new VehicleSnapshot(dto.getVehicleId()))
                 .customer(new CustomerSnapshot(dto.getCustomerId()))
                 .userId(userId)
-                .workshopServices(services)
-                .parts(parts)
+                .workshopServices(dto.getWorkshopServices() == null ? List.of() : dto.getWorkshopServices().stream()
+                        .map(service -> service == null ? null : new WorkshopServiceSnapshot(
+                                service.getWorkshopServiceId(),
+                                service.getQuantity()))
+                        .toList())
+                .parts(dto.getParts() == null ? List.of() : dto.getParts().stream()
+                        .map(part -> part == null ? null : new PartSnapshot(
+                                part.getPartId(),
+                                part.getQuantity()))
+                        .toList())
                 .build();
+
+        return repairOrder;
     }
 
     public RepairOrderResponseDTO toResponse(RepairOrder model) {
@@ -73,4 +73,3 @@ public class RepairOrderMapper {
         return new CreateRepairOrderResponse(model.getId());
     }
 }
-
