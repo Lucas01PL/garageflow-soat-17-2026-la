@@ -75,20 +75,4 @@ class RepairOrderExternalControllerTest {
         verify(applicationService).decideBudget("email-token", false);
     }
 
-    @Test
-    void shouldPreserveJsonAndApiKeyBudgetDecision() throws Exception {
-        RepairOrder repairOrder = RepairOrder.builder().id("repair-order-1").build();
-        when(applicationService.decideBudget("api-token", false))
-                .thenReturn(repairOrder);
-        when(mapper.toResponse(repairOrder))
-                .thenReturn(new RepairOrderResponseDTO());
-
-        mockMvc.perform(post("/external/repair-orders/budget-decision")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-API-Key", "api-token")
-                        .content("{\"approved\":false}"))
-                .andExpect(status().isOk());
-
-        verify(applicationService).decideBudget("api-token", false);
-    }
 }

@@ -34,20 +34,6 @@ public class RepairOrderExternalController {
     )
     @PostMapping(
             value = "/budget-decision",
-            consumes = {
-                    MediaType.APPLICATION_JSON_VALUE,
-                    "application/*+json"
-            }
-    )
-    public ResponseEntity<RepairOrderResponseDTO> decideBudget(
-            @Parameter(description = "One-time approval key sent to the customer")
-            @RequestHeader("X-API-Key") String apiKey,
-            @Valid @RequestBody RepairOrderBudgetDecisionRequest request) {
-        return decideBudget(apiKey, request.approved());
-    }
-
-    @PostMapping(
-            value = "/budget-decision",
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
     )
     public ResponseEntity<RepairOrderResponseDTO> decideBudgetFromEmail(
