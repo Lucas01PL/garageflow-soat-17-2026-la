@@ -122,6 +122,7 @@ jobs:
         env:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           ADMIN_SEED_PASSWORD: ${{ secrets.ADMIN_SEED_PASSWORD }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
         run: |
           MONGO_PASSWORD=$(aws ssm get-parameter --name "$MONGO_SSM_PARAMETER" \
             --with-decryption --query 'Parameter.Value' --output text)
@@ -141,6 +142,7 @@ jobs:
             --from-literal=SPRING_MONGODB_URI="mongodb://admin:${MONGO_PASSWORD}@${MONGO_IP}:27017/garageflow-soat-17-2026-db?authSource=admin" \
             --from-literal=JWT_SECRET="$JWT_SECRET" \
             --from-literal=ADMIN_SEED_PASSWORD="$ADMIN_SEED_PASSWORD" \
+            --from-literal=MAIL_PASSWORD="${MAIL_PASSWORD// /}" \
             --dry-run=client -o yaml | kubectl apply -f -
 
       - name: Esperar o MongoDB responder
@@ -171,9 +173,9 @@ jobs:
             --query 'LoadBalancers[0].DNSName' --output text)
           echo "ALB: $ALB_DNS"
 
-          echo "GET /api/actuator/health (health check público)"
+          echo "GET /api/actuator/health/readiness (mesmo caminho do health check do ALB)"
           curl -sf --retry 30 --retry-delay 10 --retry-all-errors --retry-connrefused \
-            -o /dev/null -w "HTTP %{http_code}\n" "http://$ALB_DNS/api/actuator/health"
+            -o /dev/null -w "HTTP %{http_code}\n" "http://$ALB_DNS/api/actuator/health/readiness"
 
           echo "POST /api/auth/login (prova Secrets + Mongo funcionando)"
           code=$(curl -s -o /dev/null -w "%{http_code}" -X POST "http://$ALB_DNS/api/auth/login" \

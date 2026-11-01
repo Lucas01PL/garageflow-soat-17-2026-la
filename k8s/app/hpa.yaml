@@ -1,6 +1,8 @@
 # HorizontalPodAutoscaler: aumenta/diminui o número de pods pela CPU média.
 # Precisa do metrics-server (o k3s já traz) e de `requests` no Deployment.
-# 50% de 200m = 100m de CPU média por pod; acima disso ele cria pods (até 3).
+# 30% de 200m = 60m de CPU média por pod; acima disso ele cria pods (até 3).
+# Não há métrica de memória de propósito: a JVM mantém ~60% do request em
+# repouso, e isso impediria o HPA de voltar a 1 pod depois da carga.
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
@@ -19,7 +21,7 @@ spec:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: 50
+          averageUtilization: 30
   behavior:
     # Reduz mais rápido que o padrão (5 min), para a demo do vídeo.
     scaleDown:
