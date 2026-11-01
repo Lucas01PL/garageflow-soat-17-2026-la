@@ -34,7 +34,7 @@ WAITING_ATTENDING  ──▶  IN_EXECUTION  ──▶  FINISHED
 
 ## 🎯 Fase 2 — Escalabilidade e Automação
 
-Nesta fase a aplicação da Fase 1 foi evoluída para rodar com **infraestrutura escalável**, **provisionamento automatizado** e **deploy contínuo**.
+Nesta fase a aplicação da Fase 1 foi evoluída para rodar com **infraestrutura escalável**, **provisionamento automatizado** e **deploy contínuo**
 
 | Entrega | Onde está | O que faz |
 |---------|-----------|-----------|
