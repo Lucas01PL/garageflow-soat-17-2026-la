@@ -1,0 +1,28 @@
+# HorizontalPodAutoscaler: aumenta/diminui o número de pods pela CPU média.
+# Precisa do metrics-server (o k3s já traz) e de `requests` no Deployment.
+# 30% de 200m = 60m de CPU média por pod; acima disso ele cria pods (até 3).
+# Não há métrica de memória de propósito: a JVM mantém ~60% do request em
+# repouso, e isso impediria o HPA de voltar a 1 pod depois da carga.
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: garageflow-app
+  namespace: garageflow
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: garageflow-app
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 30
+  behavior:
+    # Reduz mais rápido que o padrão (5 min), para a demo do vídeo.
+    scaleDown:
+      stabilizationWindowSeconds: 60

@@ -2,6 +2,9 @@ package br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.
 
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.part.domain.model.Part;
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.shared.exception.InvalidFieldValueException;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -16,6 +19,11 @@ public class PartSnapshot {
     private String description;
     private Integer quantity;
     private BigDecimal unitPrice;
+
+    public PartSnapshot (String id, @NotNull(message = "Quantity cannot be null") @Positive(message = "Quantity must be greater than zero") @Min(value = 1, message = "Quantity must be a positive integer") Integer quantity) {
+        this.id = id;
+        this.quantity = quantity;
+    }
 
     public static PartSnapshot from(Part part, Integer quantity) {
 

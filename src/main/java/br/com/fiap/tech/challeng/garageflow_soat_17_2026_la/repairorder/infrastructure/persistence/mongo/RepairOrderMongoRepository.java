@@ -4,13 +4,15 @@ import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.domain.t
 import br.com.fiap.tech.challeng.garageflow_soat_17_2026_la.repairorder.infrastructure.persistence.document.RepairOrderDocument;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface RepairOrderMongoRepository extends MongoRepository<RepairOrderDocument, String> {
-    List<RepairOrderDocument> findByStatusContainingIgnoreCase(String status);
+    List<RepairOrderDocument> findByStatusContainingIgnoreCaseOrderByStatusCodeAscCreatedDateAsc(String status);
 
     List<RepairOrderDocument> findByCustomer_CustomerId(String customerId);
 
@@ -27,5 +29,9 @@ public interface RepairOrderMongoRepository extends MongoRepository<RepairOrderD
             List<RepairOrderStatus> statuses,
             String partId
     );
+
+    List<RepairOrderDocument> findByStatusInOrderByStatusAscCreatedDateAsc(@Param("status") List<RepairOrderStatus> status);
+
+    Optional<RepairOrderDocument> findByApprovalLink_TokenHash(String tokenHash);
 }
 

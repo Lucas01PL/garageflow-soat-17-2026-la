@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
@@ -15,5 +17,9 @@ public class CreateRepairOrderRequest {
 
     @NotBlank(message = "Customer ID cannot be blank")
     private String customerId;
+
+    private List<AddWorkshopServiceRequest> workshopServices;
+
+    private List<AddPartRequest> parts;
 }
 

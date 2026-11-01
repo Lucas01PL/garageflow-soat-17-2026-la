@@ -1,0 +1,61 @@
+# Deployment da app: mantém N pods rodando a imagem e faz rollout das trocas.
+# A tag abaixo é só de referência: a pipeline troca por :<sha> com
+# `kubectl set image` (é isso que dispara o rollout).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: garageflow-app
+  namespace: garageflow
+  labels:
+    app.kubernetes.io/name: garageflow-app
+spec:
+  # Sem "replicas" de propósito: quem manda é o HPA. Se estivesse aqui, cada
+  # `kubectl apply` voltaria o número de pods para este valor.
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: garageflow-app
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: garageflow-app
+    spec:
+      containers:
+        - name: app
+          image: ghcr.io/lucas01pl/garageflow-soat-17-2026-la:latest
+          ports:
+            - containerPort: 8080
+              name: http
+          envFrom:
+            - configMapRef:
+                name: garageflow-app-config
+            - secretRef:
+                name: garageflow-app-secret
+          # requests: reserva usada no agendamento E base da % de CPU do HPA.
+          # limits: teto do container. Sem requests o HPA não funciona.
+          resources:
+            requests:
+              cpu: 200m
+              memory: 384Mi
+            limits:
+              cpu: 500m
+              memory: 768Mi
+          # startupProbe dá até ~3 min para a JVM subir antes das outras começarem.
+          startupProbe:
+            httpGet:
+              path: /api/actuator/health/liveness
+              port: 8080
+              scheme: HTTP
+            periodSeconds: 5
+            failureThreshold: 36
+          readinessProbe:
+            httpGet:
+              path: /api/actuator/health/readiness
+              port: 8080
+              scheme: HTTP
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /api/actuator/health/liveness
+              port: 8080
+              scheme: HTTP
+            periodSeconds: 10

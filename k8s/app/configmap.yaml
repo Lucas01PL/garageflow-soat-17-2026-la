@@ -1,0 +1,11 @@
+# ConfigMap da app: configuração NÃO sensível, injetada como variáveis de ambiente.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: garageflow-app-config
+  namespace: garageflow
+data:
+  # Faz a JVM usar até 70% da memória do limite do container (o padrão é só 25%).
+  JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=70"
+  # E-mail do admin criado no primeiro boot (application.yaml: admin.seed.email).
+  ADMIN_SEED_EMAIL: admin@garageflow.com
