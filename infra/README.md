@@ -10,9 +10,9 @@ Este diretório contém a infraestrutura AWS definida em Terraform para o ambien
 | --- | --- |
 | Rede | VPC `10.0.0.0/16`, duas subnets públicas (`10.0.1.0/24` em `us-east-1a` e `10.0.2.0/24` em `us-east-1b`), Internet Gateway e rota para `0.0.0.0/0`. Não há subnets privadas nem NAT Gateway. |
 | EKS | Cluster `garageflow-dev`, versão configurada como `1.36`, endpoint da API público e privado, e um Managed Node Group com instância `t3.medium` do tipo Spot. O grupo mantém `desired/min/max = 1`. |
-| Application Load Balancer | ALB público nas duas subnets, listener HTTP na porta 80, target group `instance` para a NodePort `30080` e health check em `/api/actuator/health`. |
+| Application Load Balancer | ALB público nas duas subnets, listener HTTP na porta 80, target group `instance` para a NodePort `30080` e health check em `/api/actuator/health/readiness` (o `/health` geral inclui o indicador de e-mail e devolve 503 quando o SMTP não está disponível). |
 | MongoDB | Instância EC2 Ubuntu 24.04, padrão `t3.small`, disco gp3 de 20 GB e MongoDB 7 em Docker. A senha aleatória de 24 caracteres é armazenada como `SecureString` no Systems Manager Parameter Store. A porta 27017 aceita conexões somente do Security Group dos nós do EKS. |
-| Kubernetes | Namespace `garageflow`, Deployment, ConfigMap, Service NodePort, HPA e Secret criado durante o deploy. O Deployment solicita `200m` CPU e `384Mi`, com limites de `500m` e `768Mi`; o HPA mira 50% da CPU solicitada, de 1 a 3 pods. |
+| Kubernetes | Namespace `garageflow`, Deployment, ConfigMap, Service NodePort, HPA e Secret criado durante o deploy. O Deployment solicita `200m` CPU e `384Mi`, com limites de `500m` e `768Mi`; o HPA mira 30% da CPU solicitada, de 1 a 3 pods. |
 
 O HPA altera o número de **pods**, não o número de instâncias do node group. Como o node group está fixado em uma instância, o cluster pode não ter capacidade para agendar todos os pods em momentos de escala.
 

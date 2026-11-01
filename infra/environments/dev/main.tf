@@ -26,7 +26,9 @@ module "alb" {
   target_port       = 30080 # NodePort padrão da aplicação no Kubernetes
 
   # A app usa context-path /api; o health do Actuator é público para o ALB.
-  health_check_path = "/api/actuator/health"
+  # Usa o grupo "readiness": o /health geral inclui o indicador de e-mail e
+  # devolve 503 quando o SMTP está indisponível ou sem credencial.
+  health_check_path = "/api/actuator/health/readiness"
 
   tags = {
     Project     = var.project_name
