@@ -60,7 +60,7 @@ As seções **Deploy em Kubernetes**, **Infraestrutura com Terraform**, **CI/CD*
 | **Controle de Estoque** | Alterações de peças consultam o estoque e utilizam operações compensatórias em caso de falha |
 | **Snapshots** | Peças e serviços adicionados à OS preservam dados relevantes do momento da inclusão |
 | **Aprovação de Compra** | Listas de compra só podem ser aprovadas/rejeitadas quando estiverem `PENDING` |
-| **Compra de Insumos** | Ao comprar a lista aprovada, o estoque de cada peça é incrementado automaticamente |
+| **Compra de Insumos** | Ao comprar a lista aprovada, o estoque de cada peça é incrementado automaticamente. |
 
 ## 🏗️ Arquitetura
 
