@@ -54,7 +54,7 @@ public class RepairOrderRepositoryImpl implements RepairOrderRepository {
 
     @Override
     public List<RepairOrder> findByStatusContainingIgnoreCase(String status) {
-        return repairOrderMongoRepository.findByStatusContainingIgnoreCase(status)
+        return repairOrderMongoRepository.findByStatusContainingIgnoreCaseOrderByStatusCodeAscCreatedDateAsc(status)
                 .stream()
                 .map(this::toDomain)
                 .collect(Collectors.toList());
@@ -81,6 +81,19 @@ public class RepairOrderRepositoryImpl implements RepairOrderRepository {
                 );
     }
 
+    @Override
+    public List<RepairOrder> listAll(List<RepairOrderStatus> status) {
+        return repairOrderMongoRepository.findByStatusInOrderByStatusAscCreatedDateAsc(status)
+                .stream()
+                .map(this::toDomain)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<RepairOrder> findByApprovalTokenHash(String tokenHash) {
+        return repairOrderMongoRepository.findByApprovalLink_TokenHash(tokenHash).map(this::toDomain);
+    }
+
     private RepairOrder toDomain(RepairOrderDocument entity) {
         return RepairOrder.builder()
                                 .id(entity.getId())
@@ -98,6 +111,7 @@ public class RepairOrderRepositoryImpl implements RepairOrderRepository {
                                 .parts(getPartDomain(entity.getParts()))
                                 .userId(entity.getUserId())
                                 .updatedDate(entity.getUpdatedDate())
+                                .approvalLink(toApprovalLinkDomain(entity.getApprovalLink()))
                                 .build();
     }
 
@@ -139,6 +153,9 @@ public class RepairOrderRepositoryImpl implements RepairOrderRepository {
         entity.setUserId(domain.getUserId());
         entity.setCreatedDate(domain.getCreatedDate());
         entity.setUpdatedDate(domain.getUpdatedDate());
+        entity.setApprovalLink(
+                toApprovalLinkDocument(domain.getApprovalLink())
+        );
         return entity;
     }
 
@@ -219,6 +236,36 @@ public class RepairOrderRepositoryImpl implements RepairOrderRepository {
             wsEntity.setFinishedAt(ws.getFinishedAt());
             return wsEntity;
         }).collect(Collectors.toList());
+    }
+
+    private RepairOrderApprovalLink toApprovalLinkDomain(
+            RepairOrderApprovalLinkDocument document) {
+
+        if (document == null) {
+            return null;
+        }
+
+        return new RepairOrderApprovalLink(
+                document.tokenHash(),
+                document.createdAt(),
+                document.expiresAt(),
+                document.usedAt()
+        );
+    }
+
+    private RepairOrderApprovalLinkDocument toApprovalLinkDocument(
+            RepairOrderApprovalLink link) {
+
+        if (link == null) {
+            return null;
+        }
+
+        return new RepairOrderApprovalLinkDocument(
+                link.tokenHash(),
+                link.createdAt(),
+                link.expiresAt(),
+                link.usedAt()
+        );
     }
 
 }

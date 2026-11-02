@@ -82,10 +82,11 @@ class RejectRepairOrderUseCaseTest {
                         new RequiredFieldException("repairOrderId")
                 );
 
+        String repairOrderId = null;
         RequiredFieldException exception =
                 assertThrows(
                         RequiredFieldException.class,
-                        () -> useCase.execute(null)
+                        () -> useCase.execute(repairOrderId)
                 );
 
         assertEquals(

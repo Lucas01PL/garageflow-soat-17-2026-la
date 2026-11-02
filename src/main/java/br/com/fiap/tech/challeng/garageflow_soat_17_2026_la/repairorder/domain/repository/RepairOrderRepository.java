@@ -24,5 +24,9 @@ public interface RepairOrderRepository {
 
     boolean existsByPartIdAndStatusIn(String partId, List<RepairOrderStatus> status);
 
+    List<RepairOrder> listAll(List<RepairOrderStatus> status);
+
+    Optional<RepairOrder> findByApprovalTokenHash(String tokenHash);
+
 }
 

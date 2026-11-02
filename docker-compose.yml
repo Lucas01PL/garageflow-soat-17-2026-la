@@ -31,6 +31,9 @@ services:
 
     environment:
       SPRING_MONGODB_URI: mongodb://admin:admin123@mongodb:27017/garageflow-soat-17-2026-db?authSource=admin
+      JWT_SECRET: ${JWT_SECRET:-dev-only-jwt-secret-change-me-0123456789abcdef}
+      ADMIN_SEED_PASSWORD: ${ADMIN_SEED_PASSWORD:-admin123}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
 
     depends_on:
       mongodb:

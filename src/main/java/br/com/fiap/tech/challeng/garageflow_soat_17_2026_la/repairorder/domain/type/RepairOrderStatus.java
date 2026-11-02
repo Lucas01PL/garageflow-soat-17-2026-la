@@ -7,19 +7,21 @@ import java.util.List;
 @Getter
 public enum RepairOrderStatus {
 
-    RECEIVED("Recebida"),
-    IN_DIAGNOSIS("Em Diagnóstico"),
-    AWAITING_APPROVAL("Aguardando aprovação"),
-    IN_EXECUTION("Em Execução"),
-    FINISHED("Finalizada"),
-    DELIVERED("Entregue"),
-    APPROVED("Aprovado"),
-    REJECTED("Rejeitado"),
-    CANCELLED("Cancelado");
+    RECEIVED(1, "Recebida"),
+    IN_DIAGNOSIS(2, "Diagnóstico"),
+    AWAITING_APPROVAL(3, "Aguardando aprovação"),
+    IN_EXECUTION(4, "Em Execução"),
+    FINISHED(5, "Finalizada"),
+    DELIVERED(6, "Entregue"),
+    APPROVED(7, "Aprovado"),
+    REJECTED(8, "Rejeitado"),
+    CANCELLED(9, "Cancelado");
 
+    private final Integer code;
     private final String description;
 
-    RepairOrderStatus(String description) {
+    RepairOrderStatus(Integer code, String description) {
+        this.code = code;
         this.description = description;
     }
 

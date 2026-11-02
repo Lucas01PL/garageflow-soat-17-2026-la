@@ -1,0 +1,6 @@
+# Namespace: "pasta" lógica do cluster. Todos os manifestos usam este mesmo nome,
+# o que facilita aplicar, olhar e apagar tudo de uma vez.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: garageflow
